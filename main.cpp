@@ -1,5 +1,6 @@
-#include "Server.hpp"
 #include <sstream>
+
+#include "Server.hpp"
 
 int arg_check(int ac, char *port, char *password) {
   if (ac != 3) throw std::invalid_argument("Invalid argument");
@@ -22,7 +23,11 @@ int arg_check(int ac, char *port, char *password) {
 int main(int ac, char *av[]) {
   try {
     int port = arg_check(ac, av[1], av[2]);
-    // Server::getInstance(av[1], port);
+    Server &server = Server::getInstance(av[1], port);
+
+    while (true) {
+      server.io_multiplex();
+    }
   } catch (const std::exception &e) {
     std::cerr << e.what() << std::endl;
   }

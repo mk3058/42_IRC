@@ -1,7 +1,9 @@
 #include "User.hpp"
 
+#include "Channel.hpp"
+
 User::User(std::string username, std::string nickname, int fd)
-    : username(username), nickname(nickname), fd(fd) {}
+    : fd(fd), username(username), nickname(nickname) {}
 
 void User::setNickname(std::string nickname) { this->nickname = nickname; }
 
