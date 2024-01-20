@@ -1,0 +1,58 @@
+#include "Prefix.hpp"
+
+#include <iostream>
+
+static const std::string usernameDelimeter = "!";
+static const std::string hostnameDelimeter = "@";
+enum { NAME, USERNAME, HOSTNAME };
+
+static bool isValidFormat(std::string prefix) {
+  int hostnameIdx = prefix.find(hostnameDelimeter);
+  int usernameIdx = prefix.find(usernameDelimeter);
+
+  // hostname이 존재하지 않고 username만 존재할때에 대한 예외처리
+  if (usernameIdx != std::string::npos && hostnameIdx == std::string::npos) {
+    return false;
+  }
+  return true;
+}
+
+static void parsePrefix(const std::string &prefix, std::string (&token)[3]) {
+  int hostnameIdx = prefix.find(hostnameDelimeter);
+  int usernameIdx = prefix.find(usernameDelimeter);
+
+  if (usernameIdx != std::string::npos) {
+    token[NAME] = prefix.substr(0, usernameIdx);
+  } else {
+    token[NAME] = prefix.substr(0, hostnameIdx);
+  }
+  if (hostnameIdx != std::string::npos) {
+    token[HOSTNAME] = prefix.substr(hostnameIdx + 1);
+    if (usernameIdx != std::string::npos) {
+      token[USERNAME] =
+          prefix.substr(usernameIdx + 1, hostnameIdx - usernameIdx - 1);
+    }
+  }
+}
+
+/** Prefix Class
+ * Parameter : prefix 구분자(":")을 제외한 문자열. prefix가 존재하지 않을 경우
+ * 빈 문자열 */
+Prefix::Prefix(const std::string &prefix) {
+  if (!isValidFormat(prefix)) {
+    throw std::invalid_argument("prefix 메시지 형식이 잘못되었습니다.");
+  }
+
+  std::string token[3];
+  parsePrefix(prefix, token);
+
+  this->name = token[NAME];
+  this->username = token[USERNAME];
+  this->hostname = token[HOSTNAME];
+}
+
+std::string Prefix::getName() const { return name; }
+
+std::string Prefix::getUsername() const { return username; }
+
+std::string Prefix::getHostname() const { return hostname; }
