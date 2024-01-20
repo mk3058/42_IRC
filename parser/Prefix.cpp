@@ -27,10 +27,11 @@ static void parsePrefix(const std::string &prefix, std::string (&token)[3]) {
     token[NAME] = prefix.substr(0, hostnameIdx);
   }
   if (hostnameIdx != std::string::npos) {
-    token[HOSTNAME] = prefix.substr(hostnameIdx + 1);
+    token[HOSTNAME] = prefix.substr(hostnameIdx + hostnameDelimeter.length());
     if (usernameIdx != std::string::npos) {
       token[USERNAME] =
-          prefix.substr(usernameIdx + 1, hostnameIdx - usernameIdx - 1);
+          prefix.substr(usernameIdx + usernameDelimeter.length(),
+                        hostnameIdx - usernameIdx - usernameDelimeter.length());
     }
   }
 }
