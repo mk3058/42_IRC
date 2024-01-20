@@ -11,7 +11,8 @@ class Parameter {
   std::string trailer;
 
  public:
-  Parameter(const std::string &parameter);
+  Parameter();
+  void set(const std::string &parameter);
   std::vector<std::string> getParameters() const;
   std::string getTrailer() const;
 };
