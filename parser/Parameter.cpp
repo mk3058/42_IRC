@@ -12,7 +12,7 @@ static void parseParameter(std::string parameter,
   // trailer가 존재할 경우 해당 값을 별도로 저장하고 parameter 문자열에서 삭제
   size_t pos;
   if ((pos = parameter.find(trailerDelimeter)) != std::string::npos) {
-    tr = parameter.substr(pos);
+    tr = parameter.substr(pos + trailerDelimeter.length());
     parameter.erase(pos);
   }
 
@@ -31,11 +31,13 @@ static void parseParameter(std::string parameter,
   }
 }
 
+Parameter::Parameter() {}
+
 /**
  * Parameter Class
  * Parameter : 파라미터 문자열. 파라미터가 존재하지 않을 경우 빈 문자열
  */
-Parameter::Parameter(const std::string &parameter) {
+void Parameter::set(const std::string &parameter) {
   parseParameter(parameter, params, trailer);
 }
 

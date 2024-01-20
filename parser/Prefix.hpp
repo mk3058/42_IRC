@@ -11,7 +11,8 @@ class Prefix {
   std::string hostname;
 
  public:
-  Prefix(const std::string &prefix);
+  Prefix();
+  void set(const std::string &prefix);
   std::string getName() const;
   std::string getUsername() const;
   std::string getHostname() const;

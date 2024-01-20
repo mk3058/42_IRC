@@ -9,11 +9,13 @@ bool isValidFormat(const std::string &command) {
   return true;
 }
 
+Command::Command() {}
+
 /**
  * command class
  * parameter : 명령어 문자열
  */
-Command::Command(std::string command) {
+void Command::set(std::string command) {
   if (!isValidFormat(command)) {
     throw std::invalid_argument("command 메시지 형식이 잘못되었습니다.");
   }
