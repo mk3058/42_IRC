@@ -7,8 +7,8 @@ static const std::string hostnameDelimeter = "@";
 enum { NAME, USERNAME, HOSTNAME };
 
 static bool isValidFormat(std::string prefix) {
-  int hostnameIdx = prefix.find(hostnameDelimeter);
-  int usernameIdx = prefix.find(usernameDelimeter);
+  size_t hostnameIdx = prefix.find(hostnameDelimeter);
+  size_t usernameIdx = prefix.find(usernameDelimeter);
 
   // hostname이 존재하지 않고 username만 존재할때에 대한 예외처리
   if (usernameIdx != std::string::npos && hostnameIdx == std::string::npos) {
@@ -18,8 +18,8 @@ static bool isValidFormat(std::string prefix) {
 }
 
 static void parsePrefix(const std::string &prefix, std::string (&token)[3]) {
-  int hostnameIdx = prefix.find(hostnameDelimeter);
-  int usernameIdx = prefix.find(usernameDelimeter);
+  size_t hostnameIdx = prefix.find(hostnameDelimeter);
+  size_t usernameIdx = prefix.find(usernameDelimeter);
 
   if (usernameIdx != std::string::npos) {
     token[NAME] = prefix.substr(0, usernameIdx);
