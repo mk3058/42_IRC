@@ -9,7 +9,8 @@ class Command {
   std::string command;
 
  public:
-  Command(std::string command);
+  Command();
+  void set(std::string command);
   std::string getCommand() const;
 };
 

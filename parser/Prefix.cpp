@@ -36,10 +36,12 @@ static void parsePrefix(const std::string &prefix, std::string (&token)[3]) {
   }
 }
 
+Prefix::Prefix() {}
+
 /** Prefix Class
  * Parameter : prefix 구분자(":")을 제외한 문자열. prefix가 존재하지 않을 경우
  * 빈 문자열 */
-Prefix::Prefix(const std::string &prefix) {
+void Prefix::set(const std::string &prefix) {
   if (!isValidFormat(prefix)) {
     throw std::invalid_argument("prefix 메시지 형식이 잘못되었습니다.");
   }
