@@ -9,10 +9,11 @@
 class IrcStatusCodeHelper
 {
     private:
-        static std::map<std::string, std::string> statusMap;
+        static          std::map<std::string, std::string> statusMap;
+        static bool     init;
     public:
-        static void InitialMap();
-        static std::string& GetStatusCode(const std::string& statusName);
+        static void initialMap();
+        static std::string& getStatusCode(const std::string& statusName);
 };
 
 #endif
