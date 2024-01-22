@@ -1,6 +1,5 @@
 #include "StatusCode.hpp"
 
-
 std::map<std::string, std::string> StatusCode::statusMap;
 bool StatusCode::init = false;
 
@@ -40,7 +39,6 @@ void StatusCode::initialMap()
     statusMap["ERR_CHANOPRIVSNEEDED"] = "482"; // not channel's operator (MODE, TOPIC, INVITE, KICK)
     init = true;
 }
-
 
 std::string& StatusCode::getStatusCode(const std::string& statusName)
 {
