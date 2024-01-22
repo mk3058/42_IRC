@@ -15,6 +15,8 @@
 
 #include "Channel.hpp"
 #include "UserMap.hpp"
+#include "Command.hpp"
+#include "request.hpp"
 
 #define MAX_USER 1000
 #define LISTEN_QUEUE_SIZE 42

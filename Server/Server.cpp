@@ -65,10 +65,11 @@ void Server::io_multiplex() {
            used_fd[i] = 0;
            //이후 아래부분 실행 안되게 처리
         }
-        // write_cnt = commend class(request(buf), &fd_write);
+        Command command;
+        int write_cnt = command(request(buf), &fd_write);
         for (int i = 0; i < MAX_USER; i++) {
           if (FD_ISSET(i, &fd_write)) {
-            send(i, commend_class.getRespons(), commend_class.getlengthRs(), 0);
+            send(i, command.getRespons(), command.getlengthRs(), 0);
             write_cnt--;
           }
           if (!write_cnt) break;
