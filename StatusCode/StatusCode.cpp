@@ -1,10 +1,10 @@
 #include "StatusCode.hpp"
 
 
-std::map<std::string, std::string> IrcStatusCodeHelper::statusMap;
-bool IrcStatusCodeHelper::init = false;
+std::map<std::string, std::string> StatusCode::statusMap;
+bool StatusCode::init = false;
 
-void IrcStatusCodeHelper::initialMap()
+void StatusCode::initialMap()
 {
     statusMap["RPL_WELCOME"] = "001"; // connect is success
     statusMap["RPL_BOUNCE"] = "005"; // server is already fully
@@ -42,7 +42,7 @@ void IrcStatusCodeHelper::initialMap()
 }
 
 
-std::string& IrcStatusCodeHelper::getStatusCode(const std::string& statusName)
+std::string& StatusCode::getStatusCode(const std::string& statusName)
 {
     if (init == false)
         throw std::invalid_argument("statusMap is not initializied");
