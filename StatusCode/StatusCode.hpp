@@ -5,7 +5,7 @@
 #include <map>
 #include <stdexcept>
 
-class IrcStatusCodeHelper
+class StatusCode
 {
     private:
         static          std::map<std::string, std::string> statusMap;

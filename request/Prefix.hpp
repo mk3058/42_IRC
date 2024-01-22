@@ -1,7 +1,7 @@
 #ifndef PREFIX_HPP
 #define PREFIX_HPP
 
-#include <exception>
+#include <stdexcept>
 #include <string>
 
 class Prefix {
