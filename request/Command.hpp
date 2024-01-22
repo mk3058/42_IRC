@@ -1,7 +1,7 @@
 #ifndef COMMAND_HPP
 #define COMMAND_HPP
 
-#include <exception>
+#include <stdexcept>
 #include <string>
 
 class Command {

@@ -1,7 +1,7 @@
 #ifndef PARAMETER_HPP
 #define PARAMETER_HPP
 
-#include <exception>
+#include <stdexcept>
 #include <string>
 #include <vector>
 

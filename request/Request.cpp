@@ -1,6 +1,6 @@
 #include "Request.hpp"
 
-#include <exception>
+#include <stdexcept>
 
 static const std::string messageDelimeter = " ";
 static const std::string messageEndingKeyword = "\r\n";
