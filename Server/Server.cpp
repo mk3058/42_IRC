@@ -65,8 +65,8 @@ void Server::io_multiplex() {
            used_fd[i] = 0;
            //이후 아래부분 실행 안되게 처리
         }
-        Command command;
-        int write_cnt = command(request(buf), &fd_write);
+        Command command(request(buf), &fd_write);
+        int write_cnt = command.getWiterCnt();
         for (int i = 0; i < MAX_USER; i++) {
           if (FD_ISSET(i, &fd_write)) {
             send(i, command.getRespons(), command.getlengthRs(), 0);
