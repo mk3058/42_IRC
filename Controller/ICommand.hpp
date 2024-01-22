@@ -17,7 +17,7 @@ class ICommand
         fd_set &fd_write
         std::string msg;
     public:
-        virtual void checkPermit();
+        virtual bool checkPermit();
         virtual std::string getResponse() const;
         virtual int getCount() const;
         virtual void execute() = 0;
