@@ -1,7 +1,7 @@
 #include "StatusCode.hpp"
 
 
-std::unordered_map<std::string, std::string> IrcStatusCodeHelper::statusMap;
+std::map<std::string, std::string> IrcStatusCodeHelper::statusMap;
 bool IrcStatusCodeHelper::init = false;
 
 void IrcStatusCodeHelper::initialMap()
@@ -46,7 +46,7 @@ std::string& IrcStatusCodeHelper::getStatusCode(const std::string& statusName)
 {
     if (init == false)
         throw std::invalid_argument("statusMap is not initializied");
-    const std::unordered_map<std::string, std::string>::iterator it = statusMap.find(statusName);
+    const std::map<std::string, std::string>::iterator it = statusMap.find(statusName);
     if (it != statusMap.end()){
         return it->second;
     } else {
