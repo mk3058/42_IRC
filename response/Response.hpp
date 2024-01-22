@@ -1,7 +1,7 @@
 #ifndef RESPONSE_HPP
 #define RESPONSE_HPP
 
-#define DEFAULT_PREFIX "webserv.com"
+#define DEFAULT_PREFIX "ircserv.com"
 
 #include <string>
 #include <vector>
