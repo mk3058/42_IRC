@@ -28,6 +28,7 @@ void Server::connect() {
   csin_len = sizeof(csin);
   cs = accept(socket_fd, (struct sockaddr *)&csin, &csin_len);
   if (cs == -1) throw std::runtime_error("Failed accept");
+  // welcome(cs);
   used_fd[cs] = 1;
   std::cout << "New client " << cs << " from " << inet_ntoa(csin.sin_addr)
             << ":" << ntohs(csin.sin_port) << std::endl;
@@ -42,8 +43,6 @@ void Server::io_multiplex() {
   while (i < MAX_USER) {
     if (used_fd[i]) {
       FD_SET(i, &fd_read);
-      // if (strlen(e->fds[i].buf_write) > 0) {
-      FD_SET(i, &fd_write);
       changedFdCount = changedFdCount > i ? changedFdCount : i;
     }
     i++;
@@ -54,36 +53,28 @@ void Server::io_multiplex() {
   }
   i = 0;
   while ((i < MAX_USER) && (changedFdCount > 0)) {
-    if (FD_ISSET(i, &fd_read)) this->test(i);
-    // if (FD_ISSET(i, &fd_write)) e->fds[i].fct_write(e, i);
-    if (FD_ISSET(i, &fd_read) /*|| FD_ISSET(i, &e->fd_write)*/)
+    if (FD_ISSET(i, &fd_read)) {
+      if (i == socket_fd) {
+        this->connect();
+      } else {
+        char buf[512];
+        r = recv(i, buf, 512, 0);
+        if (r < 0) {
+           std::cout << "client #" << i << " gone away" << std::endl;
+           close(i);
+           used_fd[i] = 0;
+           //이후 아래부분 실행 안되게 처리
+        }
+        // write_cnt = commend class(request(buf), &fd_write);
+        for (int i = 0; i < MAX_USER; i++) {
+          if (FD_ISSET(i, &fd_write)) {
+            send(i, commend_class.getRespons(), commend_class.getlengthRs(), 0);
+            write_cnt--;
+          }
+          if (!write_cnt) break;
+        }
+      }
       changedFdCount--;
-    i++;
-  }
-}
-
-void Server::test(int cs) {
-  int r;
-  int i;
-  char buf[4096];
-
-  if (cs == socket_fd) {
-    connect();
-    return;
-  }
-
-  r = recv(cs, buf, 4096, 0);
-  if (r < 0) {
-    close(cs);
-    used_fd[cs] = 0;
-    std::cout << "client #" << cs << " gone away" << std::endl;
-  } else {
-    i = 0;
-    while (i < MAX_USER) {
-      /*자기랑 서버빼고 보내기
-            if ((e->fds[i].type == FD_CLIENT) &&
-                (i != cs))*/
-      send(i, buf, r, 0);
       i++;
     }
   }
