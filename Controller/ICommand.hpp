@@ -14,13 +14,13 @@ class ICommand
         Channel channel;
         int permission;
         int write_cnt;
-        fd_set &fd_write;
+        fd_set *fd_write;
         std::string msg;
-    public:
+        virtual void execute() = 0;
         virtual bool checkPermit();
+    public:
         virtual std::string getResponse() const;
         virtual int getCount() const;
-        virtual void execute() = 0;
 };
 
 #endif
