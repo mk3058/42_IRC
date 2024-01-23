@@ -14,9 +14,10 @@
 #include <string>
 
 #include "Channel.hpp"
-#include "UserMap.hpp"
+#include "ChannelMap.hpp"
 #include "Command.hpp"
-#include "request.hpp"
+#include "UserMap.hpp"
+#include "Request.hpp"
 
 #define MAX_USER 1000
 #define LISTEN_QUEUE_SIZE 42
@@ -35,7 +36,7 @@ class Server {
   std::string password;
   int port;
   UserMap userMap;
-  std::map<std::string, Channel> channelMap;
+  ChannelMap channelMap;
   fd_set fd_read;
   fd_set fd_write;
   static Server *instance;
@@ -47,6 +48,9 @@ class Server {
   void connect();
   void io_multiplex();
   void test(int cs);
+  bool auth(const std::string &password) const;
+  UserMap &getUserMap();
+  ChannelMap &getChannelMap();
   static Server &getInstance(std::string password, int port);
   static Server &getInstance();
   ~Server();

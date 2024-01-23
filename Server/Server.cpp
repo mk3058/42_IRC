@@ -20,6 +20,8 @@ Server::Server(std::string password, int port) {
   used_fd[socket_fd] = 1;
 }
 
+/** merge를 위해 주석 처리 합니다
+ * 이후 추가 처리 필요
 void Server::connect() {
   int cs;
   struct sockaddr_in csin;
@@ -28,7 +30,7 @@ void Server::connect() {
   csin_len = sizeof(csin);
   cs = accept(socket_fd, (struct sockaddr *)&csin, &csin_len);
   if (cs == -1) throw std::runtime_error("Failed accept");
-  // welcome(cs);
+  // Welcome 메시지 전송 -> 해당 User connect
   used_fd[cs] = 1;
   std::cout << "New client " << cs << " from " << inet_ntoa(csin.sin_addr)
             << ":" << ntohs(csin.sin_port) << std::endl;
@@ -60,26 +62,38 @@ void Server::io_multiplex() {
         char buf[512];
         r = recv(i, buf, 512, 0);
         if (r < 0) {
-           std::cout << "client #" << i << " gone away" << std::endl;
-           close(i);
-           used_fd[i] = 0;
-           //이후 아래부분 실행 안되게 처리
+          std::cout << "client #" << i << " gone away" << std::endl;
+          close(i);
+          used_fd[i] = 0;
+          // 이후 아래부분 실행 안되게 처리
         }
-        Command command(Request request(buf), &fd_write);
-        int write_cnt = command.getWriteCnt();
-        for (int i = 0; i < MAX_USER; i++) {
-          if (FD_ISSET(i, &fd_write)) {
-            send(i, command.getRespons(), command.getlengthRs(), 0);
-            write_cnt--;
-          }
-          if (!write_cnt) break;
-        }
+        // Request request(buf); //입력 메시지 파싱
+        // Controller Controller(request, &fd_write); //파싱 결과를 바탕으로
+        // command 실행 int write_cnt = command.getWriteCnt(); //전송할 fd 개수
+        // 확인
+        //  for (int i = 0; i < MAX_USER; i++) {
+        //    if (FD_ISSET(i, &fd_write)) {
+        //      send(i, command.getRespons(), command.getlengthRs(), 0);
+        //      write_cnt--;
+        //    }
+        //  응답 메시지 전송
+        // if (!write_cnt) break;
       }
-      changedFdCount--;
-      i++;
     }
+    changedFdCount--;
+    i++;
   }
 }
+}
+*/
+
+bool Server::auth(const std::string &password) const {
+  return !this->password.compare(password);
+}
+
+UserMap &Server::getUserMap() { return this->userMap; }
+
+ChannelMap &Server::getChannelMap() { return this->channelMap; }
 
 Server *Server::instance = NULL;
 
