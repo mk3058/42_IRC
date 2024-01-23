@@ -14,7 +14,7 @@ class ICommand
         Channel channel;
         int permission;
         int write_cnt;
-        fd_set &fd_write
+        fd_set &fd_write;
         std::string msg;
     public:
         virtual bool checkPermit();
