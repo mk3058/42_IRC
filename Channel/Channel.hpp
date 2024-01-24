@@ -8,6 +8,7 @@
 #define UNLIMITED -1
 #define DEFAULT 0b1
 #define INVITE_ONLY 0b10
+#define KET_REQURIE 0b100
 #define USERMODE_TOPIC 0b10
 #define USERMODE_SUPER 0b110
 
