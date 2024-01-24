@@ -58,3 +58,13 @@ bool UserMap::exists(std::string nickname) {
 
   return result != nicknameMap.end();
 }
+
+std::vector<User> UserMap::findAllUsers() const {
+  std::vector<User> users;
+
+  for (std::map<int, User>::const_iterator it = userMap.begin();
+       it != userMap.end(); ++it) {
+    users.push_back(it->second);
+  }
+  return users;
+}

@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 #include "User.hpp"
 
@@ -20,6 +21,7 @@ class UserMap {
   User findUser(std::string nickname) const;
   bool exists(int fd);
   bool exists(std::string nickname);
+  std::vector<User> findAllUsers() const;
 };
 
 #endif
