@@ -22,9 +22,10 @@ class Response {
                            std::vector<std::string> params);
   static std::string build(std::string responseCode);
 
-  std::string error(std::string responseCode, User user, fd_set *fd_write,
-                    std::string trailer);
-  std::string error(std::string responseCode, User user, fd_set *fd_write);
+  static std::string error(std::string responseCode, User user,
+                           fd_set *fd_write, std::string trailer);
+  static std::string error(std::string responseCode, User user,
+                           fd_set *fd_write);
 };
 
 #endif
