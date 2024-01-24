@@ -10,8 +10,7 @@
 class ICommand {
  protected:
   Request req;
-  User user;
-  Channel channel;
+  User *user;
   int permission;
   int write_cnt;
   fd_set *fd_write;
@@ -21,7 +20,7 @@ class ICommand {
 
  public:
   ICommand();
-  ICommand(Request request, User user, Channel channel, fd_set *fd_write);
+  ICommand(Request request, User *user, fd_set *fd_write);
   virtual std::string getResponse() const;
   virtual int getCount() const;
 };
