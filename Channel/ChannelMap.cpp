@@ -30,3 +30,20 @@ const Channel &ChannelMap::findChannel(std::string channelName) {
 }
 
 size_t ChannelMap::getSize() const { return this->channelMap.size(); }
+
+bool ChannelMap::exists(std::string channelName) {
+  std::map<std::string, Channel>::iterator result =
+      channelMap.find(channelName);
+
+  return result != channelMap.end();
+}
+
+std::vector<Channel> ChannelMap::findAllChannels() const {
+  std::vector<Channel> channels;
+
+  for (std::map<std::string, Channel>::const_iterator it = channelMap.begin();
+       it != channelMap.end(); ++it) {
+    channels.push_back(it->second);
+  }
+  return channels;
+}

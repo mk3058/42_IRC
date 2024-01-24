@@ -1,11 +1,9 @@
 #include "Channel.hpp"
 
-Channel::Channel(std::string name, User user) {
+Channel::Channel(std::string name) {
   this->name = name;
-  this->users.addUser(user.getfd(), user);
   this->userLimit = UNLIMITED;
   this->mode = DEFAULT;
-  this->userPermit.insert(std::make_pair(user.getfd(), USERMODE_SUPER));
 }
 
 void Channel::setTopic(std::string topic) { this->topic = topic; }
@@ -15,9 +13,21 @@ void Channel::setMode(int mode) {
 
 void Channel::setUserLimit(int limit) { this->userLimit = limit; }
 
+int Channel::addUser(User user) {
+  if (this->userLimit == this->users.getSize())
+    return -1;
+  this->users.addUser(user.getfd(), user);
+  if (this->users.getSize() == 1)
+    this->userPermit.insert(std::make_pair(user.getfd(), USERMODE_SUPER));
+  else
+    this->userPermit.insert(std::make_pair(user.getfd(), DEFAULT));
+  return (0);
+}
+
 void Channel::kickUser(User user) {
   this->users.deleteUser(user.getfd());
   this->banned_user.addUser(user.getfd(), user);
+  this->userPermit.erase(user.getfd());
 }
 
 const std::string& Channel::getName() const { return name; }
