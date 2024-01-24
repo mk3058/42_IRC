@@ -15,3 +15,5 @@ std::string User::getUsername() const { return username; }
 std::string User::getNickname() const { return nickname; }
 
 int User::getfd() const { return fd; }
+
+std::map<std::string, Channel *> &User::getChannels() { return this->channels; }

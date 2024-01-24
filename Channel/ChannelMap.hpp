@@ -15,10 +15,10 @@ class ChannelMap {
   ~ChannelMap();
   void addChannel(Channel channel);
   void deleteChannel(std::string channelName);
-  const Channel &findChannel(std::string channelName);
+  Channel &findChannel(std::string channelName);
   size_t getSize() const;
-  bool exists(std::string channelName);
-  std::vector<Channel> findAllChannels() const;
+  bool exists(std::string channelName) const;
+  std::vector<Channel *> findAllChannels();
 };
 
 #endif

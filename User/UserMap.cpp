@@ -27,8 +27,8 @@ void UserMap::deleteUser(int fd) {
   nicknameMap.erase(nicknameMapResult);
 }
 
-User UserMap::findUser(int fd) const {
-  std::map<int, User>::const_iterator result = userMap.find(fd);
+User &UserMap::findUser(int fd) {
+  std::map<int, User>::iterator result = userMap.find(fd);
 
   if (result == userMap.end()) {
     throw std::invalid_argument("cannot find user");
@@ -38,9 +38,8 @@ User UserMap::findUser(int fd) const {
 
 int UserMap::getSize() const { return this->userMap.size(); }
 
-User UserMap::findUser(std::string nickname) const {
-  std::map<std::string, User>::const_iterator result =
-      nicknameMap.find(nickname);
+User &UserMap::findUser(std::string nickname) {
+  std::map<std::string, User>::iterator result = nicknameMap.find(nickname);
 
   if (result == nicknameMap.end()) {
     throw std::invalid_argument("cannot find user");
@@ -48,25 +47,25 @@ User UserMap::findUser(std::string nickname) const {
   return result->second;
 }
 
-bool UserMap::exists(int fd) {
+bool UserMap::exists(int fd) const {
   std::map<int, User>::const_iterator result = userMap.find(fd);
 
   return result != userMap.end();
 }
 
-bool UserMap::exists(std::string nickname) {
+bool UserMap::exists(std::string nickname) const {
   std::map<std::string, User>::const_iterator result =
       nicknameMap.find(nickname);
 
   return result != nicknameMap.end();
 }
 
-std::vector<User> UserMap::findAllUsers() const {
-  std::vector<User> users;
+std::vector<User *> UserMap::findAllUsers() {
+  std::vector<User *> users;
 
-  for (std::map<int, User>::const_iterator it = userMap.begin();
-       it != userMap.end(); ++it) {
-    users.push_back(it->second);
+  for (std::map<int, User>::iterator it = userMap.begin(); it != userMap.end();
+       ++it) {
+    users.push_back(&(it->second));
   }
   return users;
 }

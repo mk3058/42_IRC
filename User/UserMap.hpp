@@ -18,11 +18,11 @@ class UserMap {
   int getSize() const;
   void addUser(int fd, User user);
   void deleteUser(int fd);
-  User findUser(int fd) const;
-  User findUser(std::string nickname) const;
-  bool exists(int fd);
-  bool exists(std::string nickname);
-  std::vector<User> findAllUsers() const;
+  User &findUser(int fd);
+  User &findUser(std::string nickname);
+  bool exists(int fd) const;
+  bool exists(std::string nickname) const;
+  std::vector<User *> findAllUsers();
 };
 
 #endif
