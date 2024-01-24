@@ -6,6 +6,7 @@ Server::Server(std::string password, int port) {
   this->password = password;
   this->port = port;
 
+  totalUsers = 0;
   memset(certi, 0, sizeof(certi));
   memset(used_fd, 0, sizeof(used_fd));
   this->socket_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_HOPOPTS);

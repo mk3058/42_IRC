@@ -33,6 +33,7 @@ class Server {
  private:
   int used_fd[1000];
   int certi[1000];
+  int totalUsers;
   int socket_fd;
   std::string password;
   int port;
