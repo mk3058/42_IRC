@@ -37,3 +37,13 @@ bool ChannelMap::exists(std::string channelName) {
 
   return result != channelMap.end();
 }
+
+std::vector<Channel> ChannelMap::findAllChannels() const {
+  std::vector<Channel> channels;
+
+  for (std::map<std::string, Channel>::const_iterator it = channelMap.begin();
+       it != channelMap.end(); ++it) {
+    channels.push_back(it->second);
+  }
+  return channels;
+}
