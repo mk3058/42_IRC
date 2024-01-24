@@ -28,3 +28,5 @@ const Channel &ChannelMap::findChannel(std::string channelName) {
   }
   return result->second;
 }
+
+size_t ChannelMap::getSize() const { return this->channelMap.size(); }
