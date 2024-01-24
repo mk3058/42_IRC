@@ -1,6 +1,6 @@
 #include "ICommand.hpp"
 
-ICommand::ICommand() : fd_write(NULL), user(NULL) {}
+ICommand::ICommand() : user(NULL), fd_write(NULL) {}
 
 ICommand::ICommand(Request request, User *user, fd_set *fd_write)
     : req(request), user(user), fd_write(fd_write) {}
