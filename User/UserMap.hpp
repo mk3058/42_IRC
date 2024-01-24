@@ -14,6 +14,7 @@ public:
     void addUser(int fd, User user);
     void deleteUser(int fd);
     User findUser(int fd) const;
+    bool exists(int fd);
 };
 
 #endif
