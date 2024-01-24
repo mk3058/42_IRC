@@ -34,6 +34,8 @@ void parseRequest(std::string message, std::string (&token)[3]) {
   token[PARAMETER] = message;
 }
 
+Request::Request() {}
+
 /** Request class
  * Parameter : 클라이언트로부터 받은 메시지 전문
  */

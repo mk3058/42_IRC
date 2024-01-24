@@ -12,6 +12,7 @@ class Request {
   Parameter param;
 
  public:
+  Request();
   Request(const std::string &message);
   Prefix prefix() const;
   Command command() const;
