@@ -12,7 +12,7 @@
 #define USERMODE_SUPER 0b110
 
 class Channel {
-private:
+ private:
   std::string name;
   std::string topic;
   std::string password;
@@ -21,7 +21,9 @@ private:
   UserMap users;
   UserMap banned_user;
   std::map<int, int> userPermit;
+
  public:
+  Channel();
   Channel(std::string name, User user);
   void setTopic(std::string topic);
   void setMode(int mode);

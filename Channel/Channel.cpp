@@ -1,5 +1,11 @@
 #include "Channel.hpp"
 
+Channel::Channel() {
+  this->name = "Not initialized";
+  this->userLimit = UNLIMITED;
+  this->mode = DEFAULT;
+}
+
 Channel::Channel(std::string name, User user) {
   this->name = name;
   this->users.addUser(user.getfd(), user);

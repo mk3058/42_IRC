@@ -14,6 +14,7 @@ class User {
   std::string nickname;
 
  public:
+  User();
   User(std::string username, std::string nickname, int fd);
   void setNickname(std::string nickname);
   std::string getUsername() const;
