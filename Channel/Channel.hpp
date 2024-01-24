@@ -22,11 +22,12 @@ private:
   UserMap banned_user;
   std::map<int, int> userPermit;
  public:
-  Channel(std::string name, User user);
+  Channel(std::string name);
   void setTopic(std::string topic);
   void setMode(int mode);
   void setUserLimit(int limit);
   void kickUser(User user);
+  int addUser(User user);
   const std::string& getName() const;
   const std::string& getTopic() const;
   const std::string& getPassword() const;

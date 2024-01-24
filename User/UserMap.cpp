@@ -36,6 +36,8 @@ User UserMap::findUser(int fd) const {
   return result->second;
 }
 
+int UserMap::getSize() const { return this->userMap.size(); }
+
 User UserMap::findUser(std::string nickname) const {
   std::map<std::string, User>::const_iterator result =
       nicknameMap.find(nickname);
