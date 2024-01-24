@@ -16,6 +16,7 @@ class ChannelMap {
   void deleteChannel(std::string channelName);
   const Channel &findChannel(std::string channelName);
   size_t getSize() const;
+  bool exists(std::string channelName);
 };
 
 #endif

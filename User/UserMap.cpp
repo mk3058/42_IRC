@@ -28,3 +28,9 @@ User UserMap::findUser(int fd) const {
   }
   return result->second;
 }
+
+bool UserMap::exists(int fd) {
+  std::map<int, User>::const_iterator result = userMap.find(fd);
+
+  return result != userMap.end();
+}
