@@ -15,12 +15,11 @@ void Nick::execute()
         param[0] = "*";
         this->msg = Response::build("PRIVMSG", param, "plz input valid parameter");
         send(user->getfd(), msg.c_str(), msg.size(), 0);
-        std::cout << user->getfd() << " try invalid parameter " << std::endl;
         return ;
     }
-    if (checknick() == 1)
+    if (checknick() == 1) // 닉네임 인증 타이밍일때
     {
-        if (server.getUserMap().exists(req.parameter().getParameters()[0])) // 닉네임 이미 있을때
+        if (server.getUserMap().exists(req.parameter().getParameters()[0])) // 같은 닉네임 이미 있을때
         {
             this->msg = Response::error(ERR_NICKNAMEINUSE, *(this->user), &fd_write);
             send(user->getfd(), msg.c_str(), msg.size(), 0);
@@ -28,21 +27,21 @@ void Nick::execute()
             param[0] = "*";
             this->msg = Response::build("PRIVMSG", param, "already exist nickname");
             send(user->getfd(), msg.c_str(), msg.size(), 0);
-            std::cout << user->getfd() << " try an already existing nickname " << std::endl;  
         }
         else // 닉네임 제대로 설정했을때
         {
-            if (!checkname(req.parameter().getParameters()[0]))
+            if (!checkname(req.parameter().getParameters()[0])) // 닉네임 설정에 문제가 있을때
             {
-                this->msg = Response::build(user->getNickname(), "NICK", req.command().getCommand());
-                send(user->getfd(), msg.c_str(), msg.size(), 0);
+                std::vector<std::string> param;
+                param[0] = "*";
+                param[1] = req.parameter().getParameters()[0];
+                this->msg = Response::build(ERR_ERRONEUSNICKNAME, param, "Erroneous Nickname");
+            }
+            else // 닉네임 설정이 잘 되었을 때 별도의 메세지 보내지 않음
+            {
                 User &u = server.getUserMap().findUser(this->user->getfd());
                 u.setNickname(req.parameter().getParameters()[0]);
                 server.getcerti()[u.getfd()]++;
-            }
-            else
-            {
-
             }
         }
     }
@@ -55,15 +54,13 @@ void Nick::execute()
         param[0] = "*";
         this->msg = Response::build("PRIVMSG", param, "plz try valid password");
         send(user->getfd(), msg.c_str(), msg.size(), 0);
-        std::cout << user->getfd() << " failed the password " << std::endl;  
     }
-    else // 이미 인증 단계 넘어갔을때
+    else // 이미 닉네임 인증 했을 때
     {
         std::vector<std::string> param;
         param[0] = "*";
         this->msg = Response::build("PRIVMSG", param, " is already seted nickname");
-        send(user->getfd(), msg.c_str(), msg.size(), 0);
-        std::cout << user->getfd() << " is already seted nickname" << std::endl; 
+        send(user->getfd(), msg.c_str(), msg.size(), 0); 
     }
 }
 
@@ -71,9 +68,9 @@ int Nick::checknick()
 {
     if (Server::getInstance().getcerti()[user->getfd()] < 1) // 아직 비밀번호 인증 안됐을때
         return -1;
-    else if (Server::getInstance().getcerti()[user->getfd()] > 1) // 이미 비밀번호 인증했을때
+    else if (Server::getInstance().getcerti()[user->getfd()] > 1) // 이미 닉네임 인증했을때
         return 0;
-    return 1;
+    return 1; // 닉네임 인증 해야할 때
 }
 
 std::string Nick::getResponse() const

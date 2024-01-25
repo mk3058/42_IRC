@@ -5,22 +5,22 @@
 
 #include "Request.hpp"
 #include "Server.hpp"
+#include "Pass.hpp"
+#include "Nick.hpp"
+#include "UserCmd.hpp"
+#include "Privmsg.hpp"
+#include "Join.hpp"
+#include "Topic.hpp"
 
 class Controler
 {
     private:
         Request     &request;
-        User        user;
+        User        *user;
 
     public:
-        Controler(Request &request, User *user);
+        Controler(Request &req, User *user);
         void        execute();
-        
-        int         getWriteCnt();
-        int         getlengthRs();
-        std::string getRespons();
-
-
 };
 
 #endif

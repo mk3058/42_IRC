@@ -11,8 +11,7 @@ class UserCmd : public ICommand
     UserCmd(Request request, User *user);
 
     void execute();
-    bool checkPermit() { return 1; };
-    int checkUser();
+    bool checkPermit();
     int getCount() const;
     std::string getResponse() const;
     bool checkname(std::string name);
