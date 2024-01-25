@@ -34,9 +34,9 @@ class Channel {
   const std::string& getPassword() const;
   int getUserLimit() const;
   int getMode() const;
-  const UserMap& getUsers() const;
-  const UserMap& getBannedUsers() const;
-  const std::map<int, int>& getUserPermits() const;
+  UserMap& getUsers();
+  UserMap& getBannedUsers();
+  std::map<int, int>& getUserPermits();
 };
 
 #endif
