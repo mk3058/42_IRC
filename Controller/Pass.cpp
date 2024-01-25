@@ -17,6 +17,7 @@ void Pass::execute()
         }
         else if (server.getcerti()[user->getfd()] <= 0)
         {
+            server.getcerti()[user->getfd()]--;
             std::vector<std::string> param;
             param[0] = "*";
             this->msg = Response::build("PRIVMSG", param, "plz try valid password");
@@ -26,24 +27,24 @@ void Pass::execute()
     }
     else
     {
+        server.getcerti()[user->getfd()] = 1;
         std::vector<std::string> param;
         param[0] = "*";
-        this->msg = Response::build("PRIVMSG", param, "plz try valid password");
+        this->msg = Response::build("PRIVMSG", param, "plz input nickname");
         send(user->getfd(), msg.c_str(), msg.size(), 0);
     }
 }
 
 bool Pass::checkPermit()
 {
-
 }
 
 std::string Pass::getResponse() const
 {
-
+    return msg;
 }
 
 int Pass::getCount() const
 {
-
+    return msg.size();
 }

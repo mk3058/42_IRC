@@ -8,6 +8,7 @@
 #include "Response.hpp"
 #include "User.hpp"
 #include "Server.hpp"
+#include "StatusCode.hpp"
 
 class ICommand {
  protected:

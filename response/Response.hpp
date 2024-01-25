@@ -15,6 +15,9 @@ class Response {
   static std::string build(std::string responseCode,
                            std::vector<std::string> params, std::string trailer,
                            std::string prefix);
+  static std::string build(std::string prefix,
+                           std::string responseCode,
+                           std::string trailer);
   static std::string build(std::string responseCode,
                            std::vector<std::string> params,
                            std::string trailer);
