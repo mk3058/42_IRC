@@ -6,12 +6,10 @@ Channel::Channel() {
   this->mode = DEFAULT;
 }
 
-Channel::Channel(std::string name, User user) {
+Channel::Channel(std::string name) {
   this->name = name;
-  this->users.addUser(user.getfd(), user);
   this->userLimit = UNLIMITED;
   this->mode = DEFAULT;
-  this->userPermit.insert(std::make_pair(user.getfd(), USERMODE_SUPER));
 }
 
 void Channel::setTopic(std::string topic) { this->topic = topic; }
@@ -21,9 +19,17 @@ void Channel::setMode(int mode) {
 
 void Channel::setUserLimit(int limit) { this->userLimit = limit; }
 
-void Channel::kickUser(User user) {
+void Channel::addUser(User user) {
+  this->users.addUser(user.getfd(), user);
+  if (this->users.getSize() == 1)
+    this->userPermit.insert(std::make_pair(user.getfd(), USERMODE_SUPER));
+  else
+    this->userPermit.insert(std::make_pair(user.getfd(), DEFAULT));
+}
+
+void Channel::deleteUser(User user) {
   this->users.deleteUser(user.getfd());
-  this->banned_user.addUser(user.getfd(), user);
+  this->userPermit.erase(user.getfd());
 }
 
 const std::string& Channel::getName() const { return name; }
@@ -36,8 +42,10 @@ int Channel::getUserLimit() const { return userLimit; }
 
 int Channel::getMode() const { return mode; }
 
-const UserMap& Channel::getUsers() const { return users; }
+UserMap& Channel::getUsers() { return users; }
 
-const UserMap& Channel::getBannedUsers() const { return banned_user; }
+UserMap& Channel::getBannedUsers() { return banned_user; }
 
-const std::map<int, int>& Channel::getUserPermits() const { return userPermit; }
+UserMap& Channel::getInvitedUsers() { return invited_user; }
+
+std::map<int, int>& Channel::getUserPermits() { return userPermit; }

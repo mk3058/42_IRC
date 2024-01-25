@@ -6,9 +6,9 @@ static const std::string partDelimiter = ":";
 static const std::string messageEndingDelimeter = "\r\n";
 static const std::string space = " ";
 
-std::string Response::build(std::string responseCode, std::string prefix,
+std::string Response::build(std::string responseCode,
                             std::vector<std::string> params,
-                            std::string trailer) {
+                            std::string trailer, std::string prefix) {
   if (params.size() > 14) {
     throw std::invalid_argument("파라미터의 개수는 14개 이하여야 합니다.");
   }
@@ -36,17 +36,47 @@ std::string Response::build(std::string responseCode, std::string prefix,
 
   return msg;
 }
-
-std::string Response::build(std::string responseCode, std::string prefix,
-                            std::vector<std::string> params) {
-  return build(responseCode, prefix, params, "");
+std::string Response::build(std::string responseCode,
+                            std::vector<std::string> params,
+                            std::string trailer) {
+  return build(responseCode, params, trailer, DEFAULT_PREFIX);
 }
 
-std::string Response::build(std::string responseCode, std::string prefix) {
-  std::vector<std::string> emptyVector;
-  return build(responseCode, prefix, emptyVector);
+std::string Response::build(std::string prefix,
+                           std::string responseCode,
+                           std::string trailer) {
+  std::vector<std::string> para;
+  return build(responseCode, para, trailer, prefix);
+}
+
+std::string Response::build(std::string responseCode,
+                            std::vector<std::string> params) {
+  return build(responseCode, params, "");
 }
 
 std::string Response::build(std::string responseCode) {
-  return build(responseCode, DEFAULT_PREFIX);
+  std::vector<std::string> emptyVec;
+  return build(responseCode, emptyVec);
+}
+
+std::string Response::error(std::string responseCode, User user,
+                            fd_set *fd_write, std::string trailer) {
+  std::vector<std::string> nickname;
+
+  FD_ZERO(fd_write);
+  FD_SET(user.getfd(), fd_write);
+  nickname.push_back(user.getNickname());
+
+  return build(responseCode, nickname, trailer);
+}
+
+std::string Response::error(std::string responseCode, User user,
+                            fd_set *fd_write) {
+  std::vector<std::string> nickname;
+
+  FD_ZERO(fd_write);
+  FD_SET(user.getfd(), fd_write);
+  nickname.push_back(user.getNickname());
+
+  return build(responseCode, nickname, "");
 }

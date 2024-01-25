@@ -13,6 +13,7 @@
 #include <stdexcept>
 #include <string>
 
+#include "Response.hpp"
 #include "Channel.hpp"
 #include "ChannelMap.hpp"
 #include "Command.hpp"
@@ -33,6 +34,7 @@ class Server {
  private:
   int used_fd[1000];
   int certi[1000];
+  int totalUsers;
   int socket_fd;
   std::string password;
   int port;
@@ -48,10 +50,13 @@ class Server {
  public:
   void connect();
   void io_multiplex();
-  void test(int cs);
   bool auth(const std::string &password) const;
   UserMap &getUserMap();
   ChannelMap &getChannelMap();
+  int           gettotalUsers();
+  int           *getcerti();
+
+  void   Send(const std::string ResMsg, int write_cnt, fd_set *fd_write);
   static Server &getInstance(std::string password, int port);
   static Server &getInstance();
   ~Server();

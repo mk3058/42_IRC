@@ -1,0 +1,78 @@
+#include "UserCmd.hpp"
+
+UserCmd::UserCmd(Request request, User *user) : ICommand(request, user)
+{
+}
+
+void UserCmd::execute()
+{
+    Server &server = Server::getInstance();
+    if (checkUser() == -1)  // 아직 앞 단계 인증이 안됐을때
+    {
+        this->msg = Response::error(ERR_NOTREGISTERED, *(this->user), &fd_write);
+        send(user->getfd(), msg.c_str(), msg.size(), 0);
+        std::vector<std::string> param;
+        param[0] = "*";
+        this->msg = Response::build("PRIVMSG", param, "Not yet resistered");
+        send(user->getfd(), msg.c_str(), msg.size(), 0); 
+    }
+    else if (checkUser() == 0) // 이미 인증을 끝냈을 때
+    {
+        this->msg = Response::error(ERR_ALREADYREGISTRED, *(this->user), &fd_write);
+        send(user->getfd(), msg.c_str(), msg.size(), 0);
+        std::vector<std::string> param;
+        param[0] = "*";
+        this->msg = Response::build("PRIVMSG", param, " is already seted username");
+        send(user->getfd(), msg.c_str(), msg.size(), 0);
+    }
+    else // 인증 단계일때
+    {
+        if (req.parameter().getParameters().size() != 3 || checkname(req.parameter().getParameters()[0])) // 파라미터 잘못 들어왔을때
+        {
+            this->msg = Response::error(ERR_NEEDMOREPARAMS, *(this->user), &fd_write);
+            send(user->getfd(), msg.c_str(), msg.size(), 0);
+        }
+        else
+        {
+            std::vector<std::string> param;
+            param[0] = user->getNickname();
+            msg = Response::build(RPL_WELCOME, param, "welcome");
+            send(user->getfd(), msg.c_str(), msg.size(), 0);
+            server.getcerti()[user->getfd()] = 3;
+        }
+    }
+}
+
+
+int UserCmd::checkUser()
+{
+    int certi = Server::getInstance().getcerti()[user->getfd()];
+    if (certi < 2)
+        return -1;   //비밀번호 및 닉네임 설정이 안됐을때
+    if (certi == 3)
+        return 0; // 이미 인증을 끝냈을때
+    return 1;    // 유저네임 인증해야 할때
+}
+
+int UserCmd::getCount() const
+{
+    return msg.size();
+}
+
+std::string UserCmd::getResponse() const
+{
+    return msg;
+}
+
+bool    UserCmd::checkname(std::string name)
+{
+    int len = name.size();
+    if (len <= 1 || len >= 10)
+        return false;
+    for (int i = 0; i < len; i++)
+    {
+        if (!std::isalnum(name[i]))
+            return false;
+    }
+    return true;
+}

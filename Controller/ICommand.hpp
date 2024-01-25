@@ -5,7 +5,10 @@
 
 #include "Channel.hpp"
 #include "Request.hpp"
+#include "Response.hpp"
 #include "User.hpp"
+#include "Server.hpp"
+#include "StatusCode.hpp"
 
 class ICommand {
  protected:
@@ -13,14 +16,14 @@ class ICommand {
   User *user;
   int permission;
   int write_cnt;
-  fd_set *fd_write;
+  fd_set fd_write;
   std::string msg;
   virtual void execute() = 0;
   virtual bool checkPermit();
 
  public:
   ICommand();
-  ICommand(Request request, User *user, fd_set *fd_write);
+  ICommand(Request request, User *user);
   virtual std::string getResponse() const;
   virtual int getCount() const;
 };
