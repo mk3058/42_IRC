@@ -38,7 +38,7 @@ Server::Server(std::string password, int port) {
 //     sizeof(":ircserv.com NOTICE * :already fully\r\n"), 0);
 //     close(cs);
 //     std::cout << "New client " << cs << " from " << inet_ntoa(csin.sin_addr)
-//               << ":" << ntohs(csin.sin_port) << "is refused " << std::endl;
+//               << ":" << ntohs(csin.sin_port) << "is refused !" << std::endl;
 //   }
 //   else
 //   {
