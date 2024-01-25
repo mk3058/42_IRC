@@ -4,9 +4,9 @@
 
 static std::string getTargetName(std::string param);
 
-Server &server = Server::getInstance();
-ChannelMap &serverChannels = server.getChannelMap();
-UserMap &serverUsers = server.getUserMap();
+Server &Privmsg::server = Server::getInstance();
+ChannelMap &Privmsg::serverChannels = server.getChannelMap();
+UserMap &Privmsg::serverUsers = server.getUserMap();
 
 Privmsg::Privmsg(Request request, User *user) {
   this->req = request;
@@ -21,6 +21,7 @@ void Privmsg::execute() {
 
     std::string targetName = getTargetName(params.at(0));
     if (targetName.at(0) == '#') {
+      targetName = targetName.substr(1, std::string::npos);
       sendToChannel(targetName);
     } else {
       // Username이 포함된 경우 무시 (닉네임만 잘라서 진행)
@@ -34,8 +35,7 @@ void Privmsg::execute() {
 void Privmsg::sendToUser(std::string &userName) {
   // 해당 유저 존재하지 않으면 오류 메시지 저장
   if (!serverUsers.exists(userName)) {
-    msg = Response::error(ERR_NOSUCHNICK, *user,
-                          &fd_write);
+    msg = Response::error(ERR_NOSUCHNICK, *user, &fd_write);
     write_cnt = 1;
     return;
   }
@@ -54,8 +54,7 @@ void Privmsg::sendToUser(std::string &userName) {
 void Privmsg::sendToChannel(std::string &channelName) {
   // 찾는 채널이 존재하지 않으면 오류 메시지 저장
   if (!serverChannels.exists(channelName)) {
-    msg = Response::error(ERR_NOSUCHCHANNEL, *user,
-                          &fd_write);
+    msg = Response::error(ERR_NOSUCHCHANNEL, *user, &fd_write);
     write_cnt = 1;
     return;
   }

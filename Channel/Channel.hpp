@@ -8,6 +8,7 @@
 #define UNLIMITED -1
 #define DEFAULT 0b1
 #define INVITE_ONLY 0b10
+#define KEY_REQURIE 0b100
 #define USERMODE_TOPIC 0b10
 #define USERMODE_SUPER 0b110
 
@@ -20,15 +21,17 @@ class Channel {
   int mode;
   UserMap users;
   UserMap banned_user;
+  UserMap invited_user;
   std::map<int, int> userPermit;
 
  public:
   Channel();
-  Channel(std::string name, User user);
+  Channel(std::string name);
   void setTopic(std::string topic);
   void setMode(int mode);
   void setUserLimit(int limit);
-  void kickUser(User user);
+  void deleteUser(User user);
+  void addUser(User user);
   const std::string& getName() const;
   const std::string& getTopic() const;
   const std::string& getPassword() const;
@@ -36,6 +39,7 @@ class Channel {
   int getMode() const;
   UserMap& getUsers();
   UserMap& getBannedUsers();
+  UserMap& getInvitedUsers();
   std::map<int, int>& getUserPermits();
 };
 

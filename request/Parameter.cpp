@@ -5,7 +5,8 @@ static const std::string parameterDelimeter = " ";
 static const std::string trailerDelimeter = ":";
 
 static void parseParameter(std::string parameter,
-                           std::vector<std::string> &token, std::string &tr) {
+                           std::vector<std::string> &token, std::string &tr,
+                           bool &TrailerExists) {
   tr = "";
   token.clear();
 
@@ -13,6 +14,7 @@ static void parseParameter(std::string parameter,
   size_t pos;
   if ((pos = parameter.find(trailerDelimeter)) != std::string::npos) {
     tr = parameter.substr(pos + trailerDelimeter.length());
+    TrailerExists = true;
     parameter.erase(pos);
   }
 
@@ -31,16 +33,18 @@ static void parseParameter(std::string parameter,
   }
 }
 
-Parameter::Parameter() {}
+Parameter::Parameter() : TrailerExists(false) {}
 
 /**
  * Parameter Class
  * Parameter : 파라미터 문자열. 파라미터가 존재하지 않을 경우 빈 문자열
  */
 void Parameter::set(const std::string &parameter) {
-  parseParameter(parameter, params, trailer);
+  parseParameter(parameter, params, trailer, TrailerExists);
 }
 
 std::vector<std::string> Parameter::getParameters() const { return params; }
 
 std::string Parameter::getTrailer() const { return trailer; }
+
+bool Parameter::isTrailerExists() { return TrailerExists; }
