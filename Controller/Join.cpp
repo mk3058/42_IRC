@@ -18,9 +18,11 @@ void Join::execute()
 
 bool Join::checkPermit(int fd)
 {
+    FD_ZERO(fd_write);
     if (channel.getUserLimit() == channel.getUsers().getSize())
     {
         msg = Response::error(StatusCode::getStatusCode("ERR_CHANNELISFULL"), *user, fd_write, "channel is full");
+        
         return (false);
     }
     if (channel.getUsers().exists(fd))
