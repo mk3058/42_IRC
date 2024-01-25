@@ -12,6 +12,8 @@ void Join::execute()
 {
     if (!checkPermit(user->getfd()))
         return ;
+    channel.addUser(*user);
+    msg = "join";
 }
 
 bool Join::checkPermit(int fd)
@@ -22,17 +24,16 @@ bool Join::checkPermit(int fd)
         return (false);
     }
     if (channel.getUsers().exists(fd))
-        msg = Response::error(StatusCode::getStatusCode("ERR_CHANNELISFULL"), *user, fd_write);
         return (false);
     if (channel.getBannedUsers().exists(fd))
     {
-        if (this->permission | INVITE_ONLY)
-            msg = Response::error(StatusCode::getStatusCode("ERR_INVITEONLYCHAN"), *user, fd_write, "invite only");
-        else
-            msg = Response::error(StatusCode::getStatusCode("ERR_BANNEDFROMCHAN"), *user, fd_write, "you are banned");
+        msg = Response::error(StatusCode::getStatusCode("ERR_BANNEDFROMCHAN"), *user, fd_write, "you are banned");
         return (false);
     }
-    if (this->permission | KET_REQURIE)
+    if (this->permission | INVITE_ONLY && !channel.getInvitedUsers().exists(user->getNickname()))
+        msg = Response::error(StatusCode::getStatusCode("ERR_INVITEONLYCHAN"), *user, fd_write, "invite only");
+        return (false);
+    if (this->permission | KEY_REQURIE)
     {
         if (req.parameter().getParameters().size() < 2)
             msg = Response::error(StatusCode::getStatusCode("ERR_BADCHANNELKEY"), *user, fd_write, "you need key");
