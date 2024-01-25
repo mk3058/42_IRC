@@ -46,6 +46,6 @@ UserMap& Channel::getUsers() { return users; }
 
 UserMap& Channel::getBannedUsers() { return banned_user; }
 
-const UserMap& Channel::getInvitedUsers() { return invited_user; }
+UserMap& Channel::getInvitedUsers() { return invited_user; }
 
-const std::map<int, int>& Channel::getUserPermits() const { return userPermit; }
+std::map<int, int>& Channel::getUserPermits() { return userPermit; }

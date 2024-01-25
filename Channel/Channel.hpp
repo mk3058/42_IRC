@@ -39,6 +39,7 @@ class Channel {
   int getMode() const;
   UserMap& getUsers();
   UserMap& getBannedUsers();
+  UserMap& getInvitedUsers();
   std::map<int, int>& getUserPermits();
 };
 
