@@ -4,7 +4,7 @@ Join::Join(Request req, User *user, fd_set *fd_write) : ICommand(req, user, fd_w
 {
     this->channelMap = &Server::getInstance().getChannelMap();
     if (!channelMap->exists(req.parameter().getParameters()[0]))
-        channelMap->addChannel(Channel(req.parameter().getParameters()[0], *user));
+        channelMap->addChannel(Channel(req.parameter().getParameters()[0]));
     this->channel = channelMap->findChannel(req.parameter().getParameters()[0]);
 }
 

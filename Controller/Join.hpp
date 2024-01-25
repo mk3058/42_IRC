@@ -11,10 +11,11 @@ class Join : public ICommand
     private:
         ChannelMap *channelMap;
         Channel channel;
-    protected:
+        using ICommand::checkPermit;
+        using ICommand::execute;
+    public:
         bool checkPermit(int fd);
         void execute();
-    public:
         Join(Request req, User *user, fd_set *fd_write);
 
 };

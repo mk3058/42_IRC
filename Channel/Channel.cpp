@@ -6,7 +6,7 @@ Channel::Channel() {
   this->mode = DEFAULT;
 }
 
-Channel::Channel(std::string name, User user) {
+Channel::Channel(std::string name) {
   this->name = name;
   this->userLimit = UNLIMITED;
   this->mode = DEFAULT;

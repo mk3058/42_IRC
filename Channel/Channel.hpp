@@ -26,7 +26,7 @@ class Channel {
 
  public:
   Channel();
-  Channel(std::string name, User user);
+  Channel(std::string name);
   void setTopic(std::string topic);
   void setMode(int mode);
   void setUserLimit(int limit);
