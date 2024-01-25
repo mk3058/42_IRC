@@ -34,7 +34,7 @@ void Privmsg::execute() {
 void Privmsg::sendToUser(std::string &userName) {
   // 해당 유저 존재하지 않으면 오류 메시지 저장
   if (!serverUsers.exists(userName)) {
-    msg = Response::error(StatusCode::getStatusCode("ERR_NOSUCHNICK"), *user,
+    msg = Response::error(ERR_NOSUCHNICK, *user,
                           &fd_write);
     write_cnt = 1;
     return;
@@ -54,7 +54,7 @@ void Privmsg::sendToUser(std::string &userName) {
 void Privmsg::sendToChannel(std::string &channelName) {
   // 찾는 채널이 존재하지 않으면 오류 메시지 저장
   if (!serverChannels.exists(channelName)) {
-    msg = Response::error(StatusCode::getStatusCode("ERR_NOSUCHCHANNEL"), *user,
+    msg = Response::error(ERR_NOSUCHCHANNEL, *user,
                           &fd_write);
     write_cnt = 1;
     return;
@@ -95,13 +95,11 @@ bool Privmsg::validate() {
   std::vector<std::string> params = req.parameter().getParameters();
 
   if (!checkPermit()) {
-    msg = Response::error(StatusCode::getStatusCode("ERR_CHANOPRIVSNEEDED"),
-                          *user, &fd_write);
+    msg = Response::error(ERR_CHANOPRIVSNEEDED, *user, &fd_write);
     write_cnt = 1;
     return false;
   } else if (params.size() < 1) {
-    msg = Response::error(StatusCode::getStatusCode("ERR_NEEDMOREPARAMS"),
-                          *user, &fd_write);
+    msg = Response::error(ERR_NEEDMOREPARAMS, *user, &fd_write);
     write_cnt = 1;
     return false;
   }

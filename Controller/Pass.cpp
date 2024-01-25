@@ -24,6 +24,13 @@ void Pass::execute()
             std::cout << user->getfd() << " failed the password " << std::endl;  
         }
     }
+    else
+    {
+        std::vector<std::string> param;
+        param[0] = "*";
+        this->msg = Response::build("PRIVMSG", param, "plz try valid password");
+        send(user->getfd(), msg.c_str(), msg.size(), 0);
+    }
 }
 
 bool Pass::checkPermit()
