@@ -16,7 +16,7 @@ class Join : public ICommand
     public:
         bool checkPermit(int fd);
         void execute();
-        Join(Request req, User *user, fd_set *fd_write);
+        Join(Request req, User *user);
 
 };
 
