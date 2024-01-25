@@ -7,7 +7,7 @@ Nick::Nick(Request request, User *user) : ICommand(request, user)
 void Nick::execute()
 {
     Server &server = Server::getInstance();
-    if (req.parameter().getParameters().size() != 1)
+    if (req.parameter().getParameters().size() != 1) // 파라미터 갯수 안맞을때
     {
         this->msg = Response::error(ERR_NEEDMOREPARAMS, *(this->user), &fd_write);
         send(user->getfd(), msg.c_str(), msg.size(), 0);
@@ -18,7 +18,7 @@ void Nick::execute()
         std::cout << user->getfd() << " try invalid parameter " << std::endl;
         return ;
     }
-    if (checkPermit() == 1)
+    if (checknick() == 1)
     {
         if (server.getUserMap().exists(req.parameter().getParameters()[0])) // 닉네임 이미 있을때
         {
@@ -30,7 +30,7 @@ void Nick::execute()
             send(user->getfd(), msg.c_str(), msg.size(), 0);
             std::cout << user->getfd() << " try an already existing nickname " << std::endl;  
         }
-        else
+        else // 닉네임 제대로 설정했을때
         {
             if (!checkname(req.parameter().getParameters()[0]))
             {
@@ -40,9 +40,13 @@ void Nick::execute()
                 u.setNickname(req.parameter().getParameters()[0]);
                 server.getcerti()[u.getfd()]++;
             }
+            else
+            {
+
+            }
         }
     }
-    else if (checkPermit() == -1)
+    else if (checknick() == -1) // 아직 비밀번호 인증단계 안 끝냈을때
     {
         this->msg = Response::error(ERR_PASSWDMISMATCH, *(this->user), &fd_write);
         send(user->getfd(), msg.c_str(), msg.size(), 0);
@@ -53,7 +57,7 @@ void Nick::execute()
         send(user->getfd(), msg.c_str(), msg.size(), 0);
         std::cout << user->getfd() << " failed the password " << std::endl;  
     }
-    else
+    else // 이미 인증 단계 넘어갔을때
     {
         std::vector<std::string> param;
         param[0] = "*";
@@ -65,9 +69,9 @@ void Nick::execute()
 
 int Nick::checknick()
 {
-    if (Server::getInstance().getcerti()[user->getfd()] < 1)
+    if (Server::getInstance().getcerti()[user->getfd()] < 1) // 아직 비밀번호 인증 안됐을때
         return -1;
-    else if (Server::getInstance().getcerti()[user->getfd()] > 1)
+    else if (Server::getInstance().getcerti()[user->getfd()] > 1) // 이미 비밀번호 인증했을때
         return 0;
     return 1;
 }

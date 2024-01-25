@@ -2,25 +2,25 @@
 
 #include <cstring>
 
-// Server::Server(std::string password, int port) {
-//   this->password = password;
-//   this->port = port;
+Server::Server(std::string password, int port) {
+  this->password = password;
+  this->port = port;
 
-//   totalUsers = 0;
-//   memset(certi, 0, sizeof(certi));
-//   memset(used_fd, 0, sizeof(used_fd));
-//   this->socket_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_HOPOPTS);
-//   if (socket_fd == -1) throw std::runtime_error("Failed socket create");
-//   struct sockaddr_in sin;
-//   sin.sin_family = AF_INET;
-//   sin.sin_addr.s_addr = INADDR_ANY;
-//   sin.sin_port = htons(port);
-//   if (bind(socket_fd, (struct sockaddr *)&sin, sizeof(sin)) == -1)
-//     throw std::runtime_error("Failed bind");
-//   if (listen(socket_fd, LISTEN_QUEUE_SIZE) == -1)
-//     throw std::runtime_error("Failed listen");
-//   used_fd[socket_fd] = 1;
-// }
+  totalUsers = 0;
+  memset(certi, 0, sizeof(certi));
+  memset(used_fd, 0, sizeof(used_fd));
+  this->socket_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_HOPOPTS);
+  if (socket_fd == -1) throw std::runtime_error("Failed socket create");
+  struct sockaddr_in sin;
+  sin.sin_family = AF_INET;
+  sin.sin_addr.s_addr = INADDR_ANY;
+  sin.sin_port = htons(port);
+  if (bind(socket_fd, (struct sockaddr *)&sin, sizeof(sin)) == -1)
+    throw std::runtime_error("Failed bind");
+  if (listen(socket_fd, LISTEN_QUEUE_SIZE) == -1)
+    throw std::runtime_error("Failed listen");
+  used_fd[socket_fd] = 1;
+}
 
 // // * merge를 위해 주석 처리 합니다
 // //  * 이후 추가 처리 필요

@@ -34,8 +34,9 @@
 #define ERR_USERNOTINCHANNEL "441"  // target user not in channel (MODE, KICK)
 #define ERR_NOTONCHANNEL "442"  // not on channel (PART, INVITE, KICK)
 #define ERR_USERONCHANNEL "443"   // Already is in the channel (invite)
-#define ERR_NOTREGISTERED "451"
+#define ERR_NOTREGISTERED "451" // not resistered yet (NICK, USER)
 #define ERR_NEEDMOREPARAMS "461"  // not enough parameters (ALL)
+#define ERR_ALREADYREGISTRED "462"
 #define ERR_PASSWDMISMATCH "464" // password fail in connect (PASS)
 #define ERR_KEYSET "467"  // channel password is already set (MODE)
 #define ERR_CHANNELISFULL "471"  // (+l) channel already full (JOIN)

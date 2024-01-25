@@ -11,7 +11,7 @@ class Nick : public ICommand
         Nick(Request request, User *user);
 
         void execute();
-        bool checkpermit() {};
+        bool checkpermit();
         int checknick();
         std::string getResponse() const;
         int getCount() const;

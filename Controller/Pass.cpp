@@ -37,6 +37,7 @@ void Pass::execute()
 
 bool Pass::checkPermit()
 {
+    return (1);
 }
 
 std::string Pass::getResponse() const
