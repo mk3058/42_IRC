@@ -29,11 +29,15 @@
 #define ERR_NOSUCHCHANNEL "403"  // no such channel (JOIN, PART, KICK)
 #define ERR_TOOMANYCHANNELS "405"  // already joined too many channels (JOIN)
 #define ERR_TOOMANYTARGETS "407"  // too many targets (JOIN)
+#define ERR_NICKNAMEINUSE "433" // already exist niname
 #define ERR_UNAVAILRESOURCE "437"  // nick/channel is temporarily unavailable (JOIN)
 #define ERR_USERNOTINCHANNEL "441"  // target user not in channel (MODE, KICK)
 #define ERR_NOTONCHANNEL "442"  // not on channel (PART, INVITE, KICK)
 #define ERR_USERONCHANNEL "443"   // Already is in the channel (invite)
+#define ERR_NOTREGISTERED "451" // not resistered yet (NICK, USER)
 #define ERR_NEEDMOREPARAMS "461"  // not enough parameters (ALL)
+#define ERR_ALREADYREGISTRED "462"
+#define ERR_PASSWDMISMATCH "464" // password fail in connect (PASS)
 #define ERR_KEYSET "467"  // channel password is already set (MODE)
 #define ERR_CHANNELISFULL "471"  // (+l) channel already full (JOIN)
 #define ERR_UNKNOWNMODE "472"    // is an unknown mode (MODE)

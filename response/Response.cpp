@@ -42,6 +42,13 @@ std::string Response::build(std::string responseCode,
   return build(responseCode, params, trailer, DEFAULT_PREFIX);
 }
 
+std::string Response::build(std::string prefix,
+                           std::string responseCode,
+                           std::string trailer) {
+  std::vector<std::string> para;
+  return build(responseCode, para, trailer, prefix);
+}
+
 std::string Response::build(std::string responseCode,
                             std::vector<std::string> params) {
   return build(responseCode, params, "");
