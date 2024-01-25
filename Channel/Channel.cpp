@@ -36,8 +36,8 @@ int Channel::getUserLimit() const { return userLimit; }
 
 int Channel::getMode() const { return mode; }
 
-const UserMap& Channel::getUsers() const { return users; }
+UserMap& Channel::getUsers() { return users; }
 
-const UserMap& Channel::getBannedUsers() const { return banned_user; }
+UserMap& Channel::getBannedUsers() { return banned_user; }
 
-const std::map<int, int>& Channel::getUserPermits() const { return userPermit; }
+std::map<int, int>& Channel::getUserPermits() { return userPermit; }
