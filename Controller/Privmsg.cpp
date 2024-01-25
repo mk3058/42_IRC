@@ -21,6 +21,7 @@ void Privmsg::execute() {
 
     std::string targetName = getTargetName(params.at(0));
     if (targetName.at(0) == '#') {
+      targetName = targetName.substr(1, std::string::npos);
       sendToChannel(targetName);
     } else {
       // Username이 포함된 경우 무시 (닉네임만 잘라서 진행)
