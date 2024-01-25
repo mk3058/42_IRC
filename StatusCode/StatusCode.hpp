@@ -5,7 +5,6 @@
 #include <map>
 #include <stdexcept>
 
-#include "StatusCode.hpp"
 #define RPL_WELCOME "001"  // connect is success
 
 #define RPL_BOUNCE "005"  // server is already fully
