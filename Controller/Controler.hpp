@@ -4,19 +4,16 @@
 #include <sys/select.h>
 
 #include "Request.hpp"
+#include "Server.hpp"
 
 class Controler
 {
     private:
         Request     &request;
-        std::string &responseMessage;
-        int         msgLength;
-        int         fdCnt;
-        fd_set      &fd_write;
+        User        user;
 
     public:
-        Controler(Request &request, fd_set &fd_write);
-        
+        Controler(Request &request, User *user);
         void        execute();
         
         int         getWriteCnt();
