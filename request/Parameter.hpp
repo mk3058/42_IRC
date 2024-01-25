@@ -9,14 +9,14 @@ class Parameter {
  private:
   std::vector<std::string> params;
   std::string trailer;
-  bool isTrailerExists;
+  bool TrailerExists;
 
  public:
   Parameter();
   void set(const std::string &parameter);
   std::vector<std::string> getParameters() const;
   std::string getTrailer() const;
-  bool isParameterExists();
+  bool isTrailerExists();
 };
 
 #endif
