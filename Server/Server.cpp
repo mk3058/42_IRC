@@ -2,28 +2,28 @@
 
 #include <cstring>
 
-Server::Server(std::string password, int port) {
-  this->password = password;
-  this->port = port;
+// Server::Server(std::string password, int port) {
+//   this->password = password;
+//   this->port = port;
 
-  totalUsers = 0;
-  memset(certi, 0, sizeof(certi));
-  memset(used_fd, 0, sizeof(used_fd));
-  this->socket_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_HOPOPTS);
-  if (socket_fd == -1) throw std::runtime_error("Failed socket create");
-  struct sockaddr_in sin;
-  sin.sin_family = AF_INET;
-  sin.sin_addr.s_addr = INADDR_ANY;
-  sin.sin_port = htons(port);
-  if (bind(socket_fd, (struct sockaddr *)&sin, sizeof(sin)) == -1)
-    throw std::runtime_error("Failed bind");
-  if (listen(socket_fd, LISTEN_QUEUE_SIZE) == -1)
-    throw std::runtime_error("Failed listen");
-  used_fd[socket_fd] = 1;
-}
+//   totalUsers = 0;
+//   memset(certi, 0, sizeof(certi));
+//   memset(used_fd, 0, sizeof(used_fd));
+//   this->socket_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_HOPOPTS);
+//   if (socket_fd == -1) throw std::runtime_error("Failed socket create");
+//   struct sockaddr_in sin;
+//   sin.sin_family = AF_INET;
+//   sin.sin_addr.s_addr = INADDR_ANY;
+//   sin.sin_port = htons(port);
+//   if (bind(socket_fd, (struct sockaddr *)&sin, sizeof(sin)) == -1)
+//     throw std::runtime_error("Failed bind");
+//   if (listen(socket_fd, LISTEN_QUEUE_SIZE) == -1)
+//     throw std::runtime_error("Failed listen");
+//   used_fd[socket_fd] = 1;
+// }
 
-// * merge를 위해 주석 처리 합니다
-//  * 이후 추가 처리 필요
+// // * merge를 위해 주석 처리 합니다
+// //  * 이후 추가 처리 필요
 // void Server::connect() {
 //   int cs;
 //   struct sockaddr_in csin;
@@ -32,13 +32,22 @@ Server::Server(std::string password, int port) {
 //   csin_len = sizeof(csin);
 //   cs = accept(socket_fd, (struct sockaddr *)&csin, &csin_len);
 //   if (cs == -1) throw std::runtime_error("Failed accept");
-//   // Welcome 메시지 전송 -> 해당 User connect
-//   // user(cs); //최초 디폴트 유저객체 생성
-//   // server.getusermap().adduser()
-
-//   used_fd[cs] = 1;
-//   std::cout << "New client " << cs << " from " << inet_ntoa(csin.sin_addr)
-//             << ":" << ntohs(csin.sin_port) << std::endl;
+//   if (totalUsers > 997)
+//   {
+//     send(cs, ":ircserv.com NOTICE * :already fully\r\n", \
+//     sizeof(":ircserv.com NOTICE * :already fully\r\n"), 0);
+//     close(cs);
+//     std::cout << "New client " << cs << " from " << inet_ntoa(csin.sin_addr)
+//               << ":" << ntohs(csin.sin_port) << "is refused !" << std::endl;
+//   }
+//   else
+//   {
+//     User newUser(cs);
+//     this->userMap.addUser(cs, newUser);
+//     used_fd[cs] = 1;
+//     std::cout << "New client " << cs << " from " << inet_ntoa(csin.sin_addr)
+//               << ":" << ntohs(csin.sin_port) << std::endl;
+//   }
 // }
 
 // void Server::io_multiplex() {
@@ -46,7 +55,6 @@ Server::Server(std::string password, int port) {
 //   int changedFdCount = 0;
 
 //   FD_ZERO(&fd_read);
-//   FD_ZERO(&fd_write);
 //   while (i < MAX_USER) {
 //     if (used_fd[i]) {
 //       FD_SET(i, &fd_read);
@@ -73,17 +81,8 @@ Server::Server(std::string password, int port) {
 //           // 이후 아래부분 실행 안되게 처리
 //         }
 //         Request request(buf); //입력 메시지 파싱
-//         Controller Controller(request, &fd_write); //파싱 결과를 바탕으로
-//         command 실행 int write_cnt = command.getWriteCnt(); //전송할 fd 개수
-//         확인
-//          for (int i = 0; i < MAX_USER; i++) {
-//            if (FD_ISSET(i, &fd_write)) {
-//              send(i, command.getRespons(), command.getlengthRs(), 0);
-//              write_cnt--;
-//            }
-//          응답 메시지 전송
-//         if (!write_cnt) break;
-//       }
+//         Controller Controller(request); //파싱 결과를 바탕으로
+//         Controller.excute();
 //     }
 //     changedFdCount--;
 //     i++;
@@ -139,3 +138,15 @@ Server Server::operator=(const Server &rval) {
 }
 
 Server::~Server() { delete instance; }
+
+void  Server::Send(const std::string ResMsg, int write_cnt, fd_set *fd_write)
+{
+  size_t length = ResMsg.size();
+  for (int i = 0; i < MAX_USER; i++) {
+           if (FD_ISSET(i, fd_write)) {
+             send(i, ResMsg.c_str(), length, 0);
+             write_cnt--;
+           }
+        if (!write_cnt) break;
+      }
+}
