@@ -13,6 +13,7 @@
 #include <stdexcept>
 #include <string>
 
+#include "Response.hpp"
 #include "Channel.hpp"
 #include "ChannelMap.hpp"
 #include "Command.hpp"
@@ -49,10 +50,10 @@ class Server {
  public:
   void connect();
   void io_multiplex();
-  void test(int cs);
   bool auth(const std::string &password) const;
   UserMap &getUserMap();
   ChannelMap &getChannelMap();
+  void   Send(const std::string ResMsg, int write_cnt, fd_set *fd_write);
   static Server &getInstance(std::string password, int port);
   static Server &getInstance();
   ~Server();
