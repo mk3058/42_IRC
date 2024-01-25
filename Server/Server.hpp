@@ -53,6 +53,8 @@ class Server {
   bool auth(const std::string &password) const;
   UserMap &getUserMap();
   ChannelMap &getChannelMap();
+  int           gettotalUsers();
+  int           *getcerti();
   static Server &getInstance(std::string password, int port);
   static Server &getInstance();
   ~Server();

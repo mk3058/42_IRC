@@ -99,6 +99,10 @@ UserMap &Server::getUserMap() { return this->userMap; }
 
 ChannelMap &Server::getChannelMap() { return this->channelMap; }
 
+int  *Server::getcerti() { return this->certi; }
+
+int   Server::gettotalUsers() { return this->totalUsers; }
+
 Server *Server::instance = NULL;
 
 /**
