@@ -40,6 +40,7 @@ statusMap["ERR_NOSUCHCHANNEL"] = "403"; // no such channel (JOIN, PART,
   statusMap["ERR_NOTONCHANNEL"] = "442";  // not on channel (PART, INVITE, KICK)
   statusMap["ERR_USERONCHANNEL"] = "443";   // Already is in channel (invite)
   statusMap["ERR_NEEDMOREPARAMS"] = "461";  // not enough parameters (ALL)
+  statusMap["ERR_PASSWDMISMATCH"] = "464"; // pass try fail (PASS)
   statusMap["ERR_KEYSET"] = "467";  // channel password is already set (MODE)
   statusMap["ERR_CHANNELISFULL"] = "471";  // (+l) channel already full (JOIN)
   statusMap["ERR_UNKNOWNMODE"] = "472";    // is unknown mode (MODE)

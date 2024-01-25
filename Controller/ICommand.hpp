@@ -7,6 +7,7 @@
 #include "Request.hpp"
 #include "Response.hpp"
 #include "User.hpp"
+#include "Server.hpp"
 
 class ICommand {
  protected:
