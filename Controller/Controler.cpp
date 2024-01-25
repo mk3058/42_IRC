@@ -1,108 +1,89 @@
 #include "Controler.hpp"
 
-Controler::Controler(Request &requeste, User *user)
-{
-    this->request = request;
-    msgLength = 0;
-    fdCnt = 0;
-}
+Controler::Controler(Request &req, User *user) : request(req) , user(user) {}
 
 void    Controler::execute()
 {
     std::string cmd = request.command().getCommand();
-    if (Server::getInstance().)
+    if (Server::getInstance().getcerti()[user->getfd()] < 3)
     {
-    if (cmd == "PASS")
-    {
-        Certification certi(request);
-        responseMessage = certi.getResponse();
-        fdCnt = certi.getCnt();
-    }
-    else if (cmd == "NICK")
-    {
+        if (cmd == "PASS")
+        {
+            Pass    pass(request, this->user);
+            pass.execute();
+        }
+        else if (cmd == "NICK")
+        {
+            Nick    nick(request, this->user);
+            nick.execute();
+        }
         
-        Certification certi(request);
-        responseMessage = certi.getResponse();
-        fdCnt = certi.getCnt();
-    }
-    
-    else if (cmd == "USER")
-    {
-        Certification certi(request);
-        responseMessage = certi.getResponse();
-        fdCnt = certi.getCnt();
-    }
-    }
-    else if (cmd == "JOIN")
-    {
-        Join join(request);
-        responseMessage = join.getResponse();
-        fdCnt = join.getCnt();
-    }
-    else if (cmd == "PART")
-    {
-        Part part(request);
-        responseMessage = part.getResponse();
-        fdCnt = part.getCnt();
-    }
-    else if (cmd == "KICK")
-    {
-        Kick kick(request);
-        responseMessage = kick.getResponse();
-        fdCnt = kick.getCnt();
-    }
-    else if (cmd == "INVITE")
-    {
-        Invite invite(request);
-        responseMessage = invite.getResponse();
-        fdCnt = invite.getCnt();
-    }
-    else if (cmd == "TOPIC")
-    {
-        Topic topic(request);
-        responseMessage = topic.getResponse();
-        fdCnt = topic.getCnt();
-    }
-    else if (cmd == "MODE")
-    {
-        Mode mode(request);
-        responseMessage = mode.getResponse();
-        fdCnt = mode.getCnt();
-    }
-    else if (cmd == "DCC")
-    {
-        Dcc dcc(request);
-        responseMessage = dcc.getResponse();
-        fdCnt = dcc.getCnt();
-    }
-    else if (cmd == "BOT")
-    {
-        Bot bot(request);
-        responseMessage = bot.getResponse();
-        fdCnt = bot.getCnt();
+        else if (cmd == "USER")
+        {
+            UserCmd usercmd(request, this->user);
+            usercmd.execute();
+        }
+        else
+        {
+            fd_set fd_write;
+            FD_ZERO(&fd_write);
+            std::string msg = Response::error(ERR_NOTREGISTERED, *(this->user), &fd_write, "Not yet resistered");
+            send(user->getfd(), msg.c_str(), msg.size(), 0);
+        }
     }
     else
     {
-        responseMessage = "Not found command";
-        fdCnt = 1;
+        if (cmd == "JOIN")
+        {
+            Join join(request, this->user);
+            join.execute();
+        }
+        else if (cmd == "PRIVMSG")
+        {
+            Privmsg privmsg(request, this->user);
+            privmsg.execute();
+        }
+        // else if (cmd == "PART")
+        // {
+        //     Part part(request, this->user);
+        //     part.excute();
+        // }
+        // else if (cmd == "KICK")
+        // {
+        //     Kick kick(request, this->user);
+        //     kick.excute();
+        // }
+        // else if (cmd == "INVITE")
+        // {
+        //     Invite invite(request, this->user);
+        //     invite.excute();
+        // }
+        else if (cmd == "TOPIC")
+        {
+            Topic topic(request, this->user);
+            topic.execute();
+        }
+        // else if (cmd == "MODE")
+        // {
+        //     Mode mode(request, this->user);
+        //     mode.excute();
+        // }
+        // else if (cmd == "DCC")
+        // {
+        //     Dcc dcc(request, this->user);
+        //     dcc.excute();
+        // }
+        // else if (cmd == "BOT")
+        // {
+        //     Bot bot(request, this->user);
+        //     bot.excute();
+        // }
+        else
+        {
+            fd_set fd_write;
+            FD_ZERO(&fd_write);
+            std::string msg = Response::error(ERR_UNKNOWNCOMMAND, *(this->user), &fd_write, "Unknown Command");
+            send(user->getfd(), msg.c_str(), msg.size(), 0);
+        }
     }
-    }
-
-    msgLength = responseMessage.size();
-}
-
-
-int Controler::getlengthRs()
-{
-    return (msgLength);
-}
-
-int Controler::getWriteCnt()
-{
-    return (fdCnt);
-}
-
-std::string Controler::getRespons()
-{
-    return (responseMessage);
 }

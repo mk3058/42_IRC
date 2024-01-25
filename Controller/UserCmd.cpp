@@ -7,7 +7,7 @@ UserCmd::UserCmd(Request request, User *user) : ICommand(request, user)
 void UserCmd::execute()
 {
     Server &server = Server::getInstance();
-    if (checkUser() == -1)  // 아직 앞 단계 인증이 안됐을때
+    if (!checkPermit())  // 아직 앞 단계 인증이 안됐을때
     {
         this->msg = Response::error(ERR_NOTREGISTERED, *(this->user), &fd_write);
         send(user->getfd(), msg.c_str(), msg.size(), 0);
@@ -16,15 +16,6 @@ void UserCmd::execute()
         this->msg = Response::build("PRIVMSG", param, "Not yet resistered");
         send(user->getfd(), msg.c_str(), msg.size(), 0); 
     }
-    else if (checkUser() == 0) // 이미 인증을 끝냈을 때
-    {
-        this->msg = Response::error(ERR_ALREADYREGISTRED, *(this->user), &fd_write);
-        send(user->getfd(), msg.c_str(), msg.size(), 0);
-        std::vector<std::string> param;
-        param[0] = "*";
-        this->msg = Response::build("PRIVMSG", param, " is already seted username");
-        send(user->getfd(), msg.c_str(), msg.size(), 0);
-    }
     else // 인증 단계일때
     {
         if (req.parameter().getParameters().size() != 3 || checkname(req.parameter().getParameters()[0])) // 파라미터 잘못 들어왔을때
@@ -32,7 +23,7 @@ void UserCmd::execute()
             this->msg = Response::error(ERR_NEEDMOREPARAMS, *(this->user), &fd_write);
             send(user->getfd(), msg.c_str(), msg.size(), 0);
         }
-        else
+        else // 인증 성공 했을 때
         {
             std::vector<std::string> param;
             param[0] = user->getNickname();
@@ -44,13 +35,10 @@ void UserCmd::execute()
 }
 
 
-int UserCmd::checkUser()
+bool UserCmd::checkPermit()
 {
-    int certi = Server::getInstance().getcerti()[user->getfd()];
-    if (certi < 2)
-        return -1;   //비밀번호 및 닉네임 설정이 안됐을때
-    if (certi == 3)
-        return 0; // 이미 인증을 끝냈을때
+    if (Server::getInstance().getcerti()[user->getfd()] < 2)
+        return 0;   //비밀번호 및 닉네임 설정이 안됐을때
     return 1;    // 유저네임 인증해야 할때
 }
 

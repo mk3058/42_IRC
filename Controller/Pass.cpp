@@ -5,11 +5,11 @@ Pass::Pass(Request request, User *user) : ICommand(request, user) {}
 void Pass::execute()
 {
     Server &server = Server::getInstance();
-    if (server.auth(req.parameter().getParameters()[0]) == 0)
+    if (server.auth(req.parameter().getParameters()[0]) == 0)   // 비밀번호 틀린 경우
     {
         this->msg = Response::error(ERR_PASSWDMISMATCH, *(this->user), &fd_write);
         send(user->getfd(), msg.c_str(), msg.size(), 0);
-        if (server.getcerti()[user->getfd()] == -2)
+        if (server.getcerti()[user->getfd()] == -2)     // 3번 틀린 경우
         {
             close(user->getfd());
             server.getUserMap().deleteUser(user->getfd());

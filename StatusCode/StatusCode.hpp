@@ -29,6 +29,8 @@
 #define ERR_NOSUCHCHANNEL "403"  // no such channel (JOIN, PART, KICK)
 #define ERR_TOOMANYCHANNELS "405"  // already joined too many channels (JOIN)
 #define ERR_TOOMANYTARGETS "407"  // too many targets (JOIN)
+#define ERR_UNKNOWNCOMMAND "421" // Unknown Command
+#define ERR_ERRONEUSNICKNAME "432" //nickname error
 #define ERR_NICKNAMEINUSE "433" // already exist niname
 #define ERR_UNAVAILRESOURCE "437"  // nick/channel is temporarily unavailable (JOIN)
 #define ERR_USERNOTINCHANNEL "441"  // target user not in channel (MODE, KICK)
