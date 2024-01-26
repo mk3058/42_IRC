@@ -50,12 +50,14 @@ bool Kick::checkPermit()
     {
         msg = Response::error(ERR_NEEDMOREPARAMS, *user, &fd_write, "need user name");
         Server::getInstance().Send(msg, 1, &fd_write);
+        return (false);
     }
     //유저네임이 잘못됨
     if (channel.getUsers().exists(req.parameter().getParameters()[2]))
     {
         msg = Response::error(ERR_USERNOTINCHANNEL, *user, &fd_write, "user not in channel");
         Server::getInstance().Send(msg, 1, &fd_write);
+        return (false);
     }
     return (true);
 }
