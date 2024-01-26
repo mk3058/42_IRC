@@ -20,6 +20,7 @@ Server::Server(std::string password, int port) {
   if (listen(socket_fd, LISTEN_QUEUE_SIZE) == -1)
     throw std::runtime_error("Failed listen");
   used_fd[socket_fd] = 1;
+  std::cout << "server is created" << std::endl;
 }
 
 // // * merge를 위해 주석 처리 합니다
@@ -34,14 +35,15 @@ void Server::connect() {
   if (cs == -1) throw std::runtime_error("Failed accept");
   if (totalUsers > 997)
   {
-    send(cs, ":ircserv.com NOTICE * :already fully\r\n", \
-    sizeof(":ircserv.com NOTICE * :already fully\r\n"), 0);
+    // send(cs, ":ircserv.com NOTICE * :already fully\r\n", \
+    // sizeof(":ircserv.com NOTICE * :already fully\r\n"), 0);
     close(cs);
     std::cout << "New client " << cs << " from " << inet_ntoa(csin.sin_addr)
               << ":" << ntohs(csin.sin_port) << "is refused !" << std::endl;
   }
   else
   {
+    send(cs, "CAP * LS :\r\n", sizeof("CAP * LS :\r\n"), 0);
     User newUser(cs);
     this->userMap.addUser(cs, newUser);
     used_fd[cs] = 1;
@@ -62,33 +64,41 @@ void Server::io_multiplex() {
     }
     i++;
   }
+  std::cout << changedFdCount << std::endl;
   int r = select(changedFdCount + 1, &fd_read, &fd_write, 0, 0);
   if (r < 0) {
     throw std::runtime_error("Failed select");
   }
   i = 0;
   while ((i < MAX_USER) && (changedFdCount > 0)) {
-    if (FD_ISSET(i, &fd_read)) {
-      if (i == socket_fd) {
+    if (FD_ISSET(i, &fd_read)) 
+    {
+      if (i == socket_fd)
+      {
         this->connect();
-      } else {
+      }
+       else
+       {
         char buf[512];
         r = recv(i, buf, 512, 0);
-        if (r < 0) {
+        if (r < 0)
+        {
           std::cout << "client #" << i << " gone away" << std::endl;
           close(i);
           used_fd[i] = 0;
-          break ;
         }
-        Request request(buf); //입력 메시지 파싱
-        Controler Controler(request, &(this->userMap.findUser(i))); //파싱 결과를 바탕으로
-        Controler.execute();
+        else
+        {
+          Request request(buf); //입력 메시지 파싱
+          Controler Controler(request, &(this->userMap.findUser(i))); //파싱 결과를 바탕으로
+          Controler.execute();
+        }
+        }
+        changedFdCount--;
     }
-    changedFdCount--;
     i++;
   }
-}
-}
+  }
 
 bool Server::auth(const std::string &password) const {
   return !this->password.compare(password);
@@ -121,9 +131,9 @@ Server &Server::getInstance(std::string password, int port) {
  * (instance가 초기화 되지 않은 경우 exception을 throw 합니다)
  */
 Server &Server::getInstance() {
-  if (instance == NULL) {
-    throw std::invalid_argument("instance hasn't been initialized yet!");
-  }
+  // if (instance == NULL) {
+  //   throw std::invalid_argument("instance hasn't been initialized yet!");
+  // }
 
   return *instance;
 }

@@ -14,6 +14,7 @@ void    Controler::execute()
     std::string cmd = request.command().getCommand();
     if (Server::getInstance().getcerti()[user->getfd()] < 3)
     {
+
         if (cmd == "PASS")
         {
             Pass    pass(request, this->user);
@@ -29,6 +30,10 @@ void    Controler::execute()
         {
             UserCmd usercmd(request, this->user);
             usercmd.execute();
+        }
+        else if (cmd == "CAP")
+        {
+            send(user->getfd(), "CAP * LS :\r\n", sizeof("CAP * LS :\r\n"), 0);
         }
         else
         {
