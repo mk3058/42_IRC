@@ -1,8 +1,7 @@
 #ifndef USERMAP_HPP
 #define USERMAP_HPP
 
-#include <map>
-#include <string>
+
 #include <vector>
 
 #include "User.hpp"
