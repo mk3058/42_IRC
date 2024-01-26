@@ -24,14 +24,14 @@ int main(int ac, char *av[]) {
   (void)ac;
   (void)av;
 
-  // try {
-  //   int port = arg_check(ac, av[1], av[2]);
-  //   Server &server = Server::getInstance(av[1], port);
+  try {
+    int port = arg_check(ac, av[1], av[2]);
+    Server &server = Server::getInstance(av[1], port);
 
-  //   while (true) {
-  //     server.io_multiplex();
-  //   }
-  // } catch (const std::exception &e) {
-  //   std::cerr << e.what() << std::endl;
-  // }
+    while (true) {
+      server.io_multiplex();
+    }
+  } catch (const std::exception &e) {
+    std::cerr << e.what() << std::endl;
+  }
 }

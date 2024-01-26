@@ -1,5 +1,12 @@
 #include "Controler.hpp"
 
+#include "Pass.hpp"
+#include "Nick.hpp"
+#include "UserCmd.hpp"
+#include "Privmsg.hpp"
+#include "Join.hpp"
+#include "Topic.hpp"
+
 Controler::Controler(Request &req, User *user) : request(req) , user(user) {}
 
 void    Controler::execute()

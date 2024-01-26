@@ -13,6 +13,7 @@
 #include <stdexcept>
 #include <string>
 
+#include "Controler.hpp"
 #include "Response.hpp"
 #include "Channel.hpp"
 #include "ChannelMap.hpp"

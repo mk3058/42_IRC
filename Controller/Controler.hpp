@@ -5,12 +5,8 @@
 
 #include "Request.hpp"
 #include "Server.hpp"
-#include "Pass.hpp"
-#include "Nick.hpp"
-#include "UserCmd.hpp"
-#include "Privmsg.hpp"
-#include "Join.hpp"
-#include "Topic.hpp"
+
+class User;
 
 class Controler
 {
