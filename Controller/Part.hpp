@@ -11,10 +11,9 @@ class Part : public ICommand
     private:
         ChannelMap *channelMap;
         Channel channel;
-    protected:
         bool checkPermit();
-        void execute();
     public:
+        void execute();
         Part(Request req, User *user);
 };
 
