@@ -1,7 +1,7 @@
 #include "UserMap.hpp"
 
 #include <exception>
-
+#include <iostream>
 UserMap::UserMap() {}
 
 UserMap::~UserMap() {}
@@ -13,6 +13,7 @@ void UserMap::addUser(int fd, User user) {
   fdMapResult = userMap.insert(std::make_pair(fd, user));
   nicknameMapResult =
       nicknameMap.insert(std::make_pair(user.getNickname(), user));
+      std::cout << "Key: " << user.getNickname() << std::endl;
   if (!fdMapResult.second || !nicknameMapResult.second) {
     throw std::invalid_argument("Cannot add user!! duplicate key exist");
   }

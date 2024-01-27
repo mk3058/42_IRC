@@ -22,6 +22,7 @@ class UserMap {
   User &findUser(std::string nickname);
   bool exists(int fd) const;
   bool exists(std::string nickname) const;
+  int getUserMapCnt() { return userMap.size(); }
   std::vector<User *> findAllUsers();
 };
 

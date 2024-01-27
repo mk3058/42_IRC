@@ -48,6 +48,7 @@ void Privmsg::sendToUser(std::string &userName) {
                         req.parameter().getParameters(),
                         req.parameter().getTrailer(), prefix);
   write_cnt = 1;
+  std::cout << "target fd is " << target.getfd() << std::endl;
   FD_SET(target.getfd(), &fd_write);
 }
 

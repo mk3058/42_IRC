@@ -43,10 +43,9 @@ void Nick::execute()
             {
                 User newuser = server.getUserMap().findUser(user->getfd());
                 server.getUserMap().deleteUser(user->getfd());
+                newuser.setNickname(req.parameter().getParameters()[0]);
                 server.getUserMap().addUser(newuser.getfd(), newuser);
-                User &u = server.getUserMap().findUser(newuser.getfd());
-                u.setNickname(req.parameter().getParameters()[0]);
-                server.getcerti()[u.getfd()]++;
+                server.getcerti()[newuser.getfd()]++;
             }
         }
     }

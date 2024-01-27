@@ -33,6 +33,7 @@ void UserCmd::execute()
             send(user->getfd(), msg.c_str(), msg.size(), 0);
             server.getcerti()[user->getfd()] = 3;
             std::cout << user->getfd() << "(Client) is resistered" << std::endl;
+            
         }
     }
 }

@@ -168,6 +168,7 @@ void  Server::Send(const std::string ResMsg, int write_cnt, fd_set *fd_write)
            if (FD_ISSET(i, fd_write)) {
              send(i, ResMsg.c_str(), length, 0);
              write_cnt--;
+             std::cout << "write fd is " << i << std::endl;
            }
         if (!write_cnt) break;
       }
