@@ -83,11 +83,14 @@ void    Controler::execute()
             Topic topic(request, this->user);
             topic.execute();
         }
-        // else if (cmd == "MODE")
-        // {
-        //     Mode mode(request, this->user);
-        //     mode.excute();
-        // }
+        else if (cmd == "MODE")
+        {
+            if (request.parameter().getParameters()[0].find('#') == std::string::npos)
+                send(user->getfd(), ":ircserv.com  MODE root :+i\r\n", \
+                sizeof(":ircserv.com  MODE root :+i\r\n"), 0);
+            // Mode mode(request, this->user);
+            // mode.excute();
+        }
         // else if (cmd == "DCC")
         // {
         //     Dcc dcc(request, this->user);

@@ -39,9 +39,12 @@ void Nick::execute()
                 param.push_back(req.parameter().getParameters()[0]);
                 this->msg = Response::build(ERR_ERRONEUSNICKNAME, param, "Erroneous Nickname");
             }
-            else // 닉네임 설정이 잘 되었을 때 별도의 메세지 보내지 않음
+            else // 닉네임 설정이 잘 되었을
             {
-                User &u = server.getUserMap().findUser(this->user->getfd());
+                User newuser = server.getUserMap().findUser(user->getfd());
+                server.getUserMap().deleteUser(user->getfd());
+                server.getUserMap().addUser(newuser.getfd(), newuser);
+                User &u = server.getUserMap().findUser(newuser.getfd());
                 u.setNickname(req.parameter().getParameters()[0]);
                 server.getcerti()[u.getfd()]++;
             }

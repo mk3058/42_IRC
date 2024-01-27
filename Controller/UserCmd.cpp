@@ -26,6 +26,7 @@ void UserCmd::execute()
         }
         else // 인증 성공 했을 때
         {
+            server.getUserMap().setUname(user->getfd(), req.parameter().getParameters()[0]);
             std::vector<std::string> param;
             param.push_back(user->getNickname());
             msg = Response::build(RPL_WELCOME, param, "welcome");

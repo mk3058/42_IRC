@@ -20,16 +20,22 @@ static void parseParameter(std::string parameter,
 
   // 구분자(" ")를 기준으로 파라미터를 tokenize 하여 주어진 벡터에 저장
   pos = 0;
-  while ((pos = parameter.find(parameterDelimeter)) != std::string::npos) {
-    if (pos) {  // 빈 문자열이 아닐때만 추가
-      token.push_back(parameter.substr(0, pos));
+  if (parameter.find(" ") == std::string::npos)
+  {
+    pos = parameter.find('\r');
+    token.push_back(parameter.substr(0, pos));
+  }
+  else
+  {
+    while ((pos = parameter.find(parameterDelimeter)) != std::string::npos) {
+      if (pos) {  // 빈 문자열이 아닐때만 추가
+        token.push_back(parameter.substr(0, pos));
+      }
+      parameter.erase(0, pos + parameterDelimeter.length());
     }
-    parameter.erase(0, pos + parameterDelimeter.length());
   }
 
   // parameter가 하나만 들어오는 경우
-  pos = parameter.find('\r');
-  token.push_back(parameter.substr(0, pos));
 
   // trailing을 제외한 파라미터의 개수가 14개를 초과할때 예외처리
   if (token.size() > 14) {
