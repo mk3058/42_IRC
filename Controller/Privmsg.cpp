@@ -4,11 +4,10 @@
 
 static std::string getTargetName(std::string param);
 
-Server &Privmsg::server = Server::getInstance();
-ChannelMap &Privmsg::serverChannels = server.getChannelMap();
-UserMap &Privmsg::serverUsers = server.getUserMap();
-
-Privmsg::Privmsg(Request request, User *user) {
+Privmsg::Privmsg(Request request, User *user)
+    : server(Server::getInstance()),
+      serverChannels(server.getChannelMap()),
+      serverUsers(server.getUserMap()) {
   this->req = request;
   this->user = user;
   this->permission = DEFAULT;
