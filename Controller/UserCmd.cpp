@@ -29,7 +29,6 @@ void UserCmd::execute()
             std::vector<std::string> param;
             param.push_back(user->getNickname());
             msg = Response::build(RPL_WELCOME, param, "welcome");
-            std::cout << msg << std::endl;
             send(user->getfd(), msg.c_str(), msg.size(), 0);
             server.getcerti()[user->getfd()] = 3;
             std::cout << user->getfd() << "(Client) is resistered" << std::endl;

@@ -14,20 +14,11 @@ void Pass::execute()
     {
         this->msg = Response::error(ERR_PASSWDMISMATCH, *(this->user), &fd_write);
         send(user->getfd(), msg.c_str(), msg.size(), 0);
-        if (server.getcerti()[user->getfd()] == -2)     // 3번 틀린 경우
-        {
-            close(user->getfd());
-            server.getUserMap().deleteUser(user->getfd());
-            std::cout << user->getfd() << " is disconnected by attempt three times." << std::endl;
-        }
-        else if (server.getcerti()[user->getfd()] <= 0)
-        {
-            server.getcerti()[user->getfd()]--;
-            std::vector<std::string> param;
-            param.push_back("*");
-            this->msg = Response::build("PRIVMSG", param, "plz try valid password");
-            send(user->getfd(), msg.c_str(), msg.size(), 0);
-        }
+        close(user->getfd());
+        server.getUserMap().deleteUser(user->getfd());
+        server.getUsedfd()[user->getfd()] = 0;
+        std::cout << user->getfd() << " is disconnected by attempt three times." << std::endl;
+        
     }
     else // 성공했을 경우
     {

@@ -12,7 +12,15 @@ Controler::Controler(Request &req, User *user) : request(req) , user(user) {}
 void    Controler::execute()
 {
     std::string cmd = request.command().getCommand();
-    if (Server::getInstance().getcerti()[user->getfd()] < 3)
+    if (cmd == "PING")
+    {
+        send(user->getfd(), "PONG :server\r\n", sizeof("PONG :ircserv.com\r\n"), 0);
+    }
+    else if (cmd == "PONG")
+    {
+        std::cout << "Client " << user->getfd() << "PONG" << std::endl;
+    }
+    else if (Server::getInstance().getcerti()[user->getfd()] < 3)
     {
 
         if (cmd == "PASS")

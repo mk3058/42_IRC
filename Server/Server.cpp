@@ -190,3 +190,5 @@ std::vector<std::string>  Server::requestParse(char *buf)
 }
 
 std::string Server::getPassword() { return this->password; }
+
+int *Server::getUsedfd() { return this->used_fd; }

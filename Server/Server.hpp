@@ -56,6 +56,7 @@ class Server {
   ChannelMap &getChannelMap();
   int           gettotalUsers();
   int           *getcerti();
+  int           *getUsedfd();
   std::string               getPassword();
   std::vector<std::string>  requestParse(char *buf);
 
