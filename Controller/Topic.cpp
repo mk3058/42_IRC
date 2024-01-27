@@ -1,10 +1,9 @@
 #include "Topic.hpp"
 
-Server &Topic::server = Server::getInstance();
-ChannelMap &Topic::serverChannels = server.getChannelMap();
-UserMap &Topic::serverUsers = server.getUserMap();
-
-Topic::Topic(Request request, User *user) {
+Topic::Topic(Request request, User *user)
+    : server(Server::getInstance()),
+      serverChannels(server.getChannelMap()),
+      serverUsers(server.getUserMap()) {
   this->req = request;
   this->user = user;
   this->write_cnt = 0;
