@@ -12,9 +12,9 @@ class Topic : public ICommand {
   bool validate();
   void changeTopic();
   void showTopic();
-  static Server &server;
-  static ChannelMap &serverChannels;
-  static UserMap &serverUsers;
+  Server &server;
+  ChannelMap &serverChannels;
+  UserMap &serverUsers;
 
  public:
   Topic(Request request, User *user);
