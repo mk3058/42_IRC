@@ -56,6 +56,8 @@ class Server {
   ChannelMap &getChannelMap();
   int           gettotalUsers();
   int           *getcerti();
+  std::string               getPassword();
+  std::vector<std::string>  requestParse(char *buf);
 
   void   Send(const std::string ResMsg, int write_cnt, fd_set *fd_write);
   static Server &getInstance(std::string password, int port);

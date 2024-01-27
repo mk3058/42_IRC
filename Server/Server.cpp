@@ -64,7 +64,6 @@ void Server::io_multiplex() {
     }
     i++;
   }
-  std::cout << changedFdCount << std::endl;
   int r = select(changedFdCount + 1, &fd_read, &fd_write, 0, 0);
   if (r < 0) {
     throw std::runtime_error("Failed select");
@@ -89,9 +88,20 @@ void Server::io_multiplex() {
         }
         else
         {
-          Request request(buf); //입력 메시지 파싱
-          Controler Controler(request, &(this->userMap.findUser(i))); //파싱 결과를 바탕으로
-          Controler.execute();
+          std::vector<std::string> packet = requestParse(buf);
+          for (size_t k = 0; k < packet.size(); k++)
+          {
+            try
+            {
+              Request request(packet[k]);
+              Controler Controler(request, &(this->userMap.findUser(i)));
+              Controler.execute();
+            }
+            catch(const std::exception& e)
+            {
+              std::cerr << e.what() << '\n';
+            }
+          }
         }
         }
         changedFdCount--;
@@ -160,3 +170,23 @@ void  Server::Send(const std::string ResMsg, int write_cnt, fd_set *fd_write)
         if (!write_cnt) break;
       }
 }
+
+std::vector<std::string>  Server::requestParse(char *buf)
+{
+  std::vector<std::string>  packet;
+  std::string temp;
+  for (int i = 0; buf[i] != '\0'; i++)
+  {
+    temp += buf[i];
+    if (temp.size() > 1 && buf[i] == '\n' && buf[i - 1] == '\r')
+    {
+      packet.push_back(temp);
+      temp.clear();
+    }
+  }
+  if (!temp.empty())
+    packet.push_back(temp);
+  return (packet);
+}
+
+std::string Server::getPassword() { return this->password; }

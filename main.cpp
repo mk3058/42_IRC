@@ -26,7 +26,7 @@ int main(int ac, char *av[]) {
 
   try {
     int port = arg_check(ac, av[1], av[2]);
-    Server &server = Server::getInstance(av[1], port);
+    Server &server = Server::getInstance(av[2], port);
 
     while (true) {
       server.io_multiplex();

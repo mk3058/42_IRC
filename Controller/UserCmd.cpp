@@ -12,13 +12,14 @@ void UserCmd::execute()
         this->msg = Response::error(ERR_NOTREGISTERED, *(this->user), &fd_write);
         send(user->getfd(), msg.c_str(), msg.size(), 0);
         std::vector<std::string> param;
-        param[0] = "*";
+        param.push_back("*");
+        msg.clear();
         this->msg = Response::build("PRIVMSG", param, "Not yet resistered");
         send(user->getfd(), msg.c_str(), msg.size(), 0); 
     }
     else // 인증 단계일때
     {
-        if (req.parameter().getParameters().size() != 3 || checkname(req.parameter().getParameters()[0])) // 파라미터 잘못 들어왔을때
+        if (!checkname(req.parameter().getParameters()[0])) // 유저 네임 이상할때
         {
             this->msg = Response::error(ERR_NEEDMOREPARAMS, *(this->user), &fd_write);
             send(user->getfd(), msg.c_str(), msg.size(), 0);
@@ -26,10 +27,12 @@ void UserCmd::execute()
         else // 인증 성공 했을 때
         {
             std::vector<std::string> param;
-            param[0] = user->getNickname();
+            param.push_back(user->getNickname());
             msg = Response::build(RPL_WELCOME, param, "welcome");
+            std::cout << msg << std::endl;
             send(user->getfd(), msg.c_str(), msg.size(), 0);
             server.getcerti()[user->getfd()] = 3;
+            std::cout << user->getfd() << "(Client) is resistered" << std::endl;
         }
     }
 }

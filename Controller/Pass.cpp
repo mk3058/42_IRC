@@ -5,7 +5,12 @@ Pass::Pass(Request request, User *user) : ICommand(request, user) {}
 void Pass::execute()
 {
     Server &server = Server::getInstance();
-    if (server.auth(req.parameter().getParameters()[0]) == 0)   // 비밀번호 틀린 경우
+    if (req.parameter().getParameters().size() != 1) // 파라미터 갯수 안맞을때
+    {
+        this->msg = Response::error(ERR_NEEDMOREPARAMS, *(this->user), &fd_write);
+        send(user->getfd(), msg.c_str(), msg.size(), 0);
+    }
+    else if (server.auth(req.parameter().getParameters()[0]) == 0)   // 비밀번호 틀린 경우
     {
         this->msg = Response::error(ERR_PASSWDMISMATCH, *(this->user), &fd_write);
         send(user->getfd(), msg.c_str(), msg.size(), 0);
@@ -19,17 +24,16 @@ void Pass::execute()
         {
             server.getcerti()[user->getfd()]--;
             std::vector<std::string> param;
-            param[0] = "*";
+            param.push_back("*");
             this->msg = Response::build("PRIVMSG", param, "plz try valid password");
             send(user->getfd(), msg.c_str(), msg.size(), 0);
-            std::cout << user->getfd() << " failed the password " << std::endl;  
         }
     }
-    else
+    else // 성공했을 경우
     {
         server.getcerti()[user->getfd()] = 1;
         std::vector<std::string> param;
-        param[0] = "*";
+        param.push_back("*");
         this->msg = Response::build("PRIVMSG", param, "plz input nickname");
         send(user->getfd(), msg.c_str(), msg.size(), 0);
     }

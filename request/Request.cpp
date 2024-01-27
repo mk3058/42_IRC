@@ -1,6 +1,7 @@
 #include "Request.hpp"
 
 #include <stdexcept>
+#include <iostream>
 
 static const std::string messageDelimeter = " ";
 static const std::string messageEndingKeyword = "\r\n";
@@ -40,9 +41,12 @@ Request::Request() {}
  * Parameter : 클라이언트로부터 받은 메시지 전문
  */
 Request::Request(const std::string &message) {
-  if (!isValidFormat(message)) {
-    throw std::invalid_argument("요청 메시지 형식이 잘못되었습니다.");
-  }
+  // if (!isValidFormat(message)) {
+    std::cout << "-------------\n";
+    std::cout << message;
+    std::cout << "\n-------------\n";
+  //   throw std::invalid_argument("요청 메시지 형식이 잘못되었습니다.");
+  // }
 
   std::string token[3];
 

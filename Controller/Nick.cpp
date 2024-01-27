@@ -12,19 +12,21 @@ void Nick::execute()
         this->msg = Response::error(ERR_NEEDMOREPARAMS, *(this->user), &fd_write);
         send(user->getfd(), msg.c_str(), msg.size(), 0);
         std::vector<std::string> param;
-        param[0] = "*";
+        param.push_back("*");
+        msg.clear();
         this->msg = Response::build("PRIVMSG", param, "plz input valid parameter");
         send(user->getfd(), msg.c_str(), msg.size(), 0);
         return ;
     }
-    if (checknick() == 1) // 닉네임 인증 타이밍일때
+    else if (checknick() == 1) // 닉네임 인증 타이밍일때
     {
         if (server.getUserMap().exists(req.parameter().getParameters()[0])) // 같은 닉네임 이미 있을때
         {
             this->msg = Response::error(ERR_NICKNAMEINUSE, *(this->user), &fd_write);
             send(user->getfd(), msg.c_str(), msg.size(), 0);
             std::vector<std::string> param;
-            param[0] = "*";
+            param.push_back("*");
+            msg.clear();
             this->msg = Response::build("PRIVMSG", param, "already exist nickname");
             send(user->getfd(), msg.c_str(), msg.size(), 0);
         }
@@ -33,8 +35,8 @@ void Nick::execute()
             if (!checkname(req.parameter().getParameters()[0])) // 닉네임 설정에 문제가 있을때
             {
                 std::vector<std::string> param;
-                param[0] = "*";
-                param[1] = req.parameter().getParameters()[0];
+                param.push_back("*");
+                param.push_back(req.parameter().getParameters()[0]);
                 this->msg = Response::build(ERR_ERRONEUSNICKNAME, param, "Erroneous Nickname");
             }
             else // 닉네임 설정이 잘 되었을 때 별도의 메세지 보내지 않음
@@ -51,14 +53,15 @@ void Nick::execute()
         send(user->getfd(), msg.c_str(), msg.size(), 0);
         server.getcerti()[user->getfd()]--;
         std::vector<std::string> param;
-        param[0] = "*";
+        param.push_back("*");
+        msg.clear();
         this->msg = Response::build("PRIVMSG", param, "plz try valid password");
         send(user->getfd(), msg.c_str(), msg.size(), 0);
     }
     else // 이미 닉네임 인증 했을 때
     {
         std::vector<std::string> param;
-        param[0] = "*";
+        param.push_back("*");
         this->msg = Response::build("PRIVMSG", param, " is already seted nickname");
         send(user->getfd(), msg.c_str(), msg.size(), 0); 
     }
