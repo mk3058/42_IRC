@@ -3,9 +3,10 @@
 Join::Join(Request req, User *user) : ICommand(req, user)
 {
     this->channelMap = &Server::getInstance().getChannelMap();
-    if (!channelMap->exists(req.parameter().getParameters()[0]))
-        channelMap->addChannel(Channel(req.parameter().getParameters()[0]));
-    this->channel = channelMap->findChannel(req.parameter().getParameters()[0]);
+    if (!channelMap->exists(req.parameter().getParameters()[0].substr(1))) {
+        channelMap->addChannel(Channel(req.parameter().getParameters()[0].substr(1)));
+    }
+    this->channel = channelMap->findChannel(req.parameter().getParameters()[0].substr(1));
 }
 
 void Join::execute()

@@ -35,13 +35,13 @@ void Server::connect() {
   if (cs == -1) throw std::runtime_error("Failed accept");
   if (totalUsers > 997)
   {
-    // send(cs, ":ircserv.com NOTICE * :already fully\r\n", \
-    // sizeof(":ircserv.com NOTICE * :already fully\r\n"), 0);
+    send(cs, ":ircserv.com NOTICE * :already fully\r\n", \
+    sizeof(":ircserv.com NOTICE * :already fully\r\n"), 0);
     close(cs);
     std::cout << "New client " << cs << " from " << inet_ntoa(csin.sin_addr)
               << ":" << ntohs(csin.sin_port) << "is refused !" << std::endl;
   }
-  else
+  else if(!userMap.exists(cs))
   {
     send(cs, "CAP * LS :\r\n", sizeof("CAP * LS :\r\n"), 0);
     User newUser(cs);
@@ -50,6 +50,8 @@ void Server::connect() {
     std::cout << "New client " << cs << " from " << inet_ntoa(csin.sin_addr)
               << ":" << ntohs(csin.sin_port) << std::endl;
   }
+  else
+    send(cs, "CAP * LS :\r\n", sizeof("CAP * LS :\r\n"), 0);
 }
 
 void Server::io_multiplex() {
@@ -78,7 +80,7 @@ void Server::io_multiplex() {
       }
        else
        {
-        char buf[512];
+        char buf[512] = {};
         r = recv(i, buf, 512, 0);
         if (r < 0)
         {
@@ -141,9 +143,9 @@ Server &Server::getInstance(std::string password, int port) {
  * (instance가 초기화 되지 않은 경우 exception을 throw 합니다)
  */
 Server &Server::getInstance() {
-  // if (instance == NULL) {
-  //   throw std::invalid_argument("instance hasn't been initialized yet!");
-  // }
+  if (instance == NULL) {
+    throw std::invalid_argument("instance hasn't been initialized yet!");
+  }
 
   return *instance;
 }

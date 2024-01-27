@@ -17,6 +17,7 @@ class UserMap {
   int getSize() const;
   void addUser(int fd, User user);
   void deleteUser(int fd);
+  void setUname(int fd, std::string username);
   User &findUser(int fd);
   User &findUser(std::string nickname);
   bool exists(int fd) const;
