@@ -12,9 +12,9 @@ class Privmsg : public ICommand {
   void sendToChannel(std::string &channelName);
   void sendToUser(std::string &userName);
   bool validate();
-  static Server &server;
-  static ChannelMap &serverChannels;
-  static UserMap &serverUsers;
+  Server &server;
+  ChannelMap &serverChannels;
+  UserMap &serverUsers;
 
  public:
   Privmsg(Request request, User *user);
