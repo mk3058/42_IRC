@@ -10,7 +10,7 @@ class Join : public ICommand
 {
     private:
         ChannelMap *channelMap;
-        Channel channel;
+        Channel *channel;
         using ICommand::checkPermit;
         using ICommand::execute;
     public:

@@ -10,7 +10,7 @@ class Part : public ICommand
 {
     private:
         ChannelMap *channelMap;
-        Channel channel;
+        Channel *channel;
         bool checkPermit();
     public:
         void execute();
