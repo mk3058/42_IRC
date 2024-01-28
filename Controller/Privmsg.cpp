@@ -66,9 +66,9 @@ void Privmsg::sendToChannel(std::string &channelName) {
   msg = Response::build(req.command().getCommand(),
                         req.parameter().getParameters(),
                         req.parameter().getTrailer(), prefix);
-  write_cnt = channelUsers.size();
+  write_cnt = channelUsers.size() - 1;
   for (int i = 0; i < write_cnt; i++) {
-    FD_SET(channelUsers.at(i)->getfd(), &fd_write);
+    if (i != user->getfd()) FD_SET(channelUsers.at(i)->getfd(), &fd_write);
   }
 }
 
