@@ -6,11 +6,13 @@
 #include "Privmsg.hpp"
 #include "Join.hpp"
 #include "Topic.hpp"
+#include "Part.hpp"
 
 Controler::Controler(Request &req, User *user) : request(req) , user(user) {}
 
 void    Controler::execute()
 {
+    Server &server = Server::getInstance();
     std::string cmd = request.command().getCommand();
     if (cmd == "PING")
     {
@@ -19,6 +21,15 @@ void    Controler::execute()
     else if (cmd == "PONG")
     {
         std::cout << "Client " << user->getfd() << "PONG" << std::endl;
+    }
+    else if (cmd == "QUIT")
+    {
+        int i = user->getfd();
+        std::cout << "client #" << i << " gone away" << std::endl;
+        close(i);
+        server.getUserMap().deleteUser(i);
+        server.getUsedfd()[i] = 0;
+        server.getcerti()[i] = 0;
     }
     else if (Server::getInstance().getcerti()[user->getfd()] < 3)
     {
@@ -63,11 +74,11 @@ void    Controler::execute()
             Privmsg privmsg(request, this->user);
             privmsg.execute();
         }
-        // else if (cmd == "PART")
-        // {
-        //     Part part(request, this->user);
-        //     part.excute();
-        // }
+        else if (cmd == "PART")
+        {
+            Part part(request, this->user);
+            part.execute();
+        }
         // else if (cmd == "KICK")
         // {
         //     Kick kick(request, this->user);

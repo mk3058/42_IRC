@@ -86,6 +86,7 @@ void Server::io_multiplex() {
         {
           std::cout << "client #" << i << " gone away" << std::endl;
           close(i);
+          userMap.deleteUser(i);
           used_fd[i] = 0;
         }
         else
@@ -169,6 +170,7 @@ void  Server::Send(const std::string ResMsg, int write_cnt, fd_set *fd_write)
              send(i, ResMsg.c_str(), length, 0);
              write_cnt--;
              std::cout << "write fd is " << i << std::endl;
+             std::cout << "response msg is " << ResMsg << std::endl;
            }
         if (!write_cnt) break;
       }

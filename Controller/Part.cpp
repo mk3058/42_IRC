@@ -3,8 +3,8 @@
 Part::Part(Request req, User *user) : ICommand(req, user)
 {
     this->channelMap = &Server::getInstance().getChannelMap();
-    if (channelMap->exists(req.parameter().getParameters()[0]))
-        this->channel = channelMap->findChannel(req.parameter().getParameters()[0]);
+    if (channelMap->exists(req.parameter().getParameters()[0].substr(1)))
+        this->channel = channelMap->findChannel(req.parameter().getParameters()[0].substr(1));
     else
         this->channel = Channel();
 }
@@ -14,7 +14,8 @@ void Part::execute()
     if (!checkPermit())
         return ;
     //메시지 모든 채널에 속한 유저에게 전송 자신에게도 전송해야해서 메시지부터 보냄
-    msg = Response::build(req.command().getCommand(), req.parameter().getParameters(), "user " + user->getNickname() + "part this channel");
+    std::vector<std::string> emptyVec;
+    msg = Response::build(req.command().getCommand(), emptyVec, req.parameter().getParameters()[0], user->getNickname() + "!" + user->getUsername() + "@" DEFAULT_PREFIX);
     for(int i = 0; i < channel.getUsers().getSize(); ++i)
         FD_SET(channel.getUsers().findAllUsers()[i]->getfd(), &fd_write);
     Server::getInstance().Send(msg, channel.getUsers().getSize(), &fd_write);
@@ -22,7 +23,9 @@ void Part::execute()
     channel.deleteUser(*user);
     //마지막 유저였으면 채널도 삭제
     if (!channel.getUsers().getSize())
+    {
         channelMap->deleteChannel(channel.getName());
+    }
 }
 
 bool Part::checkPermit()

@@ -14,8 +14,8 @@ void Join::execute()
 {
     if (!checkPermit(user->getfd()))
         return ;
+    std::cout << "join channel name " << channel->getName() << std::endl;
     channel->addUser(*user);
-    std::cout << "cnt == " << channel->getUsers().findAllUsers().size() << std::endl;
     msg = Response::build(req.command().getCommand(), req.parameter().getParameters(), "user " + user->getNickname() + "join this channel");
     for(int i = 0; i < channel->getUsers().getSize(); ++i)
         FD_SET(channel->getUsers().findAllUsers()[i]->getfd(), &fd_write);
@@ -27,29 +27,24 @@ bool Join::checkPermit(int fd)
     FD_SET(fd, &fd_write);
     if (channel->getUserLimit() == channel->getUsers().getSize())
     {
-        std::cout << "check 1" << std::endl;
         msg = Response::error(ERR_CHANNELISFULL, *user, &fd_write, "channel is full");
         Server::getInstance().Send(msg, 1, &fd_write);
         return (false);
     }
-    std::cout << "check 2" << std::endl;
     if (channel->getUsers().exists(fd))
         return (false);
-    std::cout << "check 3" << std::endl;
     if (channel->getBannedUsers().exists(fd))
     {
         msg = Response::error(ERR_BANNEDFROMCHAN, *user, &fd_write, "you are banned from channel");
         Server::getInstance().Send(msg, 1, &fd_write);
         return (false);
     }
-    std::cout << "check 4" << std::endl;
     if (((channel->getMode() | INVITE_ONLY) == INVITE_ONLY) && !channel->getInvitedUsers().exists(user->getNickname()))
     {
         msg = Response::error(ERR_INVITEONLYCHAN, *user, &fd_write, "invite only channel");
         Server::getInstance().Send(msg, 1, &fd_write);
         return (false);
     }
-    std::cout << "check 5" << std::endl;
     if ((channel->getMode() | KEY_REQURIE) == KEY_REQURIE)
     {
         if (req.parameter().getParameters().size() < 2)
