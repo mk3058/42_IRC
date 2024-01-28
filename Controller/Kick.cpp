@@ -10,6 +10,7 @@ Kick::Kick(Request req, User *user) : ICommand(req, user)
         Channel temp = Channel();
         this->channel = &temp;
     }
+    
     this->permission = channel->getMode();
 }
 
