@@ -20,9 +20,10 @@ void Privmsg::execute() {
     std::vector<std::string> params = req.parameter().getParameters();
 
     std::string targetName = getTargetName(params.at(0));
-    if (targetName == "BOT")
+    if (!targetName.compare("BOT"))
     {
       Bot bot(req, user->getfd(), user->getNickname());
+      bot.execute();
       return ;
     }
     else if (targetName.at(0) == '#') {
