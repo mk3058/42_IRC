@@ -13,10 +13,13 @@ Invite::Invite(Request request, User *user)
 void Invite::execute() {
   if (validate()) {
     std::vector<std::string> params = req.parameter().getParameters();
-    Channel &channel = serverChannels.findChannel(params.at(1));
+    Channel &channel = serverChannels.findChannel(params.at(1).substr(1));
     User &target = serverUsers.findUser(params.at(0));
 
     channel.getInvitedUsers().addUser(target.getfd(), target);
+    if (channel.getBannedUsers().exists(target.getNickname())) {
+      channel.getBannedUsers().deleteUser(target.getfd());
+    }
     msg = Response::build(req.command().getCommand(),
                           req.parameter().getParameters(),
                           user->getNickname() + "!" + user->getUsername());
@@ -48,7 +51,7 @@ void Invite::noticeToChannel(Channel &channel) {
 
 bool Invite::checkPermit() {
   std::vector<std::string> params = req.parameter().getParameters();
-  Channel &channel = serverChannels.findChannel(params.at(1));
+  Channel &channel = serverChannels.findChannel(params.at(1).substr(1));
 
   if (channel.getMode() == INVITE_ONLY) {
     this->permission = USERMODE_SUPER;
