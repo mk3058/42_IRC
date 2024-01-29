@@ -1,11 +1,17 @@
 #include "User.hpp"
 
+#include <sstream>
+
 #include "Channel.hpp"
 
 User::User()
     : fd(-1), username("Not initialized"), nickname("Not initialized") {}
 
-User::User(int fd) : fd(fd) {}
+User::User(int fd) : fd(fd) {
+  std::stringstream ss;
+  ss << fd;
+  nickname = ss.str();
+}
 
 User::User(std::string username, std::string nickname, int fd)
     : fd(fd), username(username), nickname(nickname) {}
