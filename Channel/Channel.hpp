@@ -30,6 +30,7 @@ class Channel {
   void setTopic(std::string topic);
   void setMode(int mode);
   void setUserLimit(int limit);
+  void setPassword(std::string password);
   void deleteUser(User user);
   void addUser(User user);
   const std::string& getName() const;

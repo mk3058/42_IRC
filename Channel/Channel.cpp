@@ -17,6 +17,11 @@ void Channel::setMode(int mode) {
   if (mode == DEFAULT || mode == INVITE_ONLY) this->mode = mode;
 }
 
+void Channel::setPassword(std::string password)
+{
+  this->password = password;
+}
+
 void Channel::setUserLimit(int limit) { this->userLimit = limit; }
 
 void Channel::addUser(User user) {
