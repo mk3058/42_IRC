@@ -10,7 +10,6 @@ Kick::Kick(Request req, User *user) : ICommand(req, user)
         Channel temp = Channel();
         this->channel = &temp;
     }
-    
     this->permission = channel->getMode();
 }
 
@@ -18,7 +17,10 @@ void Kick::execute()
 {
     if (!checkPermit())
         return ;
-    User *targetUser = &channel->getUsers().findUser(req.parameter().getParameters()[1]);
+    //유저의 채널정보 업데이트
+    std::string channelName = req.parameter().getParameters()[0].substr(1);
+    User *targetUser = &channel->getUsers().findUser(channelName);
+    targetUser->leaveChannel(channelName);
     //유저 지우기
     channel->deleteUser(*targetUser);
     //마지막 유저였으면 채널도 삭제
