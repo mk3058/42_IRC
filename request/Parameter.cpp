@@ -1,6 +1,5 @@
 #include "Parameter.hpp"
 
-#include <iostream>
 static const std::string parameterDelimeter = " ";
 static const std::string trailerDelimeter = ":";
 
@@ -19,10 +18,13 @@ static void parseParameter(std::string parameter,
   }
 
   // 구분자(" ")를 기준으로 파라미터를 tokenize 하여 주어진 벡터에 저장
-  pos = 0;
-  while ((pos = parameter.find(parameterDelimeter)) != std::string::npos) {
+  while (true) {
+    pos = parameter.find(parameterDelimeter);
     if (pos) {  // 빈 문자열이 아닐때만 추가
       token.push_back(parameter.substr(0, pos));
+    }
+    if (pos == std::string::npos) {
+      break;
     }
     parameter.erase(0, pos + parameterDelimeter.length());
   }
