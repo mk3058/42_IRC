@@ -13,11 +13,12 @@
 #include <stdexcept>
 #include <string>
 
-#include "Response.hpp"
 #include "Channel.hpp"
 #include "ChannelMap.hpp"
 #include "Command.hpp"
+#include "Controler.hpp"
 #include "Request.hpp"
+#include "Response.hpp"
 #include "UserMap.hpp"
 
 #define MAX_USER 1000
@@ -53,10 +54,13 @@ class Server {
   bool auth(const std::string &password) const;
   UserMap &getUserMap();
   ChannelMap &getChannelMap();
-  int           gettotalUsers();
-  int           *getcerti();
+  int gettotalUsers();
+  int *getcerti();
+  int *getUsedfd();
+  std::string getPassword();
+  std::vector<std::string> requestParse(char *buf);
 
-  void   Send(const std::string ResMsg, int write_cnt, fd_set *fd_write);
+  void Send(const std::string ResMsg, int write_cnt, fd_set *fd_write);
   static void initialize(std::string password, int port);
   static Server &getInstance();
   ~Server();

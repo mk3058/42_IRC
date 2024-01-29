@@ -10,85 +10,92 @@ Server::Server(std::string password, int port) {
   memset(certi, 0, sizeof(certi));
   memset(used_fd, 0, sizeof(used_fd));
   this->socket_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_HOPOPTS);
-  if (socket_fd == -1) throw std::runtime_error("Failed socket create");
+  if (socket_fd == -1) throw std::runtime_error("Failed to create socket");
   struct sockaddr_in sin;
   sin.sin_family = AF_INET;
   sin.sin_addr.s_addr = INADDR_ANY;
   sin.sin_port = htons(port);
   if (bind(socket_fd, (struct sockaddr *)&sin, sizeof(sin)) == -1)
-    throw std::runtime_error("Failed bind");
+    throw std::runtime_error("Bind function failed");
   if (listen(socket_fd, LISTEN_QUEUE_SIZE) == -1)
-    throw std::runtime_error("Failed listen");
+    throw std::runtime_error("Listen function failed");
   used_fd[socket_fd] = 1;
+  std::cout << "Server is running on port " << port << std::endl;
 }
 
-// // * merge를 위해 주석 처리 합니다
-// //  * 이후 추가 처리 필요
-// void Server::connect() {
-//   int cs;
-//   struct sockaddr_in csin;
-//   socklen_t csin_len;
+void Server::connect() {
+  int cs;
+  struct sockaddr_in csin;
+  socklen_t csin_len;
 
-//   csin_len = sizeof(csin);
-//   cs = accept(socket_fd, (struct sockaddr *)&csin, &csin_len);
-//   if (cs == -1) throw std::runtime_error("Failed accept");
-//   if (totalUsers > 997)
-//   {
-//     send(cs, ":ircserv.com NOTICE * :already fully\r\n", \
-//     sizeof(":ircserv.com NOTICE * :already fully\r\n"), 0);
-//     close(cs);
-//     std::cout << "New client " << cs << " from " << inet_ntoa(csin.sin_addr)
-//               << ":" << ntohs(csin.sin_port) << "is refused !" << std::endl;
-//   }
-//   else
-//   {
-//     User newUser(cs);
-//     this->userMap.addUser(cs, newUser);
-//     used_fd[cs] = 1;
-//     std::cout << "New client " << cs << " from " << inet_ntoa(csin.sin_addr)
-//               << ":" << ntohs(csin.sin_port) << std::endl;
-//   }
-// }
+  csin_len = sizeof(csin);
+  cs = accept(socket_fd, (struct sockaddr *)&csin, &csin_len);
+  if (cs == -1) throw std::runtime_error("Accept function failed");
+  if (totalUsers > 997) {
+    std::vector<std::string> emptyParam;
+    std::string msg = Response::build("NOTICE", emptyParam, "Server is full");
+    send(cs, msg.c_str(), msg.size(), 0);
+    close(cs);
+    std::cout << "New client " << cs << " from " << inet_ntoa(csin.sin_addr)
+              << ":" << ntohs(csin.sin_port) << "is refused !" << std::endl;
+  } else if (!userMap.exists(cs)) {
+    send(cs, "CAP * LS :\r\n", sizeof("CAP * LS :\r\n"), 0);
+    User newUser(cs);
+    this->userMap.addUser(cs, newUser);
+    used_fd[cs] = 1;
+    std::cout << "New client " << cs << " from " << inet_ntoa(csin.sin_addr)
+              << ":" << ntohs(csin.sin_port) << std::endl;
+  } else
+    send(cs, "CAP * LS :\r\n", sizeof("CAP * LS :\r\n"), 0);
+}
 
-// void Server::io_multiplex() {
-//   int i = 0;
-//   int changedFdCount = 0;
+void Server::io_multiplex() {
+  int i = 0;
+  int changedFdCount = 0;
 
-//   FD_ZERO(&fd_read);
-//   while (i < MAX_USER) {
-//     if (used_fd[i]) {
-//       FD_SET(i, &fd_read);
-//       changedFdCount = changedFdCount > i ? changedFdCount : i;
-//     }
-//     i++;
-//   }
-//   int r = select(changedFdCount + 1, &fd_read, &fd_write, 0, 0);
-//   if (r < 0) {
-//     throw std::runtime_error("Failed select");
-//   }
-//   i = 0;
-//   while ((i < MAX_USER) && (changedFdCount > 0)) {
-//     if (FD_ISSET(i, &fd_read)) {
-//       if (i == socket_fd) {
-//         this->connect();
-//       } else {
-//         char buf[512];
-//         r = recv(i, buf, 512, 0);
-//         if (r < 0) {
-//           std::cout << "client #" << i << " gone away" << std::endl;
-//           close(i);
-//           used_fd[i] = 0;
-//           // 이후 아래부분 실행 안되게 처리
-//         }
-//         Request request(buf); //입력 메시지 파싱
-//         Controller Controller(request); //파싱 결과를 바탕으로
-//         Controller.excute();
-//     }
-//     changedFdCount--;
-//     i++;
-//   }
-// }
-// }
+  FD_ZERO(&fd_read);
+  while (i < MAX_USER) {
+    if (used_fd[i]) {
+      FD_SET(i, &fd_read);
+      changedFdCount = changedFdCount > i ? changedFdCount : i;
+    }
+    i++;
+  }
+  int r = select(changedFdCount + 1, &fd_read, &fd_write, 0, 0);
+  if (r < 0) {
+    throw std::runtime_error("Failed select");
+  }
+  i = 0;
+  while ((i < MAX_USER) && (changedFdCount > 0)) {
+    if (FD_ISSET(i, &fd_read)) {
+      if (i == socket_fd) {
+        this->connect();
+      } else {
+        char buf[512] = {};
+        r = recv(i, buf, 512, 0);
+        if (r < 0) {
+          std::cout << "client #" << i << " gone away" << std::endl;
+          close(i);
+          userMap.deleteUser(i);
+          used_fd[i] = 0;
+        } else {
+          std::vector<std::string> packet = requestParse(buf);
+          for (size_t k = 0; k < packet.size(); k++) {
+            try {
+              Request request(packet[k]);
+              Controler Controler(request, &(this->userMap.findUser(i)));
+              Controler.execute();
+            } catch (const std::exception &e) {
+              std::cerr << e.what() << '\n';
+            }
+          }
+        }
+      }
+      changedFdCount--;
+    }
+    i++;
+  }
+}
 
 bool Server::auth(const std::string &password) const {
   return !this->password.compare(password);
@@ -146,3 +153,21 @@ void Server::Send(const std::string ResMsg, int write_cnt, fd_set *fd_write) {
     if (!write_cnt) break;
   }
 }
+
+std::vector<std::string> Server::requestParse(char *buf) {
+  std::vector<std::string> packet;
+  std::string temp;
+  for (int i = 0; buf[i] != '\0'; i++) {
+    temp += buf[i];
+    if (temp.size() > 1 && buf[i] == '\n' && buf[i - 1] == '\r') {
+      packet.push_back(temp);
+      temp.clear();
+    }
+  }
+  if (!temp.empty()) packet.push_back(temp);
+  return (packet);
+}
+
+std::string Server::getPassword() { return this->password; }
+
+int *Server::getUsedfd() { return this->used_fd; }
