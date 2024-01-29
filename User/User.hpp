@@ -22,7 +22,7 @@ class User {
   std::string getUsername() const;
   std::string getNickname() const;
   int getfd() const;
-  void joinChannel(std::string channelName);
+  void joinChannel(std::string channelName, Channel *channel);
   void leaveChannel(std::string channelName);
   std::map<std::string, Channel *> &getChannels();
 };

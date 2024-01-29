@@ -14,7 +14,7 @@ void Join::execute()
     if (!checkPermit(user->getfd()))
         return ;
     //유저의 채널맵 업데이트
-    user->joinChannel(req.parameter().getParameters()[0].substr(1));
+    user->joinChannel(req.parameter().getParameters()[0].substr(1), channel);
     //채널에도 유저추가
     channel->addUser(*user);
     //유저 들어왔다는 메시지 전송
