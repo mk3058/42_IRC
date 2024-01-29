@@ -21,17 +21,22 @@ int arg_check(int ac, char *port, char *password) {
 }
 
 int main(int ac, char *av[]) {
-  (void)ac;
-  (void)av;
+  try {
+    int port = arg_check(ac, av[1], av[2]);
+    Server::initialize(av[2], port);
+  } catch (const std::exception &e) {
+    std::cerr << "Error: " << e.what() << std::endl;
+    return (1);
+  }
 
-  // try {
-  //   int port = arg_check(ac, av[1], av[2]);
-  //   Server &server = Server::getInstance(av[1], port);
-
-  //   while (true) {
-  //     server.io_multiplex();
-  //   }
-  // } catch (const std::exception &e) {
-  //   std::cerr << e.what() << std::endl;
-  // }
+  while (true) {
+    try {
+      Server &server = Server::getInstance();
+      while (true) {
+        server.io_multiplex();
+      }
+    } catch (const std::exception &e) {
+      std::cerr << "Error: " << e.what() << std::endl;
+    }
+  }
 }
