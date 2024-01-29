@@ -18,9 +18,9 @@ void Kick::execute()
     if (!checkPermit())
         return ;
     //유저의 채널정보 업데이트
-    std::string channelName = req.parameter().getParameters()[0].substr(1);
-    User *targetUser = &channel->getUsers().findUser(channelName);
-    targetUser->leaveChannel(channelName);
+    std::string userName = req.parameter().getParameters()[2];
+    User *targetUser = &channel->getUsers().findUser(userName);
+    targetUser->leaveChannel(channel->getName());
     //유저 지우기
     channel->deleteUser(*targetUser);
     //마지막 유저였으면 채널도 삭제
