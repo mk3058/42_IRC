@@ -20,9 +20,9 @@ std::string Mode::kmode(std::string type)
     int mode = this->channel->getMode();
     if (type.at(0) == '+')
     {
-        if (mode & KEY_REQURIE) //이미 키가 설정된 경우
+        if (!checkParam(3)) //키 문자열을 입력으로 안줌
             return msg;
-        else if (checkParam(3)) //키 문자열을 입력으로 안줌
+        else if (mode & KEY_REQURIE) //이미 키가 설정된 경우
             return msg;
         this->channel->setPassword(key);
         mode |= KEY_REQURIE;
@@ -66,7 +66,82 @@ std::string Mode::imode(std::string type)
     return (msg);
 }
 
-bool Mode::checkParam(int cnt)
+static bool is_num(std::string str)
+{
+    for(unsigned long i = 0; i < str.size(); ++i)
+    {
+        if (!std::isdigit(str[i]))
+            return (false);
+    }
+    return (true);
+}
+
+std::string Mode::lmode(std::string type)
+{
+    std::string msg = "";
+    if (type.at(0) == '+')
+    {
+        if (!checkParam(3)) //인자 안줌
+            return msg;
+        std::string cntstr = req.parameter().getParameters()[2];
+        if (!is_num(cntstr))
+            return msg;
+        std::stringstream ss;
+        long long cnt;
+        ss << cntstr;
+        ss >> cnt;
+        if (this->channel->getUserLimit() == cnt) // 셋팅된 값이랑 새로 셋하려는 값이랑 같음
+            return msg;
+        if (cnt <= 0)
+            return msg;
+        this->channel->setUserLimit(cnt);
+    }
+    else
+    {
+        if (this->channel->getUserLimit() == UNLIMITED)
+            return msg;
+        else
+            this->channel->setUserLimit(UNLIMITED);
+    }
+    msg = Response::build(req.command().getCommand()
+                        , req.parameter().getParameters()
+                        , "user " + user->getNickname() + type);
+    return (msg);
+}
+
+std::string Mode::otmode(std::string type, int mode)
+{
+    std::string msg = "";
+    if (!checkParam(3)) //인자 안줌
+        return msg;
+    std::string targetName = req.parameter().getParameters()[2];
+    if (!this->channel->getUsers().exists(targetName)) // 유저 확인
+    {
+        msg = Response::error(ERR_USERNOTINCHANNEL, *user, &fd_write, "user not in channel");
+        Server::getInstance().Send(msg, 1, &fd_write);
+        return "";
+    }
+    int         targetFd = this->channel->getUsers().findUser(targetName).getfd();
+    int         *targetMode = &(this->channel->getUserPermits()[targetFd]);
+    if (type.at(0) == '+')
+    {
+        if (*targetMode & mode)
+            return msg;
+        *targetMode |= mode;
+    }
+    else
+    {
+        if (!(*targetMode & mode))
+            return msg;
+        *targetMode ^= mode;
+    }
+    msg = Response::build(req.command().getCommand()
+                        , req.parameter().getParameters()
+                        , "user " + user->getNickname() + type);
+    return (msg);
+}
+
+bool Mode::checkParam(unsigned long cnt)
 {
     FD_SET(user->getfd(), &fd_write);
     if (req.parameter().getParameters().size() < cnt)
@@ -90,8 +165,13 @@ void Mode::execute()
         msg = kmode(type);
     if (type.find('i'))
         msg = imode(type);
-    
-    //각 모드에서 에러 이미 출력한 경우
+    if (type.find('l'))
+        msg = lmode(type);
+    if (type.find('o'))
+        msg = otmode(type, USERMODE_SUPER);
+    if (type.find('t'))
+        msg = otmode(type, USERMODE_TOPIC);
+    //각 모드에서 에러 인경우
     if (msg == "")
         return ;
     for (int i = 0; i < channel->getUsers().getSize(); ++i)
