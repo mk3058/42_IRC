@@ -12,6 +12,9 @@ class Mode : public ICommand
         ChannelMap *channelMap;
         Channel *channel;
         bool checkPermit();
+        bool checkParam(int cnt);
+        std::string kmode(std::string type);
+        std::string imode(std::string type);
     public:
         void execute();
         Mode(Request req, User *user);
