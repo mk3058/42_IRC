@@ -37,13 +37,13 @@ bool Join::checkPermit(int fd)
         Server::getInstance().Send(msg, 1, &fd_write);
         return (false);
     }
-    if (this->permission | INVITE_ONLY && !channel->getInvitedUsers().exists(user->getNickname()))
+    if (this->permission & INVITE_ONLY && !channel->getInvitedUsers().exists(user->getNickname()))
     {
         msg = Response::error(ERR_INVITEONLYCHAN, *user, &fd_write, "invite only channel");
         Server::getInstance().Send(msg, 1, &fd_write);
         return (false);
     }
-    if (this->permission | KEY_REQURIE)
+    if (this->permission & KEY_REQURIE)
     {
         if (req.parameter().getParameters().size() < 2)
             msg = Response::error(ERR_BADCHANNELKEY, *user, &fd_write, "you need key");
