@@ -20,9 +20,10 @@ void Invite::execute() {
     if (channel.getBannedUsers().exists(target.getNickname())) {
       channel.getBannedUsers().deleteUser(target.getfd());
     }
-    msg = Response::build(req.command().getCommand(),
-                          req.parameter().getParameters(),
-                          user->getNickname() + "!" + user->getUsername());
+    msg += Response::build(req.command().getCommand(),
+                           req.parameter().getParameters(),
+                           "",
+                           user->getNickname() + "!" + user->getUsername());
     write_cnt = 1;
     FD_SET(user->getfd(), &fd_write);
     noticeToChannel(channel);
