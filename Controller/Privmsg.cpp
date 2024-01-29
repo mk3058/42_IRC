@@ -28,6 +28,7 @@ void Privmsg::execute() {
       sendToUser(targetName);
     }
   }
+  std::cout << msg << " " << write_cnt << std::endl;
   server.Send(msg, write_cnt, &fd_write);
 }
 
@@ -47,6 +48,7 @@ void Privmsg::sendToUser(std::string &userName) {
                         req.parameter().getParameters(),
                         req.parameter().getTrailer(), prefix);
   write_cnt = 1;
+  std::cout << "target fd is " << target.getfd() << std::endl;
   FD_SET(target.getfd(), &fd_write);
 }
 
@@ -63,12 +65,15 @@ void Privmsg::sendToChannel(std::string &channelName) {
   std::vector<User *> channelUsers = channel.getUsers().findAllUsers();
   std::string prefix = user->getNickname() + "!" + user->getUsername();
 
+  std::cout << "param size: " << req.parameter().getParameters().size()
+            << std::endl;
   msg = Response::build(req.command().getCommand(),
                         req.parameter().getParameters(),
                         req.parameter().getTrailer(), prefix);
   write_cnt = channelUsers.size() - 1;
-  for (int i = 0; i < write_cnt; i++) {
-    if (i != user->getfd()) FD_SET(channelUsers.at(i)->getfd(), &fd_write);
+  for (size_t i = 0; i < channelUsers.size(); i++) {
+    int fd = channelUsers.at(i)->getfd();
+    if (fd != user->getfd()) FD_SET(fd, &fd_write);
   }
 }
 
