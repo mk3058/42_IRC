@@ -3,20 +3,17 @@
 
 #include "ICommand.hpp"
 
-class Nick : public ICommand
-{
-    private:
+class Nick : public ICommand {
+ private:
+ public:
+  Nick(Request request, User *user);
 
-    public:
-        Nick(Request request, User *user);
-
-        void execute();
-        bool checkpermit();
-        int checknick();
-        std::string getResponse() const;
-        int getCount() const;
-        bool checkname(std::string name);
+  void execute();
+  bool checkpermit();
+  int checknick();
+  std::string getResponse() const;
+  int getCount() const;
+  bool checkname(std::string name);
 };
-
 
 #endif
