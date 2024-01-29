@@ -15,7 +15,10 @@ Controller::Controller(Request &req, User *user) : request(req), user(user) {}
 void Controller::execute() {
   Server &server = Server::getInstance();
   std::string cmd = request.command().getCommand();
-  if (cmd == "PING") {
+  if (cmd == "CAP" && request.parameter().getParameters()[0] == "LS") {
+    send(user->getfd(), "CAP * LS :\r\n", sizeof("CAP * LS :\r\n"), 0);
+  }
+  else if (cmd == "PING") {
     send(user->getfd(), "PONG :ircserv.com\r\n",
          sizeof("PONG :ircserv.com\r\n"), 0);
   } else if (cmd == "PONG") {

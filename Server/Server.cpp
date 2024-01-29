@@ -39,14 +39,12 @@ void Server::connect() {
     std::cout << "New client " << cs << " from " << inet_ntoa(csin.sin_addr)
               << ":" << ntohs(csin.sin_port) << "is refused !" << std::endl;
   } else if (!userMap.exists(cs)) {
-    send(cs, "CAP * LS :\r\n", sizeof("CAP * LS :\r\n"), 0);
     User newUser(cs);
     this->userMap.addUser(cs, newUser);
     used_fd[cs] = 1;
     std::cout << "New client " << cs << " from " << inet_ntoa(csin.sin_addr)
               << ":" << ntohs(csin.sin_port) << std::endl;
-  } else
-    send(cs, "CAP * LS :\r\n", sizeof("CAP * LS :\r\n"), 0);
+  }
 }
 
 void Server::io_multiplex() {
