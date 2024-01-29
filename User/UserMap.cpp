@@ -27,6 +27,11 @@ void UserMap::deleteUser(int fd) {
   nicknameMap.erase(nicknameMapResult);
 }
 
+void UserMap::setUsername(int fd, std::string username) {
+  std::map<int, User>::iterator it = userMap.find(fd);
+  it->second.setUsername(username);
+}
+
 User &UserMap::findUser(int fd) {
   std::map<int, User>::iterator result = userMap.find(fd);
 
