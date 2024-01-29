@@ -4,7 +4,7 @@ Part::Part(Request req, User *user) : ICommand(req, user)
 {
     this->channelMap = &Server::getInstance().getChannelMap();
     if (channelMap->exists(req.parameter().getParameters()[0].substr(1)))
-        this->channel = &(channelMap->findChannel(req.parameter().getParameters()[0]));
+        this->channel = &(channelMap->findChannel(req.parameter().getParameters()[0].substr(1)));
     else
     {   
         Channel temp = Channel();
