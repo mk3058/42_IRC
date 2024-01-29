@@ -18,6 +18,7 @@ bool isValidFormat(std::string message) {
 void parseRequest(std::string message, std::string (&token)[3]) {
   size_t pos = 0;
 
+  message = message.substr(0, message.find(messageEndingKeyword));
   // prefix 파트가 존재하면 해당 부분 저장 후 삭제
   if (message.at(0) == ':') {
     pos = message.find(messageDelimeter);
