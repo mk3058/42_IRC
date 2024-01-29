@@ -16,7 +16,7 @@ void    Controler::execute()
     std::string cmd = request.command().getCommand();
     if (cmd == "PING")
     {
-        send(user->getfd(), "PONG :server\r\n", sizeof("PONG :ircserv.com\r\n"), 0);
+        send(user->getfd(), "PONG :ircserv.com\r\n", sizeof("PONG :ircserv.com\r\n"), 0);
     }
     else if (cmd == "PONG")
     {

@@ -31,9 +31,11 @@ void UserCmd::execute()
             param.push_back(user->getNickname());
             msg = Response::build(RPL_WELCOME, param, "welcome");
             send(user->getfd(), msg.c_str(), msg.size(), 0);
+            msg.clear();
+            // msg = Response::build(RPL_CHANNELMODEIS, param, "mode +r");
+            // send(user->getfd(), msg.c_str(), msg.size(), 0);
             server.getcerti()[user->getfd()] = 3;
-            std::cout << user->getfd() << "(Client) is resistered" << std::endl;
-            
+            std::cout << user->getfd() << "(Client) is resistered" << std::endl;   
         }
     }
 }
