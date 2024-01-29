@@ -3,18 +3,16 @@
 
 #include "ICommand.hpp"
 
-class UserCmd : public ICommand
-{
-    private:
+class UserCmd : public ICommand {
+ private:
+ public:
+  UserCmd(Request request, User *user);
 
-    public:
-    UserCmd(Request request, User *user);
-
-    void execute();
-    bool checkPermit();
-    int getCount() const;
-    std::string getResponse() const;
-    bool checkname(std::string name);
+  void execute();
+  bool checkPermit();
+  int getCount() const;
+  std::string getResponse() const;
+  bool checkname(std::string name);
 };
 
 #endif
