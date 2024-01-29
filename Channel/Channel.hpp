@@ -10,7 +10,7 @@
 #define INVITE_ONLY 0b10
 #define KEY_REQURIE 0b100
 #define USERMODE_TOPIC 0b10
-#define USERMODE_SUPER 0b110
+#define USERMODE_SUPER 0b100
 
 class Channel {
  private:

@@ -5,6 +5,7 @@
 #include "Server.hpp"
 #include "Response.hpp"
 #include "StatusCode.hpp"
+#include <sstream>
 
 class Mode : public ICommand
 {
@@ -12,9 +13,11 @@ class Mode : public ICommand
         ChannelMap *channelMap;
         Channel *channel;
         bool checkPermit();
-        bool checkParam(int cnt);
+        bool checkParam(unsigned long cnt);
         std::string kmode(std::string type);
         std::string imode(std::string type);
+        std::string lmode(std::string type);
+        std::string otmode(std::string type, int mode);
     public:
         void execute();
         Mode(Request req, User *user);
