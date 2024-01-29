@@ -41,12 +41,12 @@ Request::Request() {}
  * Parameter : 클라이언트로부터 받은 메시지 전문
  */
 Request::Request(const std::string &message) {
-  // if (!isValidFormat(message)) {
+  if (!isValidFormat(message)) {
     std::cout << "-------------\n";
     std::cout << message;
     std::cout << "\n-------------\n";
-  //   throw std::invalid_argument("요청 메시지 형식이 잘못되었습니다.");
-  // }
+    throw std::invalid_argument("요청 메시지 형식이 잘못되었습니다.");
+  }
 
   std::string token[3];
 
