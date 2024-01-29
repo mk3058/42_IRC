@@ -25,7 +25,7 @@ void Part::execute()
         FD_SET(channel->getUsers().findAllUsers()[i]->getfd(), &fd_write);
     Server::getInstance().Send(msg, channel->getUsers().getSize(), &fd_write);
     //채널정보 업데이트
-    std::string channelName = req.parameter().getParameters()[1];
+    std::string channelName = req.parameter().getParameters()[0].substr(1);
     user->leaveChannel(channelName);
     //유저 지우기
     channel->deleteUser(*user);
