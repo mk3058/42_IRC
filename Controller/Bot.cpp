@@ -4,8 +4,8 @@
 
 Bot::Bot(Request req, int fd, std::string nickname) : user_fd(fd), req(req), nickname(nickname)
 {
-    unbalancedCnt = 100;
     this->menuInit();
+    unbalancedCnt = menu.size();
 }
 
 void    Bot::execute()
