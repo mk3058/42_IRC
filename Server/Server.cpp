@@ -83,8 +83,8 @@ void Server::io_multiplex() {
           for (size_t k = 0; k < packet.size(); k++) {
             try {
               Request request(packet[k]);
-              Controler Controler(request, &(this->userMap.findUser(i)));
-              Controler.execute();
+              Controller Controller(request, &(this->userMap.findUser(i)));
+              Controller.execute();
             } catch (const std::exception &e) {
               std::cerr << e.what() << '\n';
             }

@@ -16,7 +16,7 @@
 #include "Channel.hpp"
 #include "ChannelMap.hpp"
 #include "Command.hpp"
-#include "Controler.hpp"
+#include "Controller.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
 #include "UserMap.hpp"
