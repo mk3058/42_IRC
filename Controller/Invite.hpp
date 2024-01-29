@@ -2,6 +2,7 @@
 #define INVITE_HPP
 
 #include "ICommand.hpp"
+#include "Notice.hpp"
 
 class Invite : public ICommand {
  private:
@@ -9,7 +10,8 @@ class Invite : public ICommand {
   ChannelMap &serverChannels;
   UserMap &serverUsers;
   bool validate();
-  void noticeToChannel(Channel &channel);
+  void noticeToChannel(std::string channelName);
+  void noticeToUser(std::string userName, std::string channelName);
 
  public:
   Invite(Request request, User *user);
