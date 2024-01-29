@@ -1,6 +1,8 @@
 #include "Controller.hpp"
 
+#include "Invite.hpp"
 #include "Join.hpp"
+#include "Kick.hpp"
 #include "Nick.hpp"
 #include "Part.hpp"
 #include "Pass.hpp"
@@ -56,17 +58,15 @@ void Controller::execute() {
     } else if (cmd == "PART") {
       Part part(request, this->user);
       part.execute();
+    } else if (cmd == "KICK") {
+      Kick kick(request, this->user);
+      kick.execute();
     }
-    // else if (cmd == "KICK")
-    // {
-    //     Kick kick(request, this->user);
-    //     kick.excute();
-    // }
-    // else if (cmd == "INVITE")
-    // {
-    //     Invite invite(request, this->user);
-    //     invite.excute();
-    // }
+    else if (cmd == "INVITE")
+    {
+        Invite invite(request, this->user);
+        invite.execute();
+    }
     else if (cmd == "TOPIC") {
       Topic topic(request, this->user);
       topic.execute();
@@ -77,16 +77,6 @@ void Controller::execute() {
       // Mode mode(request, this->user);
       // mode.excute();
     }
-    // else if (cmd == "DCC")
-    // {
-    //     Dcc dcc(request, this->user);
-    //     dcc.excute();
-    // }
-    // else if (cmd == "BOT")
-    // {
-    //     Bot bot(request, this->user);
-    //     bot.excute();
-    // }
     else {
       fd_set fd_write;
       FD_ZERO(&fd_write);
