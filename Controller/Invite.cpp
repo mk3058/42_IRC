@@ -25,28 +25,37 @@ void Invite::execute() {
                            user->getNickname() + "!" + user->getUsername());
     write_cnt = 1;
     FD_SET(user->getfd(), &fd_write);
-    noticeToChannel(channel);
+    noticeToChannel(params.at(1).substr(1));
+    noticeToUser(params.at(0), params.at(1).substr(1));
   }
   server.Send(msg, write_cnt, &fd_write);
 }
 
-void Invite::noticeToChannel(Channel &channel) {
-  std::vector<User *> channelUsers = channel.getUsers().findAllUsers();
+void Invite::noticeToChannel(std::string channelName) {
   std::vector<std::string> param;
   std::string noticeMsg;
   std::string trailer = user->getNickname() + " invited " +
                         req.parameter().getParameters().at(0) +
-                        " to the channel " + channel.getName();
-  int noticeCnt = channelUsers.size();
+                        " to the channel #" + channelName;
 
-  param.push_back(channel.getName());
+  param.push_back("#" + channelName);
   noticeMsg = Response::build("NOTICE", param, trailer);
 
-  for (size_t i = 0; i < channelUsers.size(); i++) {
-    int fd = channelUsers.at(i)->getfd();
-    FD_SET(fd, &fd_write);
-  }
-  server.Send(noticeMsg, noticeCnt, &fd_write);
+  Notice n;
+  n.toChannel(channelName, noticeMsg);
+}
+
+void Invite::noticeToUser(std::string userName, std::string channelName) {
+  std::vector<std::string> param;
+  std::string noticeMsg;
+  std::string trailer =
+      user->getNickname() + " invited you to the channel #" + channelName;
+
+  param.push_back(userName);
+  noticeMsg = Response::build("NOTICE", param, trailer);
+
+  Notice notice;
+  notice.toUser(userName, noticeMsg);
 }
 
 bool Invite::checkPermit() {
@@ -78,7 +87,7 @@ bool Invite::validate() {
   // inviter가 해당 채널에 참여하고 있는지 확인
   Channel &channel = serverChannels.findChannel(
       req.parameter().getParameters().at(1).substr(1));
-  if (channel.getUsers().exists(user->getNickname())) {
+  if (!channel.getUsers().exists(user->getNickname())) {
     msg = Response::error(ERR_USERNOTINCHANNEL, *user, &fd_write);
     write_cnt = 1;
     return false;
