@@ -9,6 +9,7 @@ class Invite : public ICommand {
   ChannelMap &serverChannels;
   UserMap &serverUsers;
   bool validate();
+  void noticeToChannel(Channel &channel);
 
  public:
   Invite(Request request, User *user);

@@ -22,8 +22,28 @@ void Invite::execute() {
                           user->getNickname() + "!" + user->getUsername());
     write_cnt = 1;
     FD_SET(user->getfd(), &fd_write);
+    noticeToChannel(channel);
   }
   server.Send(msg, write_cnt, &fd_write);
+}
+
+void Invite::noticeToChannel(Channel &channel) {
+  std::vector<User *> channelUsers = channel.getUsers().findAllUsers();
+  std::vector<std::string> param;
+  std::string noticeMsg;
+  std::string trailer = user->getNickname() + " invited " +
+                        req.parameter().getParameters().at(0) +
+                        " to the channel " + channel.getName();
+  int noticeCnt = channelUsers.size();
+
+  param.push_back(channel.getName());
+  noticeMsg = Response::build("NOTICE", param, trailer);
+
+  for (std::vector<User *>::iterator it = channelUsers.begin();
+       it != channelUsers.end(); ++it) {
+    FD_SET((*it)->getfd(), &fd_write);
+  }
+  server.Send(noticeMsg, noticeCnt, &fd_write);
 }
 
 bool Invite::checkPermit() {
