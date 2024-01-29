@@ -21,8 +21,7 @@ void Invite::execute() {
       channel.getBannedUsers().deleteUser(target.getfd());
     }
     msg += Response::build(req.command().getCommand(),
-                           req.parameter().getParameters(),
-                           "",
+                           req.parameter().getParameters(), "",
                            user->getNickname() + "!" + user->getUsername());
     write_cnt = 1;
     FD_SET(user->getfd(), &fd_write);
@@ -43,9 +42,9 @@ void Invite::noticeToChannel(Channel &channel) {
   param.push_back(channel.getName());
   noticeMsg = Response::build("NOTICE", param, trailer);
 
-  for (std::vector<User *>::iterator it = channelUsers.begin();
-       it != channelUsers.end(); ++it) {
-    FD_SET((*it)->getfd(), &fd_write);
+  for (size_t i = 0; i < channelUsers.size(); i++) {
+    int fd = channelUsers.at(i)->getfd();
+    FD_SET(fd, &fd_write);
   }
   server.Send(noticeMsg, noticeCnt, &fd_write);
 }
