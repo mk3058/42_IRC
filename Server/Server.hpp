@@ -57,7 +57,7 @@ class Server {
   int           *getcerti();
 
   void   Send(const std::string ResMsg, int write_cnt, fd_set *fd_write);
-  static Server &getInstance(std::string password, int port);
+  static void initialize(std::string password, int port);
   static Server &getInstance();
   ~Server();
 };
