@@ -8,6 +8,7 @@ class Bot
     private:
     std::vector<std::string> menu;
     int                      user_fd;
+    int                      unbalancedCnt;
     Request                  req;
     std::string              nickname;
 

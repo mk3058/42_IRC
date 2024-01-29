@@ -4,6 +4,7 @@
 
 Bot::Bot(Request req, int fd, std::string nickname) : user_fd(fd), req(req), nickname(nickname)
 {
+    unbalancedCnt = 100;
     this->menuInit();
 }
 
@@ -23,15 +24,18 @@ std::string Bot::findmenu()
     std::vector<std::string> param = req.parameter().getParameters();
     std::vector<std::string>::iterator it = param.begin();
     it++;
-    while (it != req.parameter().getParameters().end())
+    while (it != req.parameter().getParameters().end() || unbalancedCnt > 0)
     {
         if (*it == this->menu[random])
         {
             it = req.parameter().getParameters().begin();
             random = std::rand() % 100;
+            unbalancedCnt--;
         }
         it++;
     }
+    if (unbalancedCnt == 0)
+        return "굶으세요 그냥";
     std::string str = "드세요 제발";
     
     return (menu[random] += str);
