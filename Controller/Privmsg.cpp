@@ -23,6 +23,7 @@ void Privmsg::execute() {
     if (targetName == "BOT")
     {
       Bot bot(req, user->getfd(), user->getNickname());
+      bot.execute();
       return ;
     }
     else if (targetName.at(0) == '#') {

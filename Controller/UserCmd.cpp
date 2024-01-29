@@ -1,8 +1,6 @@
 #include "UserCmd.hpp"
 
-UserCmd::UserCmd(Request request, User *user) : ICommand(request, user)
-{
-}
+UserCmd::UserCmd(Request request, User *user) : ICommand(request, user) {}
 
 void UserCmd::execute()
 {
@@ -15,7 +13,8 @@ void UserCmd::execute()
         param.push_back("*");
         msg.clear();
         this->msg = Response::build("PRIVMSG", param, "Not yet resistered");
-        send(user->getfd(), msg.c_str(), msg.size(), 0); 
+        send(user->getfd(), msg.c_str(), msg.size(), 0);
+        this->closeUser();
     }
     else // 인증 단계일때
     {
@@ -23,6 +22,7 @@ void UserCmd::execute()
         {
             this->msg = Response::error(ERR_NEEDMOREPARAMS, *(this->user), &fd_write);
             send(user->getfd(), msg.c_str(), msg.size(), 0);
+            this->closeUser();
         }
         else // 인증 성공 했을 때
         {
@@ -69,4 +69,13 @@ bool    UserCmd::checkname(std::string name)
             return false;
     }
     return true;
+}
+
+void    UserCmd::closeUser()
+{
+    Server &server = Server::getInstance();
+    close(user->getfd());
+    server.getUsedfd()[user->getfd()] = 0;
+    server.getUserMap().deleteUser(user->getfd());
+    server.getcerti()[user->getfd()] = 0;
 }

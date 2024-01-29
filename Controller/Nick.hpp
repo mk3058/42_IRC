@@ -14,6 +14,7 @@ class Nick : public ICommand {
   std::string getResponse() const;
   int getCount() const;
   bool checkname(std::string name);
+  void closeUser();
 };
 
 #endif

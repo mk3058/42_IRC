@@ -8,6 +8,9 @@ void Pass::execute() {
   {
     this->msg = Response::error(ERR_NEEDMOREPARAMS, *(this->user), &fd_write);
     send(user->getfd(), msg.c_str(), msg.size(), 0);
+    close(user->getfd());
+    server.getUsedfd()[user->getfd()] = 0;
+    server.getUserMap().deleteUser(user->getfd());
   } else if (server.auth(req.parameter().getParameters()[0]) ==
              0)  // 비밀번호 틀린 경우
   {
@@ -16,15 +19,16 @@ void Pass::execute() {
     close(user->getfd());
     server.getUserMap().deleteUser(user->getfd());
     server.getUsedfd()[user->getfd()] = 0;
-    std::cout << user->getfd() << " is disconnected by attempt three times."
-              << std::endl;
 
   } else  // 성공했을 경우
   {
     server.getcerti()[user->getfd()] = 1;
     std::vector<std::string> param;
     param.push_back("*");
-    this->msg = Response::build("PRIVMSG", param, "plz input nickname");
+    this->msg = Response::build("PRIVMSG", param, "PASSWORD IS CORRECT");
+    send(user->getfd(), msg.c_str(), msg.size(), 0);
+    msg.clear();
+    this->msg = Response::build("PRIVMSG", param, "PLZ INPUT USERNAME");
     send(user->getfd(), msg.c_str(), msg.size(), 0);
   }
 }
