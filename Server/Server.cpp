@@ -98,22 +98,19 @@ UserMap &Server::getUserMap() { return this->userMap; }
 
 ChannelMap &Server::getChannelMap() { return this->channelMap; }
 
-int  *Server::getcerti() { return this->certi; }
+int *Server::getcerti() { return this->certi; }
 
-int   Server::gettotalUsers() { return this->totalUsers; }
+int Server::gettotalUsers() { return this->totalUsers; }
 
 Server *Server::instance = NULL;
 
 /**
  * 최초 인스턴스 생성시에 password, port 파라미터와 함께 사용합니다.
- * 인스턴스가 생성된 후 호출시 파라미터를 무시하고 기존 객체를 반환합니다.
  */
-Server &Server::getInstance(std::string password, int port) {
+void Server::initialize(std::string password, int port) {
   if (instance == NULL) {
     instance = new Server(password, port);
   }
-
-  return *instance;
 }
 
 /**
@@ -139,14 +136,13 @@ Server Server::operator=(const Server &rval) {
 
 Server::~Server() { delete instance; }
 
-void  Server::Send(const std::string ResMsg, int write_cnt, fd_set *fd_write)
-{
+void Server::Send(const std::string ResMsg, int write_cnt, fd_set *fd_write) {
   size_t length = ResMsg.size();
   for (int i = 0; i < MAX_USER; i++) {
-           if (FD_ISSET(i, fd_write)) {
-             send(i, ResMsg.c_str(), length, 0);
-             write_cnt--;
-           }
-        if (!write_cnt) break;
-      }
+    if (FD_ISSET(i, fd_write)) {
+      send(i, ResMsg.c_str(), length, 0);
+      write_cnt--;
+    }
+    if (!write_cnt) break;
+  }
 }
