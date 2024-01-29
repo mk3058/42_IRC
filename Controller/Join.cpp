@@ -13,7 +13,11 @@ void Join::execute()
 {
     if (!checkPermit(user->getfd()))
         return ;
+    //유저의 채널맵 업데이트
+    user->joinChannel(req.parameter().getParameters()[0].substr(1));
+    //채널에도 유저추가
     channel->addUser(*user);
+    //유저 들어왔다는 메시지 전송
     msg = Response::build(req.command().getCommand(), req.parameter().getParameters(), "user " + user->getNickname() + "join this channel");
     for(int i = 0; i < channel->getUsers().getSize(); ++i)
         FD_SET(channel->getUsers().findAllUsers()[i]->getfd(), &fd_write);
