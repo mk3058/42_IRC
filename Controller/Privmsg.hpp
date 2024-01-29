@@ -20,6 +20,7 @@ class Privmsg : public ICommand {
   Privmsg(Request request, User *user);
   virtual void execute();
   virtual bool checkPermit();
+  std::string bot();
 };
 
 #endif
