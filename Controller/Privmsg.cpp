@@ -1,4 +1,5 @@
 #include "Privmsg.hpp"
+#include "Bot.hpp"
 
 #include <sys/select.h>
 
@@ -19,7 +20,12 @@ void Privmsg::execute() {
     std::vector<std::string> params = req.parameter().getParameters();
 
     std::string targetName = getTargetName(params.at(0));
-    if (targetName.at(0) == '#') {
+    if (targetName == "BOT")
+    {
+      Bot bot(req, user->getfd(), user->getNickname());
+      return ;
+    }
+    else if (targetName.at(0) == '#') {
       targetName = targetName.substr(1, std::string::npos);
       sendToChannel(targetName);
     } else {
