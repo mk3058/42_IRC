@@ -6,7 +6,6 @@ Kick::Kick(Request req, User *user) : ICommand(req, user)
     if (req.parameter().getParameters().size() < 1)
     {
         Channel temp = Channel();
-        std::cout << temp.getName();
         this->channel = &temp;
     }
     else if(channelMap->exists(req.parameter().getParameters()[0].substr(1)))
@@ -15,7 +14,6 @@ Kick::Kick(Request req, User *user) : ICommand(req, user)
     {   
     
         Channel temp = Channel();
-        std::cout << temp.getName();
         this->channel = &temp;
     }
     this->permission = channel->getMode();
