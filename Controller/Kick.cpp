@@ -3,11 +3,19 @@
 Kick::Kick(Request req, User *user) : ICommand(req, user)
 {
     this->channelMap = &Server::getInstance().getChannelMap();
-    if (channelMap->exists(req.parameter().getParameters()[0].substr(1)))
+    if (req.parameter().getParameters().size() < 1)
+    {
+        Channel temp = Channel();
+        std::cout << temp.getName();
+        this->channel = &temp;
+    }
+    else if(channelMap->exists(req.parameter().getParameters()[0].substr(1)))
         this->channel = &(channelMap->findChannel(req.parameter().getParameters()[0].substr(1)));
     else
     {   
+    
         Channel temp = Channel();
+        std::cout << temp.getName();
         this->channel = &temp;
     }
     this->permission = channel->getMode();
@@ -18,19 +26,20 @@ void Kick::execute()
     if (!checkPermit())
         return ;
     //유저의 채널정보 업데이트
-    std::string userName = req.parameter().getParameters()[2];
+    std::string userName = req.parameter().getParameters()[1];
     User *targetUser = &channel->getUsers().findUser(userName);
     targetUser->leaveChannel(channel->getName());
-    //유저 지우기
-    channel->deleteUser(*targetUser);
-    //마지막 유저였으면 채널도 삭제
-    if (!channel->getUsers().getSize())
-        channelMap->deleteChannel(channel->getName());
     // 내보내졌다는 메시지 보내기
-    msg = Response::build(req.command().getCommand(), req.parameter().getParameters(), "user " + targetUser->getNickname() + "Kick this channel");
+    msg = Response::build(req.command().getCommand(), req.parameter().getParameters(), "user " + targetUser->getNickname() + " Kick this channel");
     for(int i = 0; i < channel->getUsers().getSize(); ++i)
         FD_SET(channel->getUsers().findAllUsers()[i]->getfd(), &fd_write);
     Server::getInstance().Send(msg, channel->getUsers().getSize(), &fd_write);
+    //유저 지우기
+    channel->deleteUser(*targetUser);
+    channel->getBannedUsers().addUser(targetUser->getfd(), *targetUser);
+    //마지막 유저였으면 채널도 삭제
+    if (!channel->getUsers().getSize())
+        channelMap->deleteChannel(channel->getName());
 }    
 
 bool Kick::checkPermit()
@@ -60,7 +69,7 @@ bool Kick::checkPermit()
         return (false);
     }
     //유저네임이 잘못됨
-    if (channel->getUsers().exists(req.parameter().getParameters()[2]))
+    if (!channel->getUsers().exists(req.parameter().getParameters()[1]))
     {
         msg = Response::error(ERR_USERNOTINCHANNEL, *user, &fd_write, "user not in channel");
         Server::getInstance().Send(msg, 1, &fd_write);

@@ -9,6 +9,7 @@
 #include "Privmsg.hpp"
 #include "Topic.hpp"
 #include "UserCmd.hpp"
+#include "Mode.hpp"
 
 Controller::Controller(Request &req, User *user) : request(req), user(user) {}
 
@@ -77,8 +78,8 @@ void Controller::execute() {
       if (request.parameter().getParameters()[0].find('#') == std::string::npos)
         send(user->getfd(), ":ircserv.com  MODE root :+i\r\n",
              sizeof(":ircserv.com  MODE root :+i\r\n"), 0);
-      // Mode mode(request, this->user);
-      // mode.excute();
+        Mode mode(request, this->user);
+        mode.execute();
     }
     else {
       fd_set fd_write;
