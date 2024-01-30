@@ -16,6 +16,7 @@ class Controller {
  public:
   Controller(Request &req, User *user);
   void execute();
+  void quitChUser();
 };
 
 #endif

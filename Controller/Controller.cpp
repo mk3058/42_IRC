@@ -16,6 +16,7 @@ Controller::Controller(Request &req, User *user) : request(req), user(user) {}
 void Controller::execute() {
   Server &server = Server::getInstance();
   std::string cmd = request.command().getCommand();
+
   if (cmd == "CAP" && request.parameter().getParameters()[0] == "LS") {
     send(user->getfd(), "CAP * LS :\r\n", sizeof("CAP * LS :\r\n"), 0);
   }
@@ -28,7 +29,7 @@ void Controller::execute() {
     int i = user->getfd();
     std::cout << "client #" << i << " gone away" << std::endl;
     close(i);
-    server.getUserMap().deleteUser(i);
+    this->quitChUser();
     server.getUsedfd()[i] = 0;
     server.getcerti()[i] = 0;
   } else if (Server::getInstance().getcerti()[user->getfd()] < 3) {
@@ -88,5 +89,16 @@ void Controller::execute() {
                                         &fd_write, "Unknown Command");
       send(user->getfd(), msg.c_str(), msg.size(), 0);
     }
+  }
+}
+
+void Controller::quitChUser()
+{
+  if (!user->getChannels().size())
+    return ;
+  for (std::map<std::string, Channel *>::iterator it = user->getChannels().begin(); \
+    it != user->getChannels().end(); it++)
+  {
+    it->second->deleteUser(*(this->user));
   }
 }
