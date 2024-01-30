@@ -1,7 +1,7 @@
 #include "Parameter.hpp"
 
 static const std::string parameterDelimeter = " ";
-static const std::string trailerDelimeter = ":";
+static const std::string trailerDelimeter = " :";
 
 static void parseParameter(std::string parameter,
                            std::vector<std::string> &token, std::string &tr,
