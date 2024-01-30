@@ -27,7 +27,8 @@ void Topic::execute() {
 
 void Topic::changeTopic() {
   const Parameter &params = req.parameter();
-  Channel &channel = serverChannels.findChannel(params.getParameters().at(0));
+  Channel &channel =
+      serverChannels.findChannel(params.getParameters().at(0).substr(1));
   std::vector<User *> channelUsers = channel.getUsers().findAllUsers();
 
   channel.setTopic(params.getTrailer());
@@ -44,7 +45,8 @@ void Topic::changeTopic() {
 
 void Topic::showTopic() {
   const Parameter &params = req.parameter();
-  Channel &channel = serverChannels.findChannel(params.getParameters().at(0));
+  Channel &channel =
+      serverChannels.findChannel(params.getParameters().at(0).substr(1));
 
   msg = Response::build(req.command().getCommand(),
                         req.parameter().getParameters(), channel.getTopic());
@@ -54,10 +56,10 @@ void Topic::showTopic() {
 
 bool Topic::checkPermit() {
   std::vector<std::string> params = req.parameter().getParameters();
-  Channel &channel = serverChannels.findChannel(params.at(0));
+  Channel &channel = serverChannels.findChannel(params.at(0).substr(1));
 
-  return (this->permission || channel.getUserPermits().at(user->getfd())) ==
-         this->permission;
+  return ((channel.getUserPermits().at(user->getfd())) == USERMODE_SUPER ||
+          (channel.getUserPermits().at(user->getfd())) == USERMODE_TOPIC);
 }
 
 bool Topic::validate() {
