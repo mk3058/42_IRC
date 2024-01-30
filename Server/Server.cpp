@@ -1,6 +1,7 @@
 #include "Server.hpp"
 
 #include <cstring>
+#include <fcntl.h>
 
 Server::Server(std::string password, int port) {
   int optval = 1;
@@ -55,7 +56,7 @@ void Server::io_multiplex() {
 
   FD_ZERO(&fd_read);
   while (i < MAX_USER) {
-    if (used_fd[i]) {
+    if (used_fd[i] && fcntl(i, F_GETFL) != -1) {
       FD_SET(i, &fd_read);
       changedFdCount = changedFdCount > i ? changedFdCount : i;
     }
