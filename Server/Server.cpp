@@ -3,6 +3,7 @@
 #include <cstring>
 
 Server::Server(std::string password, int port) {
+  int optval = 1;
   this->password = password;
   this->port = port;
 
@@ -15,6 +16,7 @@ Server::Server(std::string password, int port) {
   sin.sin_family = AF_INET;
   sin.sin_addr.s_addr = INADDR_ANY;
   sin.sin_port = htons(port);
+  setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
   if (bind(socket_fd, (struct sockaddr *)&sin, sizeof(sin)) == -1)
     throw std::runtime_error("Bind function failed");
   if (listen(socket_fd, LISTEN_QUEUE_SIZE) == -1)
