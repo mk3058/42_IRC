@@ -1,7 +1,6 @@
 #include "Bot.hpp"
 #include "Response.hpp"
 #include <sys/socket.h>
-#include <iostream>
 
 Bot::Bot(Request req, int fd, std::string nickname) : user_fd(fd), req(req), nickname(nickname)
 {
@@ -21,7 +20,7 @@ std::string Bot::findmenu()
 {
     std::srand(std::time(NULL));
 
-    int random = std::rand() % menu.size() - 1;
+    int random = std::rand() % menu.size();
     std::string str = "드세요 제발";
     
     return (menu[random] += str);
