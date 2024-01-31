@@ -101,7 +101,7 @@ int Nick::getCount() const { return (msg.size()); }
 
 bool Nick::checkname(std::string name) {
   int len = name.size();
-  if (len <= 1 || len >= 10) return false;
+  if (len <= 1 || len >= 10 || name == "BOT") return false;
   for (int i = 0; i < len; i++) {
     if (!std::isalnum(name[i])) return false;
   }

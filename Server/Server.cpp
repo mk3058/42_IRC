@@ -214,8 +214,6 @@ void Server::delUser(int fd)
   used_fd[fd] = 0;
   totalUsers--;
   certi[fd] = 0;
-  recvBuffers.erase(fd);
-  sendBuffers.erase(fd);
   std::cout << "client #" << fd << " gone away" << std::endl;
 }
 

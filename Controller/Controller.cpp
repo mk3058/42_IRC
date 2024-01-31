@@ -28,7 +28,6 @@ void Controller::execute() {
   } else if (cmd == "PONG") {
     std::cout << "Client " << user->getfd() << "PONG" << std::endl;
   } else if (cmd == "QUIT") {
-    std::cout << "client #" << user->getfd() << " gone away" << std::endl;
     server.quitChUser(user->getfd());
     server.delUser(user->getfd());
   } else if (Server::getInstance().getcerti()[user->getfd()] < 3) {
