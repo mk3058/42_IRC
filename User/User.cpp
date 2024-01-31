@@ -28,12 +28,10 @@ int User::getfd() const { return fd; }
 
 std::map<std::string, Channel *> &User::getChannels() { return this->channels; }
 
-void User::joinChannel(std::string channelName, Channel *channel)
-{
-    this->channels.insert(make_pair(channelName, channel));
+void User::joinChannel(std::string channelName, Channel *channel) {
+  this->channels.insert(make_pair(channelName, channel));
 }
 
-void User::leaveChannel(std::string channelName)
-{
-    this->channels.erase(channelName);
+void User::leaveChannel(std::string channelName) {
+  this->channels.erase(channelName);
 }

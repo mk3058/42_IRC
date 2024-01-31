@@ -9,14 +9,12 @@ void UserCmd::execute() {
     this->msg = Response::error(ERR_NOTREGISTERED, *(this->user), &fd_write);
     FD_SET(user->getfd(), &fd_write);
     Server::getInstance().bufferMessage(msg, 1, &fd_write);
-    ;
     std::vector<std::string> param;
     param.push_back("*");
     msg.clear();
     this->msg = Response::build("NOTICE", param, "Not yet resistered");
     FD_SET(user->getfd(), &fd_write);
     Server::getInstance().bufferMessage(msg, 1, &fd_write);
-    ;
     this->closeUser();
   } else  // 인증 단계일때
   {

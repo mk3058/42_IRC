@@ -9,7 +9,6 @@ void Pass::execute() {
     this->msg = Response::error(ERR_NEEDMOREPARAMS, *(this->user), &fd_write);
     FD_SET(user->getfd(), &fd_write);
     Server::getInstance().bufferMessage(msg, 1, &fd_write);
-    ;
     this->closeUser();
   } else if (server.auth(req.parameter().getParameters()[0]) ==
              0)  // 비밀번호 틀린 경우
@@ -17,7 +16,6 @@ void Pass::execute() {
     this->msg = Response::error(ERR_PASSWDMISMATCH, *(this->user), &fd_write);
     FD_SET(user->getfd(), &fd_write);
     Server::getInstance().bufferMessage(msg, 1, &fd_write);
-    ;
     this->closeUser();
   } else  // 성공했을 경우
   {
@@ -27,12 +25,10 @@ void Pass::execute() {
     this->msg = Response::build("NOTICE", param, "PASSWORD IS CORRECT");
     FD_SET(user->getfd(), &fd_write);
     Server::getInstance().bufferMessage(msg, 1, &fd_write);
-    ;
     msg.clear();
     this->msg = Response::build("NOTICE", param, "PLZ INPUT USERNAME");
     FD_SET(user->getfd(), &fd_write);
     Server::getInstance().bufferMessage(msg, 1, &fd_write);
-    ;
   }
 }
 

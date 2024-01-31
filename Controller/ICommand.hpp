@@ -6,9 +6,9 @@
 #include "Channel.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
-#include "User.hpp"
 #include "Server.hpp"
 #include "StatusCode.hpp"
+#include "User.hpp"
 
 class ICommand {
  protected:
