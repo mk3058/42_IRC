@@ -128,6 +128,7 @@ void Server::receiveMessage(int fd) {
     userMap.deleteUser(fd);
     used_fd[fd] = 0;
     totalUsers--;
+    certi[fd] = 0;
     std::cout << "client #" << fd << " gone away" << std::endl;
     return;
   }
