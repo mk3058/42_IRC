@@ -1,7 +1,8 @@
 #include "Server.hpp"
 
-#include <cstring>
 #include <fcntl.h>
+
+#include <cstring>
 
 Server::Server(std::string password, int port) {
   int optval = 1;
@@ -12,11 +13,14 @@ Server::Server(std::string password, int port) {
   memset(certi, 0, sizeof(certi));
   memset(used_fd, 0, sizeof(used_fd));
   this->socket_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_HOPOPTS);
-  if (socket_fd == -1) throw std::runtime_error("Failed to create socket");
+  if (socket_fd == -1) {
+    throw std::runtime_error("Failed to create socket");
+  }
   struct sockaddr_in sin;
   sin.sin_family = AF_INET;
   sin.sin_addr.s_addr = INADDR_ANY;
   sin.sin_port = htons(port);
+  fcntl(socket_fd, F_SETFL, O_NONBLOCK);
   setsockopt(socket_fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
   if (bind(socket_fd, (struct sockaddr *)&sin, sizeof(sin)) == -1)
     throw std::runtime_error("Bind function failed");
@@ -33,6 +37,7 @@ void Server::connect() {
 
   csin_len = sizeof(csin);
   cs = accept(socket_fd, (struct sockaddr *)&csin, &csin_len);
+  fcntl(cs, F_SETFL, O_NONBLOCK);
   if (cs == -1) throw std::runtime_error("Accept function failed");
   if (totalUsers > 997) {
     std::vector<std::string> emptyParam;
@@ -64,7 +69,7 @@ void Server::io_multiplex() {
   }
   int r = select(changedFdCount + 1, &fd_read, &fd_write, 0, 0);
   if (r < 0) {
-    throw std::runtime_error("Failed select");
+    throw std::runtime_error("select function failed");
   }
   i = 0;
   while ((i < MAX_USER) && (changedFdCount > 0)) {
