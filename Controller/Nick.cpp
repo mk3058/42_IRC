@@ -9,7 +9,6 @@ void Nick::execute() {
     this->msg = Response::error(ERR_NEEDMOREPARAMS, *(this->user), &fd_write);
     FD_SET(user->getfd(), &fd_write);
     Server::getInstance().bufferMessage(msg, 1, &fd_write);
-    ;
 
     this->closeUser();
   } else if (checknick() == 1)  // 닉네임 인증 타이밍일때
@@ -63,7 +62,6 @@ void Nick::execute() {
     this->msg = Response::error(ERR_PASSWDMISMATCH, *(this->user), &fd_write);
     FD_SET(user->getfd(), &fd_write);
     Server::getInstance().bufferMessage(msg, 1, &fd_write);
-    ;
     server.getcerti()[user->getfd()]--;
     std::vector<std::string> param;
     param.push_back("*");
@@ -71,7 +69,6 @@ void Nick::execute() {
     this->msg = Response::build("NOTICE", param, "plz try valid password");
     FD_SET(user->getfd(), &fd_write);
     Server::getInstance().bufferMessage(msg, 1, &fd_write);
-    ;
     this->closeUser();
   } else  // 이미 닉네임 인증 했을 때
   {
@@ -80,7 +77,6 @@ void Nick::execute() {
     this->msg = Response::build("NOTICE", param, " is already seted nickname");
     FD_SET(user->getfd(), &fd_write);
     Server::getInstance().bufferMessage(msg, 1, &fd_write);
-    ;
     this->closeUser();
   }
 }
