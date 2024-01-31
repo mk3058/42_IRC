@@ -9,8 +9,8 @@ void Nick::execute() {
     this->msg = Response::error(ERR_NEEDMOREPARAMS, *(this->user), &fd_write);
     FD_SET(user->getfd(), &fd_write);
     Server::getInstance().bufferMessage(msg, 1, &fd_write);
-
-    this->closeUser();
+    server.quitChUser(user->getfd());
+    server.delUser(user->getfd());
   } else if (checknick() == 1)  // 닉네임 인증 타이밍일때
   {
     if (server.getUserMap().exists(
@@ -25,7 +25,8 @@ void Nick::execute() {
       this->msg = Response::build("NOTICE", param, "already exist nickname");
       FD_SET(user->getfd(), &fd_write);
       Server::getInstance().bufferMessage(msg, 1, &fd_write);
-      this->closeUser();
+      server.quitChUser(user->getfd());
+      server.delUser(user->getfd());
     } else if (!checkname(
                    req.parameter().getParameters()[0]))  // 중복된 닉네임 없지만
                                                          // 설정 문법에 어긋날때
@@ -38,7 +39,8 @@ void Nick::execute() {
       FD_SET(user->getfd(), &fd_write);
       Server::getInstance().bufferMessage(msg, 1, &fd_write);
       ;
-      this->closeUser();
+      server.quitChUser(user->getfd());
+      server.delUser(user->getfd());
     } else  // 닉네임 설정이 잘 되었을
     {
       User newuser = server.getUserMap().findUser(user->getfd());
@@ -69,7 +71,8 @@ void Nick::execute() {
     this->msg = Response::build("NOTICE", param, "plz try valid password");
     FD_SET(user->getfd(), &fd_write);
     Server::getInstance().bufferMessage(msg, 1, &fd_write);
-    this->closeUser();
+    server.quitChUser(user->getfd());
+    server.delUser(user->getfd());
   } else  // 이미 닉네임 인증 했을 때
   {
     std::vector<std::string> param;
@@ -77,7 +80,8 @@ void Nick::execute() {
     this->msg = Response::build("NOTICE", param, " is already seted nickname");
     FD_SET(user->getfd(), &fd_write);
     Server::getInstance().bufferMessage(msg, 1, &fd_write);
-    this->closeUser();
+    server.quitChUser(user->getfd());
+    server.delUser(user->getfd());
   }
 }
 
@@ -102,14 +106,4 @@ bool Nick::checkname(std::string name) {
     if (!std::isalnum(name[i])) return false;
   }
   return true;
-}
-
-void Nick::closeUser() {
-  Server &server = Server::getInstance();
-  close(user->getfd());
-  server.getUsedfd()[user->getfd()] = 0;
-  int &totalusers = server.gettotalUsers();
-  totalusers--;
-  server.getUserMap().deleteUser(user->getfd());
-  server.getcerti()[user->getfd()] = 0;
 }

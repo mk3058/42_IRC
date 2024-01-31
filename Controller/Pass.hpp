@@ -12,7 +12,6 @@ class Pass : public ICommand {
   bool checkPermit();
   std::string getResponse() const;
   int getCount() const;
-  void closeUser();
 };
 
 #endif
