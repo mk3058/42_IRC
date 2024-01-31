@@ -3,19 +3,11 @@
 Part::Part(Request req, User *user) : ICommand(req, user)
 {
     this->channelMap = &Server::getInstance().getChannelMap();
-    if (req.parameter().getParameters().size() < 1)
+    if (channelMap->exists(req.parameter().getParameters()[0].substr(1)))
     {
-        Channel temp = Channel();
-        this->channel = &temp;
-    }
-    else if (channelMap->exists(req.parameter().getParameters()[0].substr(1)))
         this->channel = &(channelMap->findChannel(req.parameter().getParameters()[0].substr(1)));
-    else
-    {   
-        Channel temp = Channel();
-        this->channel = &temp;
+        this->permission = channel->getMode();
     }
-    this->permission = channel->getMode();
 }
 
 void Part::execute()
@@ -43,9 +35,15 @@ bool Part::checkPermit()
 {
     int fd = user->getfd();
     FD_SET(fd, &fd_write);
-    if (channel->getName() == "Not initialized")
+    if (!channelMap->exists(req.parameter().getParameters()[0].substr(1)))
     {
         msg = Response::error(ERR_NOSUCHCHANNEL, *user, &fd_write, "wrong channel name");
+        Server::getInstance().Send(msg, 1, &fd_write);
+        return (false);
+    }
+    if (!channel->getUsers().exists(user->getfd()))
+    {
+        msg = Response::error(ERR_NOTONCHANNEL, *user, &fd_write, "you are not on channel");
         Server::getInstance().Send(msg, 1, &fd_write);
         return (false);
     }
