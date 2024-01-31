@@ -29,6 +29,8 @@ void Controller::execute() {
     int i = user->getfd();
     std::cout << "client #" << i << " gone away" << std::endl;
     close(i);
+    int &totalusers = server.gettotalUsers();
+    totalusers--;
     this->quitChUser();
     server.getUsedfd()[i] = 0;
     server.getcerti()[i] = 0;

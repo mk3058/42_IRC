@@ -76,6 +76,8 @@ void    UserCmd::closeUser()
     Server &server = Server::getInstance();
     close(user->getfd());
     server.getUsedfd()[user->getfd()] = 0;
+    int &totalusers = server.gettotalUsers();
+    totalusers--;
     server.getUserMap().deleteUser(user->getfd());
     server.getcerti()[user->getfd()] = 0;
 }

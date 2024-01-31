@@ -64,6 +64,7 @@ void Nick::execute() {
     param.push_back("*");
     this->msg = Response::build("PRIVMSG", param, " is already seted nickname");
     send(user->getfd(), msg.c_str(), msg.size(), 0);
+    this->closeUser();
   }
 }
 
@@ -95,6 +96,8 @@ void Nick::closeUser()
   Server &server = Server::getInstance();
   close(user->getfd());
   server.getUsedfd()[user->getfd()] = 0;
+  int &totalusers = server.gettotalUsers();
+  totalusers--;
   server.getUserMap().deleteUser(user->getfd());
   server.getcerti()[user->getfd()] = 0;
 }

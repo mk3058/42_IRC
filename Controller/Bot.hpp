@@ -6,9 +6,10 @@
 class Bot
 {
     private:
-    std::vector<std::string> menu;
+    std::vector<std::string> breakfast;
+    std::vector<std::string> lunch;
+    std::vector<std::string> dinner;
     int                      user_fd;
-    int                      unbalancedCnt;
     Request                  req;
     std::string              nickname;
 
@@ -16,7 +17,7 @@ class Bot
     Bot(Request req, int fd, std::string nickname);
     void execute();
     void menuInit();
-    std::string findmenu();
+    std::string findmenu(std::string str);
 };
 
 #endif

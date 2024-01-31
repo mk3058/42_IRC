@@ -54,7 +54,7 @@ class Server {
   bool auth(const std::string &password) const;
   UserMap &getUserMap();
   ChannelMap &getChannelMap();
-  int gettotalUsers();
+  int &gettotalUsers();
   int *getcerti();
   int *getUsedfd();
   std::string getPassword();
