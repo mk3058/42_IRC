@@ -33,7 +33,8 @@
 
 class Server {
  private:
-  std::map<int, std::string> clientBuffers;
+  std::map<int, std::string> recvBuffers;
+  std::map<int, std::string> sendBuffers;
   int used_fd[1000];
   int certi[1000];
   int totalUsers;
@@ -61,8 +62,8 @@ class Server {
   std::string getPassword();
   void receiveMessage(int fd);
   bool hasCompleteMessage(int fd);
-
-  void Send(const std::string ResMsg, int write_cnt, fd_set *fd_write);
+  void bufferMessage(const std::string ResMsg, int write_cnt, fd_set *fd_write);
+  void Send(int cnt);
   static void initialize(std::string password, int port);
   static Server &getInstance();
   ~Server();

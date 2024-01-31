@@ -59,33 +59,61 @@ void Server::connect() {
 
 void Server::io_multiplex() {
   int i = 0;
-  int changedFdCount = 0;
+  int changedFdCount = 1;  // 인덱스 - 개수 매칭을 위해 1로 초기화
 
   FD_ZERO(&fd_read);
+  FD_ZERO(&fd_write);
   int n = 0;
   while (i < MAX_USER && n < totalUsers) {
     if (used_fd[i] && fcntl(i, F_GETFL) != -1) {
       FD_SET(i, &fd_read);
+      FD_SET(i, &fd_write);
       changedFdCount = changedFdCount > i ? changedFdCount : i;
       n++;
     }
     i++;
   }
-  int r = select(changedFdCount + 1, &fd_read, &fd_write, 0, 0);
+  int r = select(changedFdCount, &fd_read, &fd_write, 0, 0);
   if (r < 0) {
     throw std::runtime_error("select function failed");
   }
   i = 0;
-  while ((i < MAX_USER) && (changedFdCount > 0)) {
+  int tmpCnt = changedFdCount;
+  while ((i < MAX_USER) && (tmpCnt > 0)) {
     if (FD_ISSET(i, &fd_read)) {
       if (i == socket_fd) {
         this->connect();
       } else {
         receiveMessage(i);
       }
-      changedFdCount--;
+      tmpCnt--;
     }
     i++;
+  }
+  Send(changedFdCount);
+}
+
+void Server::bufferMessage(const std::string resMsg, int cnt, fd_set *target) {
+  for (int i = 0; i < MAX_USER; i++) {
+    if (FD_ISSET(i, target)) {
+      sendBuffers[i].append(resMsg);
+      cnt--;
+    }
+    if (!cnt) break;
+  }
+}
+
+void Server::Send(int cnt) {
+  for (int i = 0; i < MAX_USER; i++) {
+    if (FD_ISSET(i, &fd_write)) {
+      std::string msg = sendBuffers.find(i)->second;
+      if (!msg.empty()) {
+        sendBuffers.find(i)->second.clear();
+        send(i, msg.c_str(), msg.length(), 0);
+      }
+      cnt--;
+    }
+    if (!cnt) break;
   }
 }
 
@@ -96,7 +124,7 @@ void Server::receiveMessage(int fd) {
   if (nbytes <= 0) {  // 오류
     // 클라이언트 연결 종료 처리
     close(fd);
-    clientBuffers.erase(fd);
+    recvBuffers.erase(fd);
     userMap.deleteUser(fd);
     used_fd[fd] = 0;
     totalUsers--;
@@ -106,13 +134,13 @@ void Server::receiveMessage(int fd) {
   buffer[nbytes] = '\0';  // 버퍼 널문자 처리
 
   // 메시지 버퍼에 데이터 추가
-  clientBuffers[fd].append(buffer, nbytes);
+  recvBuffers[fd].append(buffer, nbytes);
 
   // 완전한 메시지인지 확인
   size_t pos;
-  while ((pos = clientBuffers[fd].find("\r\n")) != std::string::npos) {
-    std::string message = clientBuffers[fd].substr(0, pos + 2);
-    clientBuffers[fd].erase(0, pos + 2);
+  while ((pos = recvBuffers[fd].find("\r\n")) != std::string::npos) {
+    std::string message = recvBuffers[fd].substr(0, pos + 2);
+    recvBuffers[fd].erase(0, pos + 2);
 
     // 완전한 메시지일 경우에만 요청 실행
     try {
@@ -170,17 +198,6 @@ Server Server::operator=(const Server &rval) {
 }
 
 Server::~Server() { delete instance; }
-
-void Server::Send(const std::string ResMsg, int write_cnt, fd_set *fd_write) {
-  size_t length = ResMsg.size();
-  for (int i = 0; i < MAX_USER; i++) {
-    if (FD_ISSET(i, fd_write)) {
-      send(i, ResMsg.c_str(), length, 0);
-      write_cnt--;
-    }
-    if (!write_cnt) break;
-  }
-}
 
 std::string Server::getPassword() { return this->password; }
 
