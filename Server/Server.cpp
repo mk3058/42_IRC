@@ -99,6 +99,7 @@ void Server::receiveMessage(int fd) {
     clientBuffers.erase(fd);
     userMap.deleteUser(fd);
     used_fd[fd] = 0;
+    totalUsers--;
     std::cout << "client #" << fd << " gone away" << std::endl;
     return;
   }
