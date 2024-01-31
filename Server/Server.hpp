@@ -33,6 +33,7 @@
 
 class Server {
  private:
+  std::map<int, std::string> clientBuffers;
   int used_fd[1000];
   int certi[1000];
   int totalUsers;
@@ -58,7 +59,8 @@ class Server {
   int *getcerti();
   int *getUsedfd();
   std::string getPassword();
-  std::vector<std::string> requestParse(char *buf);
+  void receiveMessage(int fd);
+  bool hasCompleteMessage(int fd);
 
   void Send(const std::string ResMsg, int write_cnt, fd_set *fd_write);
   static void initialize(std::string password, int port);
