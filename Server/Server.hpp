@@ -49,6 +49,7 @@ class Server {
   Server(std::string password, int port);
   Server(const Server &ref);
   Server operator=(const Server &rval);
+  void Send(int cnt);
 
  public:
   void connect();
@@ -63,7 +64,6 @@ class Server {
   void receiveMessage(int fd);
   bool hasCompleteMessage(int fd);
   void bufferMessage(const std::string ResMsg, int write_cnt, fd_set *fd_write);
-  void Send(int cnt);
   static void initialize(std::string password, int port);
   static Server &getInstance();
   ~Server();

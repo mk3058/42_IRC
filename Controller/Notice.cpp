@@ -16,7 +16,7 @@ void Notice::toChannel(std::string channelName, std::string message) {
     int fd = channelUsers.at(i)->getfd();
     FD_SET(fd, &fd_write);
   }
-  server.Send(message, noticeCnt, &fd_write);
+  server.bufferMessage(message, noticeCnt, &fd_write);
 }
 
 void Notice::toUser(std::string userName, std::string message) {
@@ -31,5 +31,5 @@ void Notice::toUser(std::string userName, std::string message) {
 
   FD_ZERO(&fd_write);
   FD_SET(user.getfd(), &fd_write);
-  server.Send(message, noticeCnt, &fd_write);
+  server.bufferMessage(message, noticeCnt, &fd_write);
 }

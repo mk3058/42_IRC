@@ -3,26 +3,28 @@
 #include "Invite.hpp"
 #include "Join.hpp"
 #include "Kick.hpp"
+#include "Mode.hpp"
 #include "Nick.hpp"
 #include "Part.hpp"
 #include "Pass.hpp"
 #include "Privmsg.hpp"
 #include "Topic.hpp"
 #include "UserCmd.hpp"
-#include "Mode.hpp"
 
 Controller::Controller(Request &req, User *user) : request(req), user(user) {}
 
 void Controller::execute() {
   Server &server = Server::getInstance();
   std::string cmd = request.command().getCommand();
+  fd_set fd_write;
+  FD_ZERO(&fd_write);
 
   if (cmd == "CAP" && request.parameter().getParameters()[0] == "LS") {
-    send(user->getfd(), "CAP * LS :\r\n", sizeof("CAP * LS :\r\n"), 0);
-  }
-  else if (cmd == "PING") {
-    send(user->getfd(), "PONG :ircserv.com\r\n",
-         sizeof("PONG :ircserv.com\r\n"), 0);
+    FD_SET(user->getfd(), &fd_write);
+    Server::getInstance().bufferMessage("CAP * LS :\r\n", 1, &fd_write);
+  } else if (cmd == "PING") {
+    FD_SET(user->getfd(), &fd_write);
+    Server::getInstance().bufferMessage("PONG :ircserv.com\r\n", 1, &fd_write);
   } else if (cmd == "PONG") {
     std::cout << "Client " << user->getfd() << "PONG" << std::endl;
   } else if (cmd == "QUIT") {
@@ -47,13 +49,15 @@ void Controller::execute() {
       UserCmd usercmd(request, this->user);
       usercmd.execute();
     } else if (cmd == "CAP") {
-      send(user->getfd(), "CAP * LS :\r\n", sizeof("CAP * LS :\r\n"), 0);
+      FD_SET(user->getfd(), &fd_write);
+      Server::getInstance().bufferMessage("CAP * LS :\r\n", 1, &fd_write);
     } else {
       fd_set fd_write;
       FD_ZERO(&fd_write);
       std::string msg = Response::error(ERR_NOTREGISTERED, *(this->user),
                                         &fd_write, "Not yet resistered");
-      send(user->getfd(), msg.c_str(), msg.size(), 0);
+      FD_SET(user->getfd(), &fd_write);
+      Server::getInstance().bufferMessage(msg, 1, &fd_write);
     }
   } else {
     if (cmd == "JOIN") {
@@ -68,39 +72,35 @@ void Controller::execute() {
     } else if (cmd == "KICK") {
       Kick kick(request, this->user);
       kick.execute();
-    }
-    else if (cmd == "INVITE")
-    {
-        Invite invite(request, this->user);
-        invite.execute();
-    }
-    else if (cmd == "TOPIC") {
+    } else if (cmd == "INVITE") {
+      Invite invite(request, this->user);
+      invite.execute();
+    } else if (cmd == "TOPIC") {
       Topic topic(request, this->user);
       topic.execute();
     } else if (cmd == "MODE") {
-      if (request.parameter().getParameters()[0].find('#') == std::string::npos)
-        send(user->getfd(), ":ircserv.com  MODE root :+i\r\n",
-             sizeof(":ircserv.com  MODE root :+i\r\n"), 0);
-        Mode mode(request, this->user);
-        mode.execute();
-    }
-    else {
-      fd_set fd_write;
-      FD_ZERO(&fd_write);
+      if (request.parameter().getParameters()[0].find('#') ==
+          std::string::npos) {
+        FD_SET(user->getfd(), &fd_write);
+        Server::getInstance().bufferMessage(":ircserv.com  MODE root :+i\r\n",
+                                            1, &fd_write);
+      }
+      Mode mode(request, this->user);
+      mode.execute();
+    } else {
       std::string msg = Response::error(ERR_UNKNOWNCOMMAND, *(this->user),
                                         &fd_write, "Unknown Command");
-      send(user->getfd(), msg.c_str(), msg.size(), 0);
+      FD_SET(user->getfd(), &fd_write);
+      Server::getInstance().bufferMessage(msg, 1, &fd_write);
     }
   }
 }
 
-void Controller::quitChUser()
-{
-  if (!user->getChannels().size())
-    return ;
-  for (std::map<std::string, Channel *>::iterator it = user->getChannels().begin(); \
-    it != user->getChannels().end(); it++)
-  {
+void Controller::quitChUser() {
+  if (!user->getChannels().size()) return;
+  for (std::map<std::string, Channel *>::iterator it =
+           user->getChannels().begin();
+       it != user->getChannels().end(); it++) {
     it->second->deleteUser(*(this->user));
   }
 }

@@ -28,7 +28,7 @@ void Invite::execute() {
     noticeToChannel(params.at(1).substr(1));
     noticeToUser(params.at(0), params.at(1).substr(1));
   }
-  server.Send(msg, write_cnt, &fd_write);
+  server.bufferMessage(msg, write_cnt, &fd_write);
 }
 
 void Invite::noticeToChannel(std::string channelName) {

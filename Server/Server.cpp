@@ -43,7 +43,8 @@ void Server::connect() {
   if (totalUsers > 997) {
     std::vector<std::string> emptyParam;
     std::string msg = Response::build("NOTICE", emptyParam, "Server is full");
-    send(cs, msg.c_str(), msg.size(), 0);
+    FD_SET(cs, &fd_write);
+    Server::getInstance().bufferMessage(msg, 1, &fd_write);
     close(cs);
     std::cout << "New client " << cs << " from " << inet_ntoa(csin.sin_addr)
               << ":" << ntohs(csin.sin_port) << "is refused !" << std::endl;
@@ -59,7 +60,7 @@ void Server::connect() {
 
 void Server::io_multiplex() {
   int i = 0;
-  int changedFdCount = 1;  // 인덱스 - 개수 매칭을 위해 1로 초기화
+  int changedFdCount = 0;
 
   FD_ZERO(&fd_read);
   FD_ZERO(&fd_write);
@@ -73,7 +74,7 @@ void Server::io_multiplex() {
     }
     i++;
   }
-  int r = select(changedFdCount, &fd_read, &fd_write, 0, 0);
+  int r = select(changedFdCount + 1, &fd_read, &fd_write, 0, 0);
   if (r < 0) {
     throw std::runtime_error("select function failed");
   }

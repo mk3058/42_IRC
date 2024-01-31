@@ -36,7 +36,7 @@ void Privmsg::execute() {
     }
   }
   std::cout << msg << " " << write_cnt << std::endl;
-  server.Send(msg, write_cnt, &fd_write);
+  server.bufferMessage(msg, write_cnt, &fd_write);
 }
 
 void Privmsg::sendToUser(std::string &userName) {
