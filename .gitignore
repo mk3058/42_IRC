@@ -164,4 +164,8 @@ tags
 .history
 .ionide
 
+### Project binary file ###
+ircserv
+*/ircserv
+
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,c++,c,cmake,macos,vim
