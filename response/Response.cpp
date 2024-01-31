@@ -15,6 +15,10 @@ std::string Response::build(std::string responseCode,
 
   std::string msg = "";
 
+  if (prefix.compare(DEFAULT_PREFIX) && prefix.find("@") == std::string::npos) {
+    prefix += "@";
+    prefix += DEFAULT_PREFIX;
+  }
   // prefix 추가
   msg.append(partDelimiter + prefix + space);
   // 응답 코드 추가
@@ -42,9 +46,8 @@ std::string Response::build(std::string responseCode,
   return build(responseCode, params, trailer, DEFAULT_PREFIX);
 }
 
-std::string Response::build(std::string prefix,
-                           std::string responseCode,
-                           std::string trailer) {
+std::string Response::build(std::string prefix, std::string responseCode,
+                            std::string trailer) {
   std::vector<std::string> para;
   return build(responseCode, para, trailer, prefix);
 }
