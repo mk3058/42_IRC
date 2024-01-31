@@ -28,14 +28,9 @@ void Controller::execute() {
   } else if (cmd == "PONG") {
     std::cout << "Client " << user->getfd() << "PONG" << std::endl;
   } else if (cmd == "QUIT") {
-    int i = user->getfd();
-    std::cout << "client #" << i << " gone away" << std::endl;
-    close(i);
-    int &totalusers = server.gettotalUsers();
-    totalusers--;
-    this->quitChUser();
-    server.getUsedfd()[i] = 0;
-    server.getcerti()[i] = 0;
+    std::cout << "client #" << user->getfd() << " gone away" << std::endl;
+    server.quitChUser(user->getfd());
+    server.delUser(user->getfd());
   } else if (Server::getInstance().getcerti()[user->getfd()] < 3) {
     if (cmd == "PASS") {
       Pass pass(request, this->user);
@@ -96,11 +91,3 @@ void Controller::execute() {
   }
 }
 
-void Controller::quitChUser() {
-  if (!user->getChannels().size()) return;
-  for (std::map<std::string, Channel *>::iterator it =
-           user->getChannels().begin();
-       it != user->getChannels().end(); it++) {
-    it->second->deleteUser(*(this->user));
-  }
-}

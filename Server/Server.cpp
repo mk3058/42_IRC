@@ -66,7 +66,7 @@ void Server::io_multiplex() {
   FD_ZERO(&fd_write);
   int n = 0;
   while (i < MAX_USER && n < totalUsers) {
-    if (used_fd[i] && fcntl(i, F_GETFL) != -1) {
+    if (used_fd[i]) {
       FD_SET(i, &fd_read);
       FD_SET(i, &fd_write);
       changedFdCount = changedFdCount > i ? changedFdCount : i;
@@ -124,14 +124,8 @@ void Server::receiveMessage(int fd) {
   int nbytes = recv(fd, buffer, 512, 0);
   if (nbytes <= 0) {  // 오류
     // 클라이언트 연결 종료 처리
-    close(fd);
-    recvBuffers.erase(fd);
-    sendBuffers.erase(fd);
-    userMap.deleteUser(fd);
-    used_fd[fd] = 0;
-    totalUsers--;
-    certi[fd] = 0;
-    std::cout << "client #" << fd << " gone away" << std::endl;
+    this->quitChUser(fd);
+    this->delUser(fd);
     return;
   }
   buffer[nbytes] = '\0';  // 버퍼 널문자 처리
@@ -153,6 +147,11 @@ void Server::receiveMessage(int fd) {
     } catch (const std::exception &e) {
       std::cerr << e.what() << '\n';
     }
+  }
+  if (recvBuffers[fd].size() > 1024)
+  {
+    this->quitChUser(fd);
+    this->delUser(fd);
   }
 }
 
@@ -205,3 +204,28 @@ Server::~Server() { delete instance; }
 std::string Server::getPassword() { return this->password; }
 
 int *Server::getUsedfd() { return this->used_fd; }
+
+void Server::delUser(int fd)
+{
+  close(fd);
+  recvBuffers.erase(fd);
+  sendBuffers.erase(fd);
+  userMap.deleteUser(fd);
+  used_fd[fd] = 0;
+  totalUsers--;
+  certi[fd] = 0;
+  recvBuffers.erase(fd);
+  sendBuffers.erase(fd);
+  std::cout << "client #" << fd << " gone away" << std::endl;
+}
+
+
+void Server::quitChUser(int fd) {
+  User *user = &(this->getUserMap().findUser(fd)); 
+  if (!user->getChannels().size()) return;
+  for (std::map<std::string, Channel *>::iterator it =
+           user->getChannels().begin();
+       it != user->getChannels().end(); it++) {
+    it->second->deleteUser(*(user));
+  }
+}

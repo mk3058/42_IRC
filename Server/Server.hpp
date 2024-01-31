@@ -62,7 +62,8 @@ class Server {
   int *getUsedfd();
   std::string getPassword();
   void receiveMessage(int fd);
-  bool hasCompleteMessage(int fd);
+  void quitChUser(int fd);
+  void delUser(int fd);
   void bufferMessage(const std::string ResMsg, int write_cnt, fd_set *fd_write);
   static void initialize(std::string password, int port);
   static Server &getInstance();

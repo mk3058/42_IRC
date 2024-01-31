@@ -15,7 +15,8 @@ void UserCmd::execute() {
     this->msg = Response::build("NOTICE", param, "Not yet resistered");
     FD_SET(user->getfd(), &fd_write);
     Server::getInstance().bufferMessage(msg, 1, &fd_write);
-    this->closeUser();
+    server.quitChUser(user->getfd());
+    server.delUser(user->getfd());
   } else  // 인증 단계일때
   {
     if (!checkname(req.parameter().getParameters()[0]))  // 유저 네임 이상할때
@@ -24,7 +25,8 @@ void UserCmd::execute() {
       FD_SET(user->getfd(), &fd_write);
       Server::getInstance().bufferMessage(msg, 1, &fd_write);
       ;
-      this->closeUser();
+      server.quitChUser(user->getfd());
+      server.delUser(user->getfd());
     } else  // 인증 성공 했을 때
     {
       server.getUserMap().setUsername(user->getfd(),
@@ -36,8 +38,6 @@ void UserCmd::execute() {
       Server::getInstance().bufferMessage(msg, 1, &fd_write);
       ;
       msg.clear();
-      // msg = Response::build(RPL_CHANNELMODEIS, param, "mode +r");
-      //     FD_SET(user->getfd(), &fd_write);
       Server::getInstance().bufferMessage(msg, 1, &fd_write);
       ;
       server.getcerti()[user->getfd()] = 3;
@@ -63,14 +63,4 @@ bool UserCmd::checkname(std::string name) {
     if (!std::isalnum(name[i])) return false;
   }
   return true;
-}
-
-void UserCmd::closeUser() {
-  Server &server = Server::getInstance();
-  close(user->getfd());
-  server.getUsedfd()[user->getfd()] = 0;
-  int &totalusers = server.gettotalUsers();
-  totalusers--;
-  server.getUserMap().deleteUser(user->getfd());
-  server.getcerti()[user->getfd()] = 0;
 }
