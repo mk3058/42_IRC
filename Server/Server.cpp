@@ -126,6 +126,7 @@ void Server::receiveMessage(int fd) {
     // 클라이언트 연결 종료 처리
     close(fd);
     recvBuffers.erase(fd);
+    sendBuffers.erase(fd);
     userMap.deleteUser(fd);
     used_fd[fd] = 0;
     totalUsers--;
