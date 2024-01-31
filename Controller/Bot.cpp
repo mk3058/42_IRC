@@ -1,5 +1,6 @@
 #include "Bot.hpp"
 #include "Response.hpp"
+#include "Server.hpp"
 #include <sys/socket.h>
 
 Bot::Bot(Request req, int fd, std::string nickname) : user_fd(fd), req(req), nickname(nickname)
@@ -13,7 +14,10 @@ void    Bot::execute()
     param.push_back(nickname);
     std::string msg = Response::build(req.command().getCommand(), \
     param, this->findmenu(req.parameter().getTrailer()), "BOT");
-    send(user_fd, msg.c_str(), msg.size(), 0);
+    fd_set fd_write;
+    FD_ZERO(&fd_write);
+    FD_SET(user_fd, &fd_write);
+    Server::getInstance().bufferMessage(msg, 1, &fd_write);
 }
 
 std::string Bot::findmenu(std::string str)

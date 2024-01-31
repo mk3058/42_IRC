@@ -22,7 +22,7 @@ void Topic::execute() {
       showTopic();
     }
   }
-  server.Send(msg, write_cnt, &fd_write);
+  server.bufferMessage(msg, write_cnt, &fd_write);
 }
 
 void Topic::changeTopic() {

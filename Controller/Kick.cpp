@@ -31,7 +31,7 @@ void Kick::execute()
     msg = Response::build(req.command().getCommand(), req.parameter().getParameters(), "user " + targetUser->getNickname() + " Kick this channel");
     for(int i = 0; i < channel->getUsers().getSize(); ++i)
         FD_SET(channel->getUsers().findAllUsers()[i]->getfd(), &fd_write);
-    Server::getInstance().Send(msg, channel->getUsers().getSize(), &fd_write);
+    Server::getInstance().bufferMessage(msg, write_cnt, &fd_write);;
     //유저 지우기
     channel->getBannedUsers().addUser(targetUser->getfd(), *targetUser);
     channel->deleteUser(*targetUser);
@@ -48,7 +48,7 @@ bool Kick::checkPermit()
     if (channel->getName() == "Not initialized")
     {
         msg = Response::error(ERR_NOSUCHCHANNEL, *user, &fd_write, "wrong channel name");
-        Server::getInstance().Send(msg, 1, &fd_write);
+        Server::getInstance().bufferMessage(msg, 1, &fd_write);
         return (false);
     }
     //권한확인이 먼저
@@ -56,21 +56,21 @@ bool Kick::checkPermit()
     if (upermission != USERMODE_SUPER)
     {
         msg = Response::error(ERR_CHANOPRIVSNEEDED, *user, &fd_write, "you are not operator");
-        Server::getInstance().Send(msg, 1, &fd_write);
+        Server::getInstance().bufferMessage(msg, 1, &fd_write);
         return (false);
     }
     //유저네임이 안들어옴
     if (req.parameter().getParameters().size() < 2)
     {
         msg = Response::error(ERR_NEEDMOREPARAMS, *user, &fd_write, "need user name");
-        Server::getInstance().Send(msg, 1, &fd_write);
+        Server::getInstance().bufferMessage(msg, 1, &fd_write);
         return (false);
     }
     //유저네임이 잘못됨
     if (!channel->getUsers().exists(req.parameter().getParameters()[1]))
     {
         msg = Response::error(ERR_USERNOTINCHANNEL, *user, &fd_write, "user not in channel");
-        Server::getInstance().Send(msg, 1, &fd_write);
+        Server::getInstance().bufferMessage(msg, 1, &fd_write);
         return (false);
     }
     return (true);
