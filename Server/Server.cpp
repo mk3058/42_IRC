@@ -23,6 +23,7 @@ Server::Server(std::string password, int port) {
   if (listen(socket_fd, LISTEN_QUEUE_SIZE) == -1)
     throw std::runtime_error("Listen function failed");
   used_fd[socket_fd] = 1;
+  totalUsers++;
   std::cout << "Server is running on port " << port << std::endl;
 }
 
@@ -43,6 +44,7 @@ void Server::connect() {
               << ":" << ntohs(csin.sin_port) << "is refused !" << std::endl;
   } else if (!userMap.exists(cs)) {
     User newUser(cs);
+    totalUsers++;
     this->userMap.addUser(cs, newUser);
     used_fd[cs] = 1;
     std::cout << "New client " << cs << " from " << inet_ntoa(csin.sin_addr)
@@ -55,10 +57,12 @@ void Server::io_multiplex() {
   int changedFdCount = 0;
 
   FD_ZERO(&fd_read);
-  while (i < MAX_USER) {
+  int n = 0;
+  while (i < MAX_USER && n < totalUsers) {
     if (used_fd[i] && fcntl(i, F_GETFL) != -1) {
       FD_SET(i, &fd_read);
       changedFdCount = changedFdCount > i ? changedFdCount : i;
+      n++;
     }
     i++;
   }
@@ -79,6 +83,7 @@ void Server::io_multiplex() {
           close(i);
           userMap.deleteUser(i);
           used_fd[i] = 0;
+          totalUsers--;
         } else {
           std::vector<std::string> packet = requestParse(buf);
           for (size_t k = 0; k < packet.size(); k++) {
@@ -108,7 +113,7 @@ ChannelMap &Server::getChannelMap() { return this->channelMap; }
 
 int *Server::getcerti() { return this->certi; }
 
-int Server::gettotalUsers() { return this->totalUsers; }
+int &Server::gettotalUsers() { return this->totalUsers; }
 
 Server *Server::instance = NULL;
 
