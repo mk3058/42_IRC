@@ -33,8 +33,8 @@ void Kick::execute()
         FD_SET(channel->getUsers().findAllUsers()[i]->getfd(), &fd_write);
     Server::getInstance().Send(msg, channel->getUsers().getSize(), &fd_write);
     //유저 지우기
-    channel->deleteUser(*targetUser);
     channel->getBannedUsers().addUser(targetUser->getfd(), *targetUser);
+    channel->deleteUser(*targetUser);
     //마지막 유저였으면 채널도 삭제
     if (!channel->getUsers().getSize())
         channelMap->deleteChannel(channel->getName());
