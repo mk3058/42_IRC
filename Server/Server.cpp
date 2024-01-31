@@ -81,30 +81,47 @@ void Server::io_multiplex() {
       if (i == socket_fd) {
         this->connect();
       } else {
-        char buf[512] = {};
-        r = recv(i, buf, 512, 0);
-        if (r < 0) {
-          std::cout << "client #" << i << " gone away" << std::endl;
-          close(i);
-          userMap.deleteUser(i);
-          used_fd[i] = 0;
-          totalUsers--;
-        } else {
-          std::vector<std::string> packet = requestParse(buf);
-          for (size_t k = 0; k < packet.size(); k++) {
-            try {
-              Request request(packet[k]);
-              Controller Controller(request, &(this->userMap.findUser(i)));
-              Controller.execute();
-            } catch (const std::exception &e) {
-              std::cerr << e.what() << '\n';
-            }
-          }
-        }
+        receiveMessage(i);
       }
       changedFdCount--;
     }
     i++;
+  }
+}
+
+void Server::receiveMessage(int fd) {
+  char buffer[513];  // 임시 버퍼
+
+  int nbytes = recv(fd, buffer, 512, 0);
+  if (nbytes <= 0) {  // 오류
+    // 클라이언트 연결 종료 처리
+    close(fd);
+    clientBuffers.erase(fd);
+    userMap.deleteUser(fd);
+    used_fd[fd] = 0;
+    totalUsers--;
+    std::cout << "client #" << fd << " gone away" << std::endl;
+    return;
+  }
+  buffer[nbytes] = '\0';  // 버퍼 널문자 처리
+
+  // 메시지 버퍼에 데이터 추가
+  clientBuffers[fd].append(buffer, nbytes);
+
+  // 완전한 메시지인지 확인
+  size_t pos;
+  while ((pos = clientBuffers[fd].find("\r\n")) != std::string::npos) {
+    std::string message = clientBuffers[fd].substr(0, pos + 2);
+    clientBuffers[fd].erase(0, pos + 2);
+
+    // 완전한 메시지일 경우에만 요청 실행
+    try {
+      Request request(message);
+      Controller Controller(request, &(this->userMap.findUser(fd)));
+      Controller.execute();
+    } catch (const std::exception &e) {
+      std::cerr << e.what() << '\n';
+    }
   }
 }
 
@@ -163,20 +180,6 @@ void Server::Send(const std::string ResMsg, int write_cnt, fd_set *fd_write) {
     }
     if (!write_cnt) break;
   }
-}
-
-std::vector<std::string> Server::requestParse(char *buf) {
-  std::vector<std::string> packet;
-  std::string temp;
-  for (int i = 0; buf[i] != '\0'; i++) {
-    temp += buf[i];
-    if (temp.size() > 1 && buf[i] == '\n' && buf[i - 1] == '\r') {
-      packet.push_back(temp);
-      temp.clear();
-    }
-  }
-  if (!temp.empty()) packet.push_back(temp);
-  return (packet);
 }
 
 std::string Server::getPassword() { return this->password; }
