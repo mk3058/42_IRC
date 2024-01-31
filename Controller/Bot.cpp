@@ -43,7 +43,7 @@ std::string Bot::findmenu(std::string str)
 
     std::string plz = "드세요 제발";
     
-    return (menu += str);
+    return (menu += plz);
 }
 
 void Bot::menuInit()
