@@ -57,13 +57,18 @@ bool Topic::checkPermit() {
 }
 
 bool Topic::validate() {
-  if (!checkPermit()) {
-    msg = Response::error(ERR_CHANOPRIVSNEEDED, *user, &fd_write);
+  if (req.parameter().getParameters().size() < 1) {
+    msg = Response::error(ERR_NEEDMOREPARAMS, *user, &fd_write);
     write_cnt = 1;
     return false;
   }
-  if (req.parameter().getParameters().size() < 1) {
-    msg = Response::error(ERR_NEEDMOREPARAMS, *user, &fd_write);
+  if (!serverChannels.exists(req.parameter().getParameters().at(0).substr(1))) {
+    msg = Response::error(ERR_NOSUCHCHANNEL, *user, &fd_write);
+    write_cnt = 1;
+    return false;
+  }
+  if (!checkPermit()) {
+    msg = Response::error(ERR_CHANOPRIVSNEEDED, *user, &fd_write);
     write_cnt = 1;
     return false;
   }
