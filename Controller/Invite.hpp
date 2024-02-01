@@ -10,8 +10,8 @@ class Invite : public ICommand {
   ChannelMap &serverChannels;
   UserMap &serverUsers;
   bool validate();
-  void noticeToChannel(std::string channelName);
-  void noticeToUser(std::string userName, std::string channelName);
+  void sendRpl(std::string channelName);
+  void sendAck(std::string userName);
 
  public:
   Invite(Request request, User *user);
