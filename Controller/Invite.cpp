@@ -58,6 +58,7 @@ void Invite::noticeToUser(std::string userName, std::string channelName) {
   notice.toUser(userName, noticeMsg);
 }
 
+
 bool Invite::checkPermit() {
   std::vector<std::string> params = req.parameter().getParameters();
   Channel &channel = serverChannels.findChannel(params.at(1).substr(1));
@@ -101,6 +102,19 @@ bool Invite::validate() {
   // invitee 가 존재하는지 확인
   if (!serverUsers.exists(req.parameter().getParameters().at(0))) {
     msg = Response::error(ERR_NOSUCHNICK, *user, &fd_write);
+    write_cnt = 1;
+    return false;
+  }
+  // invitee 가 이미 해당 채널에 참여하고 있는지 확인
+  if (channel.getUsers().exists(req.parameter().getParameters().at(0))) {
+    msg = Response::error(ERR_USERONCHANNEL, *user, &fd_write);
+    write_cnt = 1;
+    return false;
+  }
+  // invitee 가 이미 해당 채널에 초대되어 있는지 확인
+  if (channel.getInvitedUsers().exists(
+          req.parameter().getParameters().at(0))) {
+    msg = Response::error(ERR_USERONCHANNEL, *user, &fd_write);
     write_cnt = 1;
     return false;
   }
