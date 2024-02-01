@@ -2,6 +2,7 @@
 
 Join::Join(Request req, User *user) : ICommand(req, user) {
   this->channelMap = &Server::getInstance().getChannelMap();
+  param = true;
   if (!req.parameter().getParameters().size()) param = false;
   else
   {

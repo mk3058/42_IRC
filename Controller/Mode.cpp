@@ -1,8 +1,10 @@
 #include "Mode.hpp"
 
 Mode::Mode(Request req, User *user) : ICommand(req, user) {
+  param = true;
   this->channelMap = &Server::getInstance().getChannelMap();
-  if (channelMap->exists(req.parameter().getParameters()[0].substr(1)))
+  if (!req.parameter().getParameters().size()) param = false;
+  else if (channelMap->exists(req.parameter().getParameters()[0].substr(1)))
   {
     this->channel = &(
         channelMap->findChannel(req.parameter().getParameters()[0].substr(1)));
@@ -171,6 +173,12 @@ bool Mode::checkPermit() {
   int fd = user->getfd();
   FD_SET(fd, &fd_write);
   // 채널명이 잘못됨
+  if (param == false)
+  {
+    msg = Response::error(ERR_NEEDMOREPARAMS, *user, &fd_write, "parameter error(mode)");
+    Server::getInstance().bufferMessage(msg, 1, &fd_write);
+    return (false);
+  }
   if (!channelMap->exists(req.parameter().getParameters()[0].substr(1))) {
     msg = Response::error(ERR_NOSUCHCHANNEL, *user, &fd_write,
                           "wrong channel name");

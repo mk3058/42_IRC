@@ -11,6 +11,7 @@ class Part : public ICommand {
   ChannelMap *channelMap;
   Channel *channel;
   bool checkPermit();
+  bool param;
 
  public:
   void execute();

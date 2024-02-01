@@ -19,6 +19,7 @@ class Mode : public ICommand {
   bool lmode(std::string type);
   bool omode(std::string type);
   bool tmode(std::string type);
+  bool param;
 
  public:
   void execute();
