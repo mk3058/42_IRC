@@ -76,7 +76,7 @@ bool Invite::validate() {
   // 대상 채널이 존재하는지 확인
   if (!serverChannels.exists(req.parameter().getParameters().at(1).substr(1))) {
     params.push_back(user->getNickname());
-    params.push_back("#" + req.parameter().getParameters().at(1).substr(1));
+    params.push_back(req.parameter().getParameters().at(1).substr(1));
     msg = Response::build(ERR_NOSUCHCHANNEL, params, "No such channel!");
     FD_SET(user->getfd(), &fd_write);
     write_cnt = 1;
@@ -87,9 +87,9 @@ bool Invite::validate() {
       req.parameter().getParameters().at(1).substr(1));
   if (!channel.getUsers().exists(user->getNickname())) {
     params.push_back(user->getNickname());
-    params.push_back("#" + req.parameter().getParameters().at(1).substr(1));
+    params.push_back(req.parameter().getParameters().at(1));
     msg = Response::build(ERR_USERNOTINCHANNEL, params,
-                          "Inviter is not in the channel!");
+                          "Inviter is not on the channel!");
     FD_SET(user->getfd(), &fd_write);
     write_cnt = 1;
     return false;
@@ -97,7 +97,7 @@ bool Invite::validate() {
   // inviter가 초대 권한을 가지고 있는지 확인
   if (!checkPermit()) {
     params.push_back(user->getNickname());
-    params.push_back("#" + req.parameter().getParameters().at(1).substr(1));
+    params.push_back(req.parameter().getParameters().at(1));
     msg = Response::build(ERR_CHANOPRIVSNEEDED, params,
                           "You're not channel operator!");
     FD_SET(user->getfd(), &fd_write);
@@ -116,7 +116,7 @@ bool Invite::validate() {
   // invitee 가 이미 해당 채널에 참여하고 있는지 확인
   if (channel.getUsers().exists(req.parameter().getParameters().at(0))) {
     params.push_back(req.parameter().getParameters().at(0));
-    params.push_back("#" + req.parameter().getParameters().at(1).substr(1));
+    params.push_back(req.parameter().getParameters().at(1));
     msg = Response::build(ERR_USERONCHANNEL, params,
                           "User is already in the channel!");
     FD_SET(user->getfd(), &fd_write);
@@ -126,7 +126,7 @@ bool Invite::validate() {
   // invitee 가 이미 해당 채널에 초대되어 있는지 확인
   if (channel.getInvitedUsers().exists(req.parameter().getParameters().at(0))) {
     params.push_back(req.parameter().getParameters().at(0));
-    params.push_back("#" + req.parameter().getParameters().at(1).substr(1));
+    params.push_back(req.parameter().getParameters().at(1));
     msg =
         Response::build(ERR_USERONCHANNEL, params, "User is already invited!");
     FD_SET(user->getfd(), &fd_write);
