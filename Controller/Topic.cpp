@@ -42,9 +42,15 @@ void Topic::showTopic() {
   const Parameter &params = req.parameter();
   Channel &channel =
       serverChannels.findChannel(params.getParameters().at(0).substr(1));
+  std::vector<std::string> tmp;
+  tmp.push_back(user->getNickname());
+  tmp.push_back(params.getParameters().at(0));
 
-  msg = Response::build(req.command().getCommand(),
-                        req.parameter().getParameters(), channel.getTopic());
+  if (channel.getTopic().empty()) {
+    msg = Response::build(RPL_NOTOPIC, tmp, "No topic is set");
+  } else {
+    msg = Response::build(RPL_TOPIC, tmp, channel.getTopic());
+  }
   write_cnt = 1;
   FD_SET(user->getfd(), &fd_write);
 }
@@ -52,23 +58,53 @@ void Topic::showTopic() {
 bool Topic::checkPermit() {
   std::vector<std::string> params = req.parameter().getParameters();
   Channel &channel = serverChannels.findChannel(params.at(0).substr(1));
-  return (!(channel.getMode() & TOPIC_ONLY_OPERATOR) 
-  || channel.getUserPermits().at(user->getfd()) & USERMODE_SUPER);
+
+  if (!req.parameter().isTrailerExists()) {
+    return true;
+  } else {
+    return (!(channel.getMode() & TOPIC_ONLY_OPERATOR) ||
+            channel.getUserPermits().at(user->getfd()) & USERMODE_SUPER);
+  }
 }
 
 bool Topic::validate() {
+  std::vector<std::string> params;
+
+  // 파라미터 개수 확인
   if (req.parameter().getParameters().size() < 1) {
-    msg = Response::error(ERR_NEEDMOREPARAMS, *user, &fd_write);
+    msg = Response::build(ERR_NEEDMOREPARAMS, params, "More Parameter Needed!");
+    FD_SET(user->getfd(), &fd_write);
     write_cnt = 1;
     return false;
   }
+  // 해당 채널이 존재하는지 확인
   if (!serverChannels.exists(req.parameter().getParameters().at(0).substr(1))) {
-    msg = Response::error(ERR_NOSUCHCHANNEL, *user, &fd_write);
+    params.push_back(user->getNickname());
+    params.push_back(req.parameter().getParameters().at(0));
+    msg = Response::build(ERR_NOSUCHCHANNEL, params, "No such channel!");
+    FD_SET(user->getfd(), &fd_write);
     write_cnt = 1;
     return false;
   }
+  // 권한 확인
   if (!checkPermit()) {
-    msg = Response::error(ERR_CHANOPRIVSNEEDED, *user, &fd_write);
+    params.push_back(user->getNickname());
+    params.push_back(req.parameter().getParameters().at(0));
+    msg = Response::build(ERR_CHANOPRIVSNEEDED, params,
+                          "You're not channel operator!");
+    FD_SET(user->getfd(), &fd_write);
+    write_cnt = 1;
+    return false;
+  }
+  // 요청 유저가 채널에 참여하고 있는지 확인
+  Channel &channel = serverChannels.findChannel(
+      req.parameter().getParameters().at(0).substr(1));
+  if (!channel.getUsers().exists(user->getNickname())) {
+    params.push_back(user->getNickname());
+    params.push_back(req.parameter().getParameters().at(0));
+    msg = Response::build(ERR_USERNOTINCHANNEL, params,
+                          "You're not on the channel!");
+    FD_SET(user->getfd(), &fd_write);
     write_cnt = 1;
     return false;
   }
