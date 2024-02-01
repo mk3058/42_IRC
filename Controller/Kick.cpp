@@ -19,7 +19,8 @@ void Kick::execute() {
   //  내보내졌다는 메시지 보내기
   msg = Response::build(
       req.command().getCommand(), req.parameter().getParameters(),
-      "user " + targetUser->getNickname() + " Kick this channel");
+      "user " + targetUser->getNickname() + " Kick this channel",
+      user->getNickname() + "!" + user->getUsername() + "@" DEFAULT_PREFIX);
   write_cnt = channel->getUsers().getSize();
   for (int i = 0; i < write_cnt; ++i)
     FD_SET(channel->getUsers().findAllUsers()[i]->getfd(), &fd_write);
