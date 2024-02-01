@@ -64,6 +64,7 @@ bool Mode::lmode(std::string type) {
     long long cnt;
     ss << cntstr;
     ss >> cnt;
+    std::cout << cnt << std::endl;
     if (this->channel->getUserLimit() ==
         cnt)  // 셋팅된 값이랑 새로 셋하려는 값이랑 같음
       return (false);
@@ -104,9 +105,16 @@ bool Mode::omode(std::string type) {
 
 bool Mode::tmode(std::string type) {
   std::string msg = "";
-  if (!checkParam(3))  // 인자 안줌
-    return (false);
-  std::string targetName = req.parameter().getParameters()[1].substr(2);
+  std::string temp = req.parameter().getParameters()[1];
+  std::string targetName;
+  if (temp.size() > 2)
+    targetName = req.parameter().getParameters()[1].substr(2);
+  else
+  {
+    if (!checkParam(3))  // 인자 안줌
+      return (false);
+    targetName = req.parameter().getParameters()[2];
+  }
   if (!this->channel->getUsers().exists(targetName))  // 유저 확인
   {
     msg = Response::error(ERR_USERNOTINCHANNEL, *user, &fd_write,
@@ -152,7 +160,8 @@ void Mode::execute() {
   std::string msg = Response::build(req.command().getCommand(),
                         req.parameter().getParameters(),
                         "", user->getNickname());
-  for (int i = 0; i < channel->getUsers().getSize(); ++i)
+  write_cnt = channel->getUsers().getSize();
+  for (int i = 0; i < write_cnt; ++i)
     FD_SET(channel->getUsers().findAllUsers()[i]->getfd(), &fd_write);
   Server::getInstance().bufferMessage(msg, write_cnt, &fd_write);
   ;
@@ -162,7 +171,7 @@ bool Mode::checkPermit() {
   int fd = user->getfd();
   FD_SET(fd, &fd_write);
   // 채널명이 잘못됨
-  if (channel->getName() == "Not initialized") {
+  if (!channelMap->exists(req.parameter().getParameters()[0].substr(1))) {
     msg = Response::error(ERR_NOSUCHCHANNEL, *user, &fd_write,
                           "wrong channel name");
     Server::getInstance().bufferMessage(msg, 1, &fd_write);
