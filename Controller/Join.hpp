@@ -12,6 +12,7 @@ class Join : public ICommand {
   Channel *channel;
   using ICommand::checkPermit;
   using ICommand::execute;
+  bool param;
 
  public:
   bool checkPermit(int fd);

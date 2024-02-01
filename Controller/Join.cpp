@@ -2,12 +2,16 @@
 
 Join::Join(Request req, User *user) : ICommand(req, user) {
   this->channelMap = &Server::getInstance().getChannelMap();
-  if (!channelMap->exists(req.parameter().getParameters()[0].substr(1)))
+  if (!req.parameter().getParameters().size()) param = false;
+  else
+  {
+    if (!channelMap->exists(req.parameter().getParameters()[0].substr(1)))
     channelMap->addChannel(
         Channel(req.parameter().getParameters()[0].substr(1)));
-  this->channel =
+    this->channel =
       &(channelMap->findChannel(req.parameter().getParameters()[0].substr(1)));
-  this->permission = this->channel->getMode();
+    this->permission = this->channel->getMode();
+  }
 }
 
 void Join::execute() {
@@ -29,6 +33,12 @@ void Join::execute() {
 
 bool Join::checkPermit(int fd) {
   FD_SET(fd, &fd_write);
+  if (this->param == false)
+  {
+    msg = Response::error(ERR_NEEDMOREPARAMS, *user, &fd_write, "parameter error(join)");
+    Server::getInstance().bufferMessage(msg, 1, &fd_write);
+    return (false);
+  }
   if (channel->getUserLimit() == channel->getUsers().getSize()) {
     msg =
         Response::error(ERR_CHANNELISFULL, *user, &fd_write, "channel is full");
