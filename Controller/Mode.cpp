@@ -64,7 +64,6 @@ bool Mode::lmode(std::string type) {
     long long cnt;
     ss << cntstr;
     ss >> cnt;
-    std::cout << cnt << std::endl;
     if (this->channel->getUserLimit() ==
         cnt)  // 셋팅된 값이랑 새로 셋하려는 값이랑 같음
       return (false);
