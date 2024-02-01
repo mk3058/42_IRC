@@ -7,11 +7,6 @@ Topic::Topic(Request request, User *user)
   this->req = request;
   this->user = user;
   this->write_cnt = 0;
-  if (req.parameter().isTrailerExists()) {
-    this->permission = USERMODE_TOPIC;
-  } else {
-    this->permission = DEFAULT;
-  }
 }
 
 void Topic::execute() {
@@ -57,9 +52,8 @@ void Topic::showTopic() {
 bool Topic::checkPermit() {
   std::vector<std::string> params = req.parameter().getParameters();
   Channel &channel = serverChannels.findChannel(params.at(0).substr(1));
-
-  return ((channel.getUserPermits().at(user->getfd())) == USERMODE_SUPER ||
-          (channel.getUserPermits().at(user->getfd())) == USERMODE_TOPIC);
+  return (!(channel.getMode() & TOPIC_ONLY_OPERATOR) 
+  || channel.getUserPermits().at(user->getfd()) & USERMODE_SUPER);
 }
 
 bool Topic::validate() {
