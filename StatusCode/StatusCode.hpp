@@ -56,5 +56,8 @@
 #define ERR_NOCHANMODES "477"     // Channel doesn't support modes (MODE, TOPIC)
 #define ERR_CHANOPRIVSNEEDED \
   "482"  // not the channel's operator (MODE, TOPIC, INVITE, KICK)
+#define ERR_NORECIPIENT "411"  // no recipient (PRIVMSG, NOTICE)
+#define ERR_NOTEXTTOSEND "412"  // no text to send (PRIVMSG, NOTICE)
+#define ERR_CANNOTSENDTOCHAN "404"  // cannot send to channel (PRIVMSG, NOTICE)
 
 #endif
