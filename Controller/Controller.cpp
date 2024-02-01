@@ -73,12 +73,6 @@ void Controller::execute() {
       Topic topic(request, this->user);
       topic.execute();
     } else if (cmd == "MODE") {
-      if (request.parameter().getParameters()[0].find('#') ==
-          std::string::npos) {
-        FD_SET(user->getfd(), &fd_write);
-        Server::getInstance().bufferMessage(":ircserv.com  MODE root :+i\r\n",
-                                            1, &fd_write);
-      }
       Mode mode(request, this->user);
       mode.execute();
     } else {

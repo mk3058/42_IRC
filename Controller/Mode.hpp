@@ -14,10 +14,11 @@ class Mode : public ICommand {
   Channel *channel;
   bool checkPermit();
   bool checkParam(unsigned long cnt);
-  std::string kmode(std::string type);
-  std::string imode(std::string type);
-  std::string lmode(std::string type);
-  std::string otmode(std::string type, int mode);
+  bool kmode(std::string type);
+  bool imode(std::string type);
+  bool lmode(std::string type);
+  bool omode(std::string type);
+  bool tmode(std::string type);
 
  public:
   void execute();
