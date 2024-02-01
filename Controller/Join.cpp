@@ -19,7 +19,8 @@ void Join::execute() {
   // 유저 들어왔다는 메시지 전송
   msg = Response::build(req.command().getCommand(),
                         req.parameter().getParameters(),
-                        "user " + user->getNickname() + "join this channel");
+                        "user " + user->getNickname() + " join this channel",
+                        user->getNickname() + "!" + user->getUsername() + "@" DEFAULT_PREFIX);
   write_cnt = channel->getUsers().getSize();
   for (int i = 0; i < write_cnt; ++i)
     FD_SET(channel->getUsers().findAllUsers()[i]->getfd(), &fd_write);

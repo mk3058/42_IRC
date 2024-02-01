@@ -158,7 +158,8 @@ void Mode::execute() {
   if (!flag) return;
   std::string msg = Response::build(req.command().getCommand(),
                         req.parameter().getParameters(),
-                        "", user->getNickname());
+                        "", 
+                        user->getNickname() + "!" + user->getUsername() + "@" DEFAULT_PREFIX);
   write_cnt = channel->getUsers().getSize();
   for (int i = 0; i < write_cnt; ++i)
     FD_SET(channel->getUsers().findAllUsers()[i]->getfd(), &fd_write);
