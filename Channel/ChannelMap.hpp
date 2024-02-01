@@ -19,6 +19,7 @@ class ChannelMap {
   size_t getSize() const;
   bool exists(std::string channelName) const;
   std::vector<Channel *> findAllChannels();
+  std::map<std::string, Channel> &getChannelMap() { return channelMap; };
 };
 
 #endif

@@ -226,4 +226,21 @@ void Server::quitChUser(int fd) {
        it != user->getChannels().end(); it++) {
     it->second->deleteUser(*(user));
   }
+  ChannelMap &chm = this->getChannelMap();
+  std::map<std::string, Channel>::iterator it = chm.getChannelMap().begin();
+  while (chm.getSize())
+  {
+    std::map<std::string, Channel>::iterator temp;
+    if (!(it->second.getUsers().getSize()))
+    {
+      temp = it;
+      temp++;
+      chm.deleteChannel(it->first);
+      it = temp;
+    }
+    else
+      it++;
+    if (it == chm.getChannelMap().end())
+      break ;
+  }
 }
