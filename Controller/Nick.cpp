@@ -8,7 +8,7 @@ void Nick::execute() {
   {
     this->msg = Response::error(ERR_NEEDMOREPARAMS, *(this->user), &fd_write);
     FD_SET(user->getfd(), &fd_write);
-    Server::getInstance().bufferMessage(msg, 1, &fd_write);
+    server.bufferMessage(msg, 1, &fd_write);
     server.quitChUser(user->getfd());
     server.delUser(user->getfd());
   } else if (checknick() == 1)  // 닉네임 인증 타이밍일때
@@ -18,13 +18,13 @@ void Nick::execute() {
     {
       this->msg = Response::error(ERR_NICKNAMEINUSE, *(this->user), &fd_write);
       FD_SET(user->getfd(), &fd_write);
-      Server::getInstance().bufferMessage(msg, 1, &fd_write);
+      server.bufferMessage(msg, 1, &fd_write);
       std::vector<std::string> param;
       param.push_back("*");
       msg.clear();
       this->msg = Response::build("NOTICE", param, "already exist nickname");
       FD_SET(user->getfd(), &fd_write);
-      Server::getInstance().bufferMessage(msg, 1, &fd_write);
+      server.bufferMessage(msg, 1, &fd_write);
       server.quitChUser(user->getfd());
       server.delUser(user->getfd());
     } else if (!checkname(
@@ -37,8 +37,7 @@ void Nick::execute() {
       this->msg =
           Response::build(ERR_ERRONEUSNICKNAME, param, "Erroneous Nickname");
       FD_SET(user->getfd(), &fd_write);
-      Server::getInstance().bufferMessage(msg, 1, &fd_write);
-      ;
+      server.bufferMessage(msg, 1, &fd_write);
       server.quitChUser(user->getfd());
       server.delUser(user->getfd());
     } else  // 닉네임 설정이 잘 되었을
@@ -52,25 +51,24 @@ void Nick::execute() {
       param.push_back("*");
       this->msg = Response::build("NOTICE", param, "NICKNAME IS SET");
       FD_SET(newuser.getfd(), &fd_write);
-      Server::getInstance().bufferMessage(msg, 1, &fd_write);
+      server.bufferMessage(msg, 1, &fd_write);
 
       msg.clear();
       this->msg = Response::build("NOTICE", param, "PLZ INPUT USERNAME");
       FD_SET(newuser.getfd(), &fd_write);
-      Server::getInstance().bufferMessage(msg, 1, &fd_write);
+      server.bufferMessage(msg, 1, &fd_write);
     }
   } else if (checknick() == -1)  // 아직 비밀번호 인증단계 안 끝냈을때
   {
     this->msg = Response::error(ERR_PASSWDMISMATCH, *(this->user), &fd_write);
     FD_SET(user->getfd(), &fd_write);
-    Server::getInstance().bufferMessage(msg, 1, &fd_write);
-    server.getcerti()[user->getfd()]--;
+    server.bufferMessage(msg, 1, &fd_write);
     std::vector<std::string> param;
     param.push_back("*");
     msg.clear();
     this->msg = Response::build("NOTICE", param, "plz try valid password");
     FD_SET(user->getfd(), &fd_write);
-    Server::getInstance().bufferMessage(msg, 1, &fd_write);
+    server.bufferMessage(msg, 1, &fd_write);
     server.quitChUser(user->getfd());
     server.delUser(user->getfd());
   } else  // 이미 닉네임 인증 했을 때
@@ -79,7 +77,7 @@ void Nick::execute() {
     param.push_back("*");
     this->msg = Response::build("NOTICE", param, " is already seted nickname");
     FD_SET(user->getfd(), &fd_write);
-    Server::getInstance().bufferMessage(msg, 1, &fd_write);
+    server.bufferMessage(msg, 1, &fd_write);
     server.quitChUser(user->getfd());
     server.delUser(user->getfd());
   }

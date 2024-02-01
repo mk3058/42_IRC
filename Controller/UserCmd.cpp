@@ -4,17 +4,23 @@ UserCmd::UserCmd(Request request, User *user) : ICommand(request, user) {}
 
 void UserCmd::execute() {
   Server &server = Server::getInstance();
-  if (!checkPermit())  // 아직 앞 단계 인증이 안됐을때
+  if (!req.parameter().getParameters().size())
+  {
+    msg = Response::error(ERR_NEEDMOREPARAMS, *(this->user), &fd_write);
+    FD_SET(user->getfd(), &fd_write);
+    server.bufferMessage(msg, 1, &fd_write);
+  }
+  else if (!checkPermit())  // 아직 앞 단계 인증이 안됐을때
   {
     this->msg = Response::error(ERR_NOTREGISTERED, *(this->user), &fd_write);
     FD_SET(user->getfd(), &fd_write);
-    Server::getInstance().bufferMessage(msg, 1, &fd_write);
+    server.bufferMessage(msg, 1, &fd_write);
     std::vector<std::string> param;
     param.push_back("*");
     msg.clear();
     this->msg = Response::build("NOTICE", param, "Not yet resistered");
     FD_SET(user->getfd(), &fd_write);
-    Server::getInstance().bufferMessage(msg, 1, &fd_write);
+    server.bufferMessage(msg, 1, &fd_write);
     server.quitChUser(user->getfd());
     server.delUser(user->getfd());
   } else  // 인증 단계일때
@@ -23,8 +29,7 @@ void UserCmd::execute() {
     {
       this->msg = Response::error(ERR_NEEDMOREPARAMS, *(this->user), &fd_write);
       FD_SET(user->getfd(), &fd_write);
-      Server::getInstance().bufferMessage(msg, 1, &fd_write);
-      ;
+      server.bufferMessage(msg, 1, &fd_write);
       server.quitChUser(user->getfd());
       server.delUser(user->getfd());
     } else  // 인증 성공 했을 때
@@ -35,11 +40,9 @@ void UserCmd::execute() {
       param.push_back(user->getNickname());
       msg = Response::build(RPL_WELCOME, param, "welcome");
       FD_SET(user->getfd(), &fd_write);
-      Server::getInstance().bufferMessage(msg, 1, &fd_write);
-      ;
+      server.bufferMessage(msg, 1, &fd_write);
       msg.clear();
-      Server::getInstance().bufferMessage(msg, 1, &fd_write);
-      ;
+      server.bufferMessage(msg, 1, &fd_write);
       server.getcerti()[user->getfd()] = 3;
       std::cout << user->getfd() << "(Client) is resistered" << std::endl;
     }
