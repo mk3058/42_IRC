@@ -34,14 +34,18 @@ void Privmsg::execute() {
       sendToUser(targetName);
     }
   }
-  std::cout << msg << " " << write_cnt << std::endl;
   server.bufferMessage(msg, write_cnt, &fd_write);
 }
 
 void Privmsg::sendToUser(std::string &userName) {
   // 해당 유저 존재하지 않으면 오류 메시지 저장
   if (!serverUsers.exists(userName)) {
-    msg = Response::error(ERR_NOSUCHNICK, *user, &fd_write);
+    std::vector<std::string> params;
+
+    params.push_back(user->getNickname());
+    params.push_back(userName);
+    msg = Response::build(ERR_NOSUCHNICK, params, "No such nick/channel");
+    FD_SET(user->getfd(), &fd_write);
     write_cnt = 1;
     return;
   }
@@ -54,14 +58,23 @@ void Privmsg::sendToUser(std::string &userName) {
                         req.parameter().getParameters(),
                         req.parameter().getTrailer(), prefix);
   write_cnt = 1;
-  std::cout << "target fd is " << target.getfd() << std::endl;
   FD_SET(target.getfd(), &fd_write);
 }
 
 void Privmsg::sendToChannel(std::string &channelName) {
-  // 찾는 채널이 존재하지 않으면 오류 메시지 저장
-  if (!serverChannels.exists(channelName)) {
-    msg = Response::error(ERR_NOSUCHCHANNEL, *user, &fd_write);
+  // 찾는 채널이 존재하지 않거나 유저가 해당 채널의 멤버가 아닌 경우 오류 메시지
+  // 저장
+  if (!serverChannels.exists(channelName) ||
+      (serverChannels.exists(channelName) &&
+       !serverChannels.findChannel(channelName)
+            .getUsers()
+            .exists(user->getNickname()))) {
+    std::vector<std::string> params;
+
+    params.push_back(user->getNickname());
+    params.push_back("#" + channelName);
+    msg = Response::build(ERR_CANNOTSENDTOCHAN, params, "cannot send to channel");
+    FD_SET(user->getfd(), &fd_write);
     write_cnt = 1;
     return;
   }
@@ -71,8 +84,6 @@ void Privmsg::sendToChannel(std::string &channelName) {
   std::vector<User *> channelUsers = channel.getUsers().findAllUsers();
   std::string prefix = user->getNickname() + "!" + user->getUsername();
 
-  std::cout << "param size: " << req.parameter().getParameters().size()
-            << std::endl;
   msg = Response::build(req.command().getCommand(),
                         req.parameter().getParameters(),
                         req.parameter().getTrailer(), prefix);
@@ -101,15 +112,21 @@ static std::string getTargetName(std::string param) {
 }
 
 bool Privmsg::validate() {
-  std::vector<std::string> params = req.parameter().getParameters();
+  std::vector<std::string> params;
 
-  if (!checkPermit()) {
-    msg = Response::error(ERR_CHANOPRIVSNEEDED, *user, &fd_write);
+  // 파라미터 개수 확인
+  if (req.parameter().getParameters().size() < 1) {
+    params.push_back(user->getNickname());
+    msg = Response::build(ERR_NORECIPIENT, params, "No recipient given! (PRIVMSG)");
+    FD_SET(user->getfd(), &fd_write);
     write_cnt = 1;
     return false;
   }
-  if (params.size() < 1) {
-    msg = Response::error(ERR_NEEDMOREPARAMS, *user, &fd_write);
+  // 메시지가 존재하는지 확인
+  if (!req.parameter().isTrailerExists()) {
+    params.push_back(user->getNickname());
+    msg = Response::build(ERR_NOTEXTTOSEND, params, "No text to send!");
+    FD_SET(user->getfd(), &fd_write);
     write_cnt = 1;
     return false;
   }
