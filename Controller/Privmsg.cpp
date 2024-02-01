@@ -107,7 +107,8 @@ bool Privmsg::validate() {
     msg = Response::error(ERR_CHANOPRIVSNEEDED, *user, &fd_write);
     write_cnt = 1;
     return false;
-  } else if (params.size() < 1) {
+  }
+  if (params.size() < 1) {
     msg = Response::error(ERR_NEEDMOREPARAMS, *user, &fd_write);
     write_cnt = 1;
     return false;

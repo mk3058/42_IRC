@@ -30,6 +30,10 @@ void parseRequest(std::string message, std::string (&token)[3]) {
 
   pos = message.find(messageDelimeter);
   token[COMMAND] = message.substr(0, pos);
+  if (pos == std::string::npos) {
+    token[PARAMETER] = "";
+    return;
+  }
   message.erase(0, pos + messageDelimeter.length());
 
   token[PARAMETER] = message;
