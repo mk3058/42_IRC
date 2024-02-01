@@ -35,7 +35,7 @@ bool Kick::checkPermit() {
   int fd = user->getfd();
   FD_SET(fd, &fd_write);
   // 채널명이 잘못됨
-  if (channel->getName() == "Not initialized") {
+  if (!channelMap->exists(req.parameter().getParameters()[0].substr(1))) {
     msg = Response::error(ERR_NOSUCHCHANNEL, *user, &fd_write,
                           "wrong channel name");
     Server::getInstance().bufferMessage(msg, 1, &fd_write);
