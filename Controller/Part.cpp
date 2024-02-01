@@ -17,10 +17,10 @@ void Part::execute() {
   msg = Response::build(
       req.command().getCommand(), emptyVec, req.parameter().getParameters()[0],
       user->getNickname() + "!" + user->getUsername() + "@" DEFAULT_PREFIX);
-  for (int i = 0; i < channel->getUsers().getSize(); ++i)
+  write_cnt = channel->getUsers().getSize();
+  for (int i = 0; i < write_cnt; ++i)
     FD_SET(channel->getUsers().findAllUsers()[i]->getfd(), &fd_write);
   Server::getInstance().bufferMessage(msg, write_cnt, &fd_write);
-  ;
   // 채널정보 업데이트
   std::string channelName = req.parameter().getParameters()[0].substr(1);
   user->leaveChannel(channelName);
