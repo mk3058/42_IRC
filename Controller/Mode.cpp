@@ -103,32 +103,17 @@ bool Mode::omode(std::string type) {
 }
 
 bool Mode::tmode(std::string type) {
-  std::string msg = "";
-  std::string temp = req.parameter().getParameters()[1];
-  std::string targetName;
-  if (temp.size() > 2)
-    targetName = req.parameter().getParameters()[1].substr(2);
-  else
-  {
-    if (!checkParam(3))  // 인자 안줌
-      return (false);
-    targetName = req.parameter().getParameters()[2];
-  }
-  if (!this->channel->getUsers().exists(targetName))  // 유저 확인
-  {
-    msg = Response::error(ERR_USERNOTINCHANNEL, *user, &fd_write,
-                          "user not in channel");
-    Server::getInstance().bufferMessage(msg, 1, &fd_write);
-    return (false);
-  }
-  int targetFd = this->channel->getUsers().findUser(targetName).getfd();
-  int *targetMode = &(this->channel->getUserPermits()[targetFd]);
+int mode = this->channel->getMode();
   if (type.at(0) == '+') {
-    if (*targetMode & USERMODE_TOPIC) return (false);
-    *targetMode |= USERMODE_TOPIC;
+    if (mode & TOPIC_ONLY_OPERATOR)  // 이미 모드 설정됨
+      return (false);
+    mode |= TOPIC_ONLY_OPERATOR;
+    this->channel->setMode(mode);
   } else {
-    if (!(*targetMode & USERMODE_TOPIC)) return (false);
-    *targetMode ^= USERMODE_TOPIC;
+    if (!(mode & TOPIC_ONLY_OPERATOR))  // 이미 모드 빠져있음
+      return (false);
+    mode ^= TOPIC_ONLY_OPERATOR;           // 비트 빼기
+    this->channel->setMode(mode);  // 바뀐 모드로 셋
   }
   return (true);
 }
