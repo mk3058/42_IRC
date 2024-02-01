@@ -13,9 +13,7 @@ Channel::Channel(std::string name) {
 }
 
 void Channel::setTopic(std::string topic) { this->topic = topic; }
-void Channel::setMode(int mode) {
-  if (mode == DEFAULT || mode == INVITE_ONLY) this->mode = mode;
-}
+void Channel::setMode(int mode) { this->mode = mode; }
 
 void Channel::setPassword(std::string password) { this->password = password; }
 

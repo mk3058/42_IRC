@@ -50,13 +50,19 @@ bool Join::checkPermit(int fd) {
   }
   if (this->permission & KEY_REQURIE) {
     if (req.parameter().getParameters().size() < 2)
+    {
       msg =
           Response::error(ERR_BADCHANNELKEY, *user, &fd_write, "you need key");
+      Server::getInstance().bufferMessage(msg, 1, &fd_write);
+      return (false);
+    }
     if (channel->getPassword() != req.parameter().getParameters()[1])
+    {
       msg = Response::error(ERR_BADCHANNELKEY, *user, &fd_write,
                             "wrong key, try again");
-    Server::getInstance().bufferMessage(msg, 1, &fd_write);
-    return (false);
+      Server::getInstance().bufferMessage(msg, 1, &fd_write);
+      return (false);
+    }
   }
   return (true);
 }

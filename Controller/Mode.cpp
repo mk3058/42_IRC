@@ -2,62 +2,49 @@
 
 Mode::Mode(Request req, User *user) : ICommand(req, user) {
   this->channelMap = &Server::getInstance().getChannelMap();
-  if (req.parameter().getParameters().size() < 1) {
-    Channel temp = Channel();
-    this->channel = &temp;
-  } else if (channelMap->exists(req.parameter().getParameters()[0].substr(1)))
+  if (channelMap->exists(req.parameter().getParameters()[0].substr(1)))
+  {
     this->channel = &(
         channelMap->findChannel(req.parameter().getParameters()[0].substr(1)));
-  else {
-    Channel temp = Channel();
-    this->channel = &temp;
+    this->permission = channel->getMode();
   }
-  this->permission = channel->getMode();
 }
 
-std::string Mode::kmode(std::string type) {
-  std::string msg = "";
+bool Mode::kmode(std::string type) {
   std::string key = req.parameter().getParameters()[2];
   int mode = this->channel->getMode();
   if (type.at(0) == '+') {
     if (!checkParam(3))  // 키 문자열을 입력으로 안줌
-      return msg;
+      return (false);
     else if (mode & KEY_REQURIE)  // 이미 키가 설정된 경우
-      return msg;
+      return (false);
     this->channel->setPassword(key);
     mode |= KEY_REQURIE;
     this->channel->setMode(mode);
   } else {
     if (!(mode & KEY_REQURIE))  // 이미 채널모드에 키필요 없음
-      return msg;
+      return (false);
     mode ^= KEY_REQURIE;           // 10 비트 빼기
     this->channel->setMode(mode);  // 바뀐 모드로 셋
     this->channel->setPassword("");
   }
-  msg = Response::build(req.command().getCommand(),
-                        req.parameter().getParameters(),
-                        "user " + user->getNickname() + type);
-  return (msg);
+  return (true);
 }
 
-std::string Mode::imode(std::string type) {
-  std::string msg = "";
+bool Mode::imode(std::string type) {
   int mode = this->channel->getMode();
   if (type.at(0) == '+') {
     if (mode & INVITE_ONLY)  // 이미 모드 설정됨
-      return msg;
+      return (false);
     mode |= INVITE_ONLY;
     this->channel->setMode(mode);
   } else {
     if (!(mode & INVITE_ONLY))  // 이미 모드 빠져있음
-      return msg;
+      return (false);
     mode ^= INVITE_ONLY;           // 비트 빼기
     this->channel->setMode(mode);  // 바뀐 모드로 셋
   }
-  msg = Response::build(req.command().getCommand(),
-                        req.parameter().getParameters(),
-                        "user " + user->getNickname() + type);
-  return (msg);
+  return (true);
 }
 
 static bool is_num(std::string str) {
@@ -67,59 +54,76 @@ static bool is_num(std::string str) {
   return (true);
 }
 
-std::string Mode::lmode(std::string type) {
-  std::string msg = "";
+bool Mode::lmode(std::string type) {
   if (type.at(0) == '+') {
     if (!checkParam(3))  // 인자 안줌
-      return msg;
+      return (false);
     std::string cntstr = req.parameter().getParameters()[2];
-    if (!is_num(cntstr)) return msg;
+    if (!is_num(cntstr)) return (false);
     std::stringstream ss;
     long long cnt;
     ss << cntstr;
     ss >> cnt;
     if (this->channel->getUserLimit() ==
         cnt)  // 셋팅된 값이랑 새로 셋하려는 값이랑 같음
-      return msg;
-    if (cnt <= 0) return msg;
+      return (false);
+    if (cnt <= 0) return (false);
     this->channel->setUserLimit(cnt);
   } else {
     if (this->channel->getUserLimit() == UNLIMITED)
-      return msg;
+      return (false);
     else
       this->channel->setUserLimit(UNLIMITED);
   }
-  msg = Response::build(req.command().getCommand(),
-                        req.parameter().getParameters(),
-                        "user " + user->getNickname() + type);
-  return (msg);
+  return (true);
 }
 
-std::string Mode::otmode(std::string type, int mode) {
+bool Mode::omode(std::string type) {
   std::string msg = "";
   if (!checkParam(3))  // 인자 안줌
-    return msg;
+    return (false);
   std::string targetName = req.parameter().getParameters()[2];
   if (!this->channel->getUsers().exists(targetName))  // 유저 확인
   {
     msg = Response::error(ERR_USERNOTINCHANNEL, *user, &fd_write,
                           "user not in channel");
     Server::getInstance().bufferMessage(msg, 1, &fd_write);
-    return "";
+    return (false);
   }
   int targetFd = this->channel->getUsers().findUser(targetName).getfd();
   int *targetMode = &(this->channel->getUserPermits()[targetFd]);
   if (type.at(0) == '+') {
-    if (*targetMode & mode) return msg;
-    *targetMode |= mode;
+    if (*targetMode & USERMODE_SUPER) return (false);
+    *targetMode |= USERMODE_SUPER;
   } else {
-    if (!(*targetMode & mode)) return msg;
-    *targetMode ^= mode;
+    if (!(*targetMode & USERMODE_SUPER)) return (false);
+    *targetMode ^= USERMODE_SUPER;
   }
-  msg = Response::build(req.command().getCommand(),
-                        req.parameter().getParameters(),
-                        "user " + user->getNickname() + type);
-  return (msg);
+  return (true);
+}
+
+bool Mode::tmode(std::string type) {
+  std::string msg = "";
+  if (!checkParam(3))  // 인자 안줌
+    return (false);
+  std::string targetName = req.parameter().getParameters()[1].substr(2);
+  if (!this->channel->getUsers().exists(targetName))  // 유저 확인
+  {
+    msg = Response::error(ERR_USERNOTINCHANNEL, *user, &fd_write,
+                          "user not in channel");
+    Server::getInstance().bufferMessage(msg, 1, &fd_write);
+    return (false);
+  }
+  int targetFd = this->channel->getUsers().findUser(targetName).getfd();
+  int *targetMode = &(this->channel->getUserPermits()[targetFd]);
+  if (type.at(0) == '+') {
+    if (*targetMode & USERMODE_TOPIC) return (false);
+    *targetMode |= USERMODE_TOPIC;
+  } else {
+    if (!(*targetMode & USERMODE_TOPIC)) return (false);
+    *targetMode ^= USERMODE_TOPIC;
+  }
+  return (true);
 }
 
 bool Mode::checkParam(unsigned long cnt) {
@@ -137,14 +141,17 @@ void Mode::execute() {
   if (!checkPermit()) return;
   if (!checkParam(2)) return;
   std::string type = req.parameter().getParameters()[1];
-  std::string msg;
-  if (type.find('k')) msg = kmode(type);
-  if (type.find('i')) msg = imode(type);
-  if (type.find('l')) msg = lmode(type);
-  if (type.find('o')) msg = otmode(type, USERMODE_SUPER);
-  if (type.find('t')) msg = otmode(type, USERMODE_TOPIC);
+  int flag;
+  if (type.at(1) == 'k') flag = kmode(type);
+  if (type.at(1) == 'i') flag = imode(type);
+  if (type.at(1) == 'l') flag = lmode(type);
+  if (type.at(1) == 'o') flag = omode(type);
+  if (type.at(1) == 't') flag = tmode(type);
   // 각 모드에서 에러 인경우
-  if (msg == "") return;
+  if (!flag) return;
+  std::string msg = Response::build(req.command().getCommand(),
+                        req.parameter().getParameters(),
+                        "", user->getNickname());
   for (int i = 0; i < channel->getUsers().getSize(); ++i)
     FD_SET(channel->getUsers().findAllUsers()[i]->getfd(), &fd_write);
   Server::getInstance().bufferMessage(msg, write_cnt, &fd_write);
@@ -163,7 +170,7 @@ bool Mode::checkPermit() {
   }
   // 권한확인이 먼저
   int upermission = channel->getUserPermits()[user->getfd()];
-  if (upermission != USERMODE_SUPER) {
+  if (!(upermission & USERMODE_SUPER)) {
     msg = Response::error(ERR_CHANOPRIVSNEEDED, *user, &fd_write,
                           "you are not operator");
     Server::getInstance().bufferMessage(msg, 1, &fd_write);
