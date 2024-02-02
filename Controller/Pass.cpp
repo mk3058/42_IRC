@@ -6,17 +6,11 @@ void Pass::execute() {
   Server &server = Server::getInstance();
   if (req.parameter().getParameters().size() != 1)  // 파라미터 갯수 안맞을때
   {
-    this->msg = Response::error(ERR_NEEDMOREPARAMS, *(this->user), &fd_write);
-    FD_SET(user->getfd(), &fd_write);
-    server.bufferMessage(msg, 1, &fd_write);
     server.quitChUser(user->getfd());
     server.delUser(user->getfd());
   } else if (server.auth(req.parameter().getParameters()[0]) ==
              0)  // 비밀번호 틀린 경우
   {
-    this->msg = Response::error(ERR_PASSWDMISMATCH, *(this->user), &fd_write);
-    FD_SET(user->getfd(), &fd_write);
-    server.bufferMessage(msg, 1, &fd_write);
     server.quitChUser(user->getfd());
     server.delUser(user->getfd());
   } else  // 성공했을 경우
