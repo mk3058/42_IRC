@@ -14,8 +14,8 @@ void UserMap::addUser(int fd, User user) {
   if (!fdMapResult.second) {
     throw std::invalid_argument("Cannot add user!! duplicate key exist");
   }
-  nicknameMapResult =
-      nicknameMap.insert(std::make_pair(user.getNickname(), &user));
+  nicknameMapResult = nicknameMap.insert(
+      std::make_pair(user.getNickname(), &(userMap.find(fd)->second)));
   if (!nicknameMapResult.second) {
     throw std::invalid_argument("Cannot add user!! duplicate key exist");
   }
@@ -34,7 +34,7 @@ void UserMap::deleteUser(int fd) {
     throw std::invalid_argument("Cannot delete user!! no such user");
     return;
   }
-  
+
   userMap.erase(fdMapResult);
   nicknameMap.erase(nicknameMapResult);
 }
@@ -61,7 +61,7 @@ User &UserMap::findUser(std::string nickname) {
   if (result == nicknameMap.end()) {
     throw std::invalid_argument("cannot find user");
   }
-  return *result->second;
+  return *(result->second);
 }
 
 bool UserMap::exists(int fd) const {
