@@ -12,9 +12,9 @@ static void parseParameter(std::string parameter,
   // trailer가 존재할 경우 해당 값을 별도로 저장하고 parameter 문자열에서 삭제
   size_t pos;
   if ((pos = parameter.find(trailerDelimeter)) != std::string::npos &&
-      !parameter.substr(pos + trailerDelimeter.length()).empty()) {
+      !parameter.substr(pos).empty()) {
     tr = parameter.substr(pos + trailerDelimeter.length());
-    TrailerExists = true;
+    TrailerExists = !tr.empty();
     parameter.erase(pos);
   }
 
