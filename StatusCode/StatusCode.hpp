@@ -6,7 +6,7 @@
 #include <string>
 
 #define RPL_WELCOME "001"  // connect is success
-
+#define RPL_YOURHOST "002"
 #define RPL_BOUNCE "005"  // server is already fully
 #define RPL_AWAY "301"    // When an invited user is temporarily away (INVITE)
 #define RPL_CHANNELMODEIS "324"  // if a user joins the channel, informs the
