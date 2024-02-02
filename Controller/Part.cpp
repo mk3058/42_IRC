@@ -3,7 +3,8 @@
 Part::Part(Request req, User *user) : ICommand(req, user) {
   param = true;
   this->channelMap = &Server::getInstance().getChannelMap();
-  if (!req.parameter().getParameters().size()) param = false;
+  if (!req.parameter().getParameters().size())
+    param = false;
   else if (channelMap->exists(req.parameter().getParameters()[0].substr(1))) {
     this->channel = &(
         channelMap->findChannel(req.parameter().getParameters()[0].substr(1)));
@@ -15,10 +16,10 @@ void Part::execute() {
   if (!checkPermit()) return;
   // 메시지 모든 채널에 속한 유저에게 전송 자신에게도 전송해야해서 메시지부터
   // 보냄
-  std::vector<std::string> emptyVec;
-  msg = Response::build(
-      req.command().getCommand(), emptyVec, req.parameter().getParameters()[0],
-      user->getNickname() + "!" + user->getUsername() + "@" DEFAULT_PREFIX);
+  msg = Response::build(req.command().getCommand(),
+                        req.parameter().getParameters(),
+                        req.parameter().getTrailer(),
+                        user->getNickname() + "!" + user->getUsername());
   write_cnt = channel->getUsers().getSize();
   for (int i = 0; i < write_cnt; ++i)
     FD_SET(channel->getUsers().findAllUsers()[i]->getfd(), &fd_write);
@@ -34,23 +35,30 @@ void Part::execute() {
 }
 
 bool Part::checkPermit() {
+  std::vector<std::string> params;
   int fd = user->getfd();
   FD_SET(fd, &fd_write);
-  if (param == false)
-  {
-    msg = Response::error(ERR_NEEDMOREPARAMS, *user, &fd_write, "parameter error(part)");
+
+  // 파라미터 부족
+  if (param == false) {
+    msg = Response::build(ERR_NEEDMOREPARAMS, params, "More Parameter Needed!");
     Server::getInstance().bufferMessage(msg, 1, &fd_write);
     return (false);
   }
+  // 채널이 없음
   if (!channelMap->exists(req.parameter().getParameters()[0].substr(1))) {
-    msg = Response::error(ERR_NOSUCHCHANNEL, *user, &fd_write,
-                          "wrong channel name");
+    params.push_back(user->getNickname());
+    params.push_back(req.parameter().getParameters()[0]);
+    msg = Response::build(ERR_NOSUCHCHANNEL, params, "No such channel!");
     Server::getInstance().bufferMessage(msg, 1, &fd_write);
     return (false);
   }
+  // 요청 유저가 해당 채널에 참여중이지 않음
   if (!channel->getUsers().exists(user->getfd())) {
-    msg = Response::error(ERR_NOTONCHANNEL, *user, &fd_write,
-                          "you are not on channel");
+    params.push_back(user->getNickname());
+    params.push_back(req.parameter().getParameters()[0]);
+    msg = Response::build(ERR_USERNOTINCHANNEL, params,
+                          "You're not on the channel!");
     Server::getInstance().bufferMessage(msg, 1, &fd_write);
     return (false);
   }
