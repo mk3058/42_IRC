@@ -8,30 +8,34 @@ UserMap::~UserMap() {}
 
 void UserMap::addUser(int fd, User user) {
   std::pair<std::map<int, User>::iterator, bool> fdMapResult;
-  std::pair<std::map<std::string, User>::iterator, bool> nicknameMapResult;
+  std::pair<std::map<std::string, User *>::iterator, bool> nicknameMapResult;
 
   fdMapResult = userMap.insert(std::make_pair(fd, user));
+  if (!fdMapResult.second) {
+    throw std::invalid_argument("Cannot add user!! duplicate key exist");
+  }
   nicknameMapResult =
-      nicknameMap.insert(std::make_pair(user.getNickname(), user));
-  if (!fdMapResult.second || !nicknameMapResult.second) {
+      nicknameMap.insert(std::make_pair(user.getNickname(), &user));
+  if (!nicknameMapResult.second) {
     throw std::invalid_argument("Cannot add user!! duplicate key exist");
   }
 }
 
 void UserMap::deleteUser(int fd) {
   std::map<int, User>::iterator fdMapResult = userMap.find(fd);
-  std::map<std::string, User>::iterator nicknameMapResult =
-      nicknameMap.find(fdMapResult->second.getNickname());
-
-  if (fdMapResult == userMap.end() || nicknameMapResult == nicknameMap.end()) {
+  if (fdMapResult == userMap.end()) {
     throw std::invalid_argument("Cannot delete user!! no such user");
     return;
   }
-  userMap.erase(fdMapResult);
+
+  std::map<std::string, User *>::iterator nicknameMapResult =
+      nicknameMap.find(fdMapResult->second.getNickname());
   if (nicknameMapResult == nicknameMap.end()) {
     throw std::invalid_argument("Cannot delete user!! no such user");
     return;
   }
+
+  userMap.erase(fdMapResult);
   nicknameMap.erase(nicknameMapResult);
 }
 
@@ -52,12 +56,12 @@ User &UserMap::findUser(int fd) {
 int UserMap::getSize() const { return this->userMap.size(); }
 
 User &UserMap::findUser(std::string nickname) {
-  std::map<std::string, User>::iterator result = nicknameMap.find(nickname);
+  std::map<std::string, User *>::iterator result = nicknameMap.find(nickname);
 
   if (result == nicknameMap.end()) {
     throw std::invalid_argument("cannot find user");
   }
-  return result->second;
+  return *result->second;
 }
 
 bool UserMap::exists(int fd) const {
@@ -67,7 +71,7 @@ bool UserMap::exists(int fd) const {
 }
 
 bool UserMap::exists(std::string nickname) const {
-  std::map<std::string, User>::const_iterator result =
+  std::map<std::string, User *>::const_iterator result =
       nicknameMap.find(nickname);
 
   return result != nicknameMap.end();
