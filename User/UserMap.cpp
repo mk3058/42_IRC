@@ -28,10 +28,6 @@ void UserMap::deleteUser(int fd) {
     return;
   }
   userMap.erase(fdMapResult);
-  if (nicknameMapResult == nicknameMap.end()) {
-    throw std::invalid_argument("Cannot delete user!! no such user");
-    return;
-  }
   nicknameMap.erase(nicknameMapResult);
 }
 
