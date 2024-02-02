@@ -21,6 +21,9 @@ void Join::execute() {
   user->joinChannel(req.parameter().getParameters()[0].substr(1), channel);
   // 채널에도 유저추가
   channel->addUser(*user);
+  //초대리스트에선 뺴기
+  if (channel->getInvitedUsers().exists(user->getfd()))
+    channel->getInvitedUsers().deleteUser(user->getfd());
   // 유저 들어왔다는 메시지 전송
   msg = Response::build(req.command().getCommand(),
                         req.parameter().getParameters(),
