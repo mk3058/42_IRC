@@ -139,6 +139,10 @@ void Server::receiveMessage(int fd) {
     std::string message = recvBuffers[fd].substr(0, pos + 2);
     recvBuffers[fd].erase(0, pos + 2);
 
+    // 빈 문자열일경우 무시
+    if (!message.compare("\r\n")) {
+      break;
+    }
     // 완전한 메시지일 경우에만 요청 실행
     try {
       Request request(message);
@@ -148,8 +152,7 @@ void Server::receiveMessage(int fd) {
       std::cerr << e.what() << '\n';
     }
   }
-  if (recvBuffers[fd].size() > 1024)
-  {
+  if (recvBuffers[fd].size() > 1024) {
     this->quitChUser(fd);
     this->delUser(fd);
   }
@@ -205,8 +208,7 @@ std::string Server::getPassword() { return this->password; }
 
 int *Server::getUsedfd() { return this->used_fd; }
 
-void Server::delUser(int fd)
-{
+void Server::delUser(int fd) {
   close(fd);
   recvBuffers.erase(fd);
   sendBuffers.erase(fd);
@@ -217,9 +219,8 @@ void Server::delUser(int fd)
   std::cout << "client #" << fd << " gone away" << std::endl;
 }
 
-
 void Server::quitChUser(int fd) {
-  User *user = &(this->getUserMap().findUser(fd)); 
+  User *user = &(this->getUserMap().findUser(fd));
   if (!user->getChannels().size()) return;
   for (std::map<std::string, Channel *>::iterator it =
            user->getChannels().begin();
@@ -228,19 +229,15 @@ void Server::quitChUser(int fd) {
   }
   ChannelMap &chm = this->getChannelMap();
   std::map<std::string, Channel>::iterator it = chm.getChannelMap().begin();
-  while (chm.getSize())
-  {
+  while (chm.getSize()) {
     std::map<std::string, Channel>::iterator temp;
-    if (!(it->second.getUsers().getSize()))
-    {
+    if (!(it->second.getUsers().getSize())) {
       temp = it;
       temp++;
       chm.deleteChannel(it->first);
       it = temp;
-    }
-    else
+    } else
       it++;
-    if (it == chm.getChannelMap().end())
-      break ;
+    if (it == chm.getChannelMap().end()) break;
   }
 }
