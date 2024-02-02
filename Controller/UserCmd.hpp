@@ -15,6 +15,8 @@ class UserCmd : public ICommand {
   bool checkname(std::string name);
   void welcome();
   void yourHost();
-};
+  void creatTime();
+  void myInfo();
+  };
 
 #endif

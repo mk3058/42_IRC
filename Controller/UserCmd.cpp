@@ -7,30 +7,17 @@ void UserCmd::execute() {
   Server &server = Server::getInstance();
   if (!req.parameter().getParameters().size())
   {
-    msg = Response::error(ERR_NEEDMOREPARAMS, *(this->user), &fd_write);
-    FD_SET(user->getfd(), &fd_write);
-    server.bufferMessage(msg, 1, &fd_write);
+    server.quitChUser(user->getfd());
+    server.delUser(user->getfd());
   }
   else if (!checkPermit())  // 아직 앞 단계 인증이 안됐을때
   {
-    this->msg = Response::error(ERR_NOTREGISTERED, *(this->user), &fd_write);
-    FD_SET(user->getfd(), &fd_write);
-    server.bufferMessage(msg, 1, &fd_write);
-    std::vector<std::string> param;
-    param.push_back("*");
-    msg.clear();
-    this->msg = Response::build("NOTICE", param, "Not yet resistered");
-    FD_SET(user->getfd(), &fd_write);
-    server.bufferMessage(msg, 1, &fd_write);
     server.quitChUser(user->getfd());
     server.delUser(user->getfd());
   } else  // 인증 단계일때
   {
     if (!checkname(req.parameter().getParameters()[0]))  // 유저 네임 이상할때
     {
-      this->msg = Response::error(ERR_NEEDMOREPARAMS, *(this->user), &fd_write);
-      FD_SET(user->getfd(), &fd_write);
-      server.bufferMessage(msg, 1, &fd_write);
       server.quitChUser(user->getfd());
       server.delUser(user->getfd());
     } else  // 인증 성공 했을 때
@@ -39,6 +26,7 @@ void UserCmd::execute() {
                                       req.parameter().getParameters()[0]);
       this->welcome();
       this->yourHost();
+      this->creatTime();
       server.getcerti()[user->getfd()] = 3;
       std::cout << user->getfd() << "(Client) is resistered" << std::endl;
     }
@@ -97,4 +85,30 @@ void UserCmd::yourHost()
   FD_SET(user->getfd(), &fd_write);
   server.bufferMessage(msg, 1, &fd_write);
   msg.clear();
+}
+
+void UserCmd::creatTime()
+{
+  Server &server = Server::getInstance();
+  std::ostringstream oss;
+  time_t t = server.getTime();
+  struct tm* timeinfo = localtime(&t);
+  std::vector<std::string> param;
+  param.push_back(user->getNickname());
+
+  char buf[50];
+  memset(buf, 0, sizeof(buf));
+  strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", timeinfo);
+  oss << "This server was created " << buf;
+  std::string trailer;
+  trailer = oss.str();
+  msg = Response::build(RPL_CREATED, param, trailer);
+  FD_SET(user->getfd(), &fd_write);
+  server.bufferMessage(msg, 1, &fd_write);
+  msg.clear();
+}
+
+void UserCmd::myInfo()
+{
+  
 }
