@@ -28,6 +28,8 @@
 // #define RPL_EXCEPTLIST "348"  // when the exception list is set and a user
 // checks the list. (MODE +e) #define RPL_ENDOFEXCEPTLIST "349"  //
 // after code 348, to signal completion of the inquiry (MODE +e)
+#define RPL_NAMREPLY "353"
+#define RPL_ENDOFNAMES "366"
 #define ERR_NOSUCHNICK \
   "401"  // nickname or channel not found on the server (INVITE)
 #define ERR_NOSUCHCHANNEL "403"     // no such channel (JOIN, PART, KICK)
