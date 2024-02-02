@@ -23,7 +23,15 @@ void UserMap::deleteUser(int fd) {
   std::map<std::string, User>::iterator nicknameMapResult =
       nicknameMap.find(fdMapResult->second.getNickname());
 
+  if (fdMapResult == userMap.end() || nicknameMapResult == nicknameMap.end()) {
+    throw std::invalid_argument("Cannot delete user!! no such user");
+    return;
+  }
   userMap.erase(fdMapResult);
+  if (nicknameMapResult == nicknameMap.end()) {
+    throw std::invalid_argument("Cannot delete user!! no such user");
+    return;
+  }
   nicknameMap.erase(nicknameMapResult);
 }
 
