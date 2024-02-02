@@ -1,4 +1,5 @@
 #include "UserCmd.hpp"
+#include <sstream>
 
 UserCmd::UserCmd(Request request, User *user) : ICommand(request, user) {}
 
@@ -36,25 +37,8 @@ void UserCmd::execute() {
     {
       server.getUserMap().setUsername(user->getfd(),
                                       req.parameter().getParameters()[0]);
-      std::vector<std::string> param;
-      param.push_back(user->getNickname());
-      std::string trailer = user->getNickname();
-      trailer += " :Welcome to the ircserv.com Network, ";
-      trailer += user->getNickname();
-      trailer += "[!";
-      trailer += user->getUsername();
-      trailer += "@";
-      trailer += "]";
-      sockaddr_in addr;
-      socklen_t addr_len = sizeof(server.getstruct());
-      getsockname(server.getsockfd(), (struct sockaddr *)&addr, &addr_len);
-      trailer += inet_ntoa(addr.sin_addr);
-      trailer += "]";
-      msg = Response::build(RPL_WELCOME, param, trailer);
-      FD_SET(user->getfd(), &fd_write);
-      server.bufferMessage(msg, 1, &fd_write);
-      msg.clear();
-      server.bufferMessage(msg, 1, &fd_write);
+      this->welcome();
+      this->yourHost();
       server.getcerti()[user->getfd()] = 3;
       std::cout << user->getfd() << "(Client) is resistered" << std::endl;
     }
@@ -78,4 +62,39 @@ bool UserCmd::checkname(std::string name) {
     if (!std::isalnum(name[i])) return false;
   }
   return true;
+}
+
+void UserCmd::welcome()
+{
+  Server &server = Server::getInstance();
+  std::vector<std::string> param;
+  param.push_back(user->getNickname());
+  sockaddr_in addr;
+  socklen_t addr_len = sizeof(server.getstruct());
+  getsockname(server.getsockfd(), (struct sockaddr *)&addr, &addr_len);
+  std::ostringstream oss;
+  oss << "Welcome to the ircserv.com Network, " <<\
+  "" << user->getNickname() << "[!" << user->getUsername() << "@" << inet_ntoa(addr.sin_addr) \
+  << "]";
+  std::string trailer = oss.str();
+  msg = Response::build(RPL_WELCOME, param, trailer);
+  FD_SET(user->getfd(), &fd_write);
+  server.bufferMessage(msg, 1, &fd_write);
+  msg.clear();
+}
+
+void UserCmd::yourHost()
+{
+  std::string trailer;
+  Server &server = Server::getInstance();
+  std::vector<std::string> param;
+  param.push_back(user->getNickname());
+  std::ostringstream oss;
+  oss << "Your host is ircserv.com, running version "\
+  << "1.4.5";
+  trailer = oss.str();
+  msg = Response::build(RPL_YOURHOST, param, trailer);
+  FD_SET(user->getfd(), &fd_write);
+  server.bufferMessage(msg, 1, &fd_write);
+  msg.clear();
 }
