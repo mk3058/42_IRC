@@ -106,7 +106,7 @@ void UserCmd::myInfo()
     
   param.push_back(user->getNickname());
   param.push_back("ircserv.com");
-  param.push_back("1.4.5");
+  param.push_back("42irc-1");
   param.push_back("-");
   param.push_back("iotlk");
   param.push_back("lk");
