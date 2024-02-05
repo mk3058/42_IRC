@@ -61,6 +61,7 @@ void Join::execute() {
   // 채널에 속한 모든 유저에게 메시지 전송위해서 플래그 설정
   for (int i = 0; i < write_cnt; ++i)
     FD_SET(channel->getUsers().findAllUsers()[i]->getfd(), &fd_write);
+  
   // 유저 들어왔다는 메시지 전송
   msg = Response::build(req.command().getCommand(),
                         req.parameter().getParameters(),
