@@ -64,5 +64,6 @@
 #define ERR_NORECIPIENT "411"  // no recipient (PRIVMSG, NOTICE)
 #define ERR_NOTEXTTOSEND "412"  // no text to send (PRIVMSG, NOTICE)
 #define ERR_CANNOTSENDTOCHAN "404"  // cannot send to channel (PRIVMSG, NOTICE)
+#define PRL_WHOREPLY "354"           // WHO command
 
 #endif
