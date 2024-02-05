@@ -9,6 +9,7 @@ Server::Server(std::string password, int port) {
   this->password = password;
   this->port = port;
 
+  serverStartTime = time(NULL);
   totalUsers = 0;
   memset(certi, 0, sizeof(certi));
   memset(used_fd, 0, sizeof(used_fd));
@@ -16,7 +17,6 @@ Server::Server(std::string password, int port) {
   if (socket_fd == -1) {
     throw std::runtime_error("Failed to create socket");
   }
-  struct sockaddr_in sin;
   sin.sin_family = AF_INET;
   sin.sin_addr.s_addr = INADDR_ANY;
   sin.sin_port = htons(port);
@@ -41,10 +41,6 @@ void Server::connect() {
   fcntl(cs, F_SETFL, O_NONBLOCK);
   if (cs == -1) throw std::runtime_error("Accept function failed");
   if (totalUsers > 997) {
-    std::vector<std::string> emptyParam;
-    std::string msg = Response::build("NOTICE", emptyParam, "Server is full");
-    FD_SET(cs, &fd_write);
-    Server::getInstance().bufferMessage(msg, 1, &fd_write);
     close(cs);
     std::cout << "New client " << cs << " from " << inet_ntoa(csin.sin_addr)
               << ":" << ntohs(csin.sin_port) << "is refused !" << std::endl;
@@ -241,3 +237,8 @@ void Server::quitChUser(int fd) {
     if (it == chm.getChannelMap().end()) break;
   }
 }
+
+struct sockaddr_in Server::getstruct() { return sin; }
+int Server::getsockfd() { return socket_fd; }
+
+time_t Server::getTime() { return serverStartTime; }

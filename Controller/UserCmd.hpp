@@ -13,6 +13,11 @@ class UserCmd : public ICommand {
   int getCount() const;
   std::string getResponse() const;
   bool checkname(std::string name);
-};
+  void welcome();
+  void yourHost();
+  void creatTime();
+  void myInfo();
+  void isSuppot();
+  };
 
 #endif

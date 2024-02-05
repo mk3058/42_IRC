@@ -51,7 +51,7 @@ bool Kick::checkPermit() {
   // 채널이 없음
   if (!channelMap->exists(req.parameter().getParameters()[0].substr(1))) {
     params.push_back(user->getNickname());
-    params.push_back(req.parameter().getParameters()[0].substr(1));
+    params.push_back(req.parameter().getParameters()[0]);
     msg = Response::build(ERR_NOSUCHCHANNEL, params, "No such channel!");
     Server::getInstance().bufferMessage(msg, 1, &fd_write);
     return (false);

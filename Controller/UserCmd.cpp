@@ -1,53 +1,30 @@
 #include "UserCmd.hpp"
+#include <sstream>
 
 UserCmd::UserCmd(Request request, User *user) : ICommand(request, user) {}
 
 void UserCmd::execute() {
   Server &server = Server::getInstance();
-  if (!req.parameter().getParameters().size())
+  if (!req.parameter().getParameters().size() || !checkPermit() \
+    || !checkname(req.parameter().getParameters()[0]))
   {
-    msg = Response::error(ERR_NEEDMOREPARAMS, *(this->user), &fd_write);
-    FD_SET(user->getfd(), &fd_write);
-    server.bufferMessage(msg, 1, &fd_write);
-  }
-  else if (!checkPermit())  // 아직 앞 단계 인증이 안됐을때
-  {
-    this->msg = Response::error(ERR_NOTREGISTERED, *(this->user), &fd_write);
-    FD_SET(user->getfd(), &fd_write);
-    server.bufferMessage(msg, 1, &fd_write);
-    std::vector<std::string> param;
-    param.push_back("*");
-    msg.clear();
-    this->msg = Response::build("NOTICE", param, "Not yet resistered");
-    FD_SET(user->getfd(), &fd_write);
-    server.bufferMessage(msg, 1, &fd_write);
     server.quitChUser(user->getfd());
     server.delUser(user->getfd());
-  } else  // 인증 단계일때
-  {
-    if (!checkname(req.parameter().getParameters()[0]))  // 유저 네임 이상할때
-    {
-      this->msg = Response::error(ERR_NEEDMOREPARAMS, *(this->user), &fd_write);
-      FD_SET(user->getfd(), &fd_write);
-      server.bufferMessage(msg, 1, &fd_write);
-      server.quitChUser(user->getfd());
-      server.delUser(user->getfd());
-    } else  // 인증 성공 했을 때
+  }
+  else  // 인증 성공 했을 때
     {
       server.getUserMap().setUsername(user->getfd(),
                                       req.parameter().getParameters()[0]);
-      std::vector<std::string> param;
-      param.push_back(user->getNickname());
-      msg = Response::build(RPL_WELCOME, param, "welcome");
-      FD_SET(user->getfd(), &fd_write);
-      server.bufferMessage(msg, 1, &fd_write);
-      msg.clear();
-      server.bufferMessage(msg, 1, &fd_write);
+      this->welcome();
+      this->yourHost();
+      this->creatTime();
+      this->myInfo();
+      this->isSuppot();
       server.getcerti()[user->getfd()] = 3;
       std::cout << user->getfd() << "(Client) is resistered" << std::endl;
     }
   }
-}
+
 
 bool UserCmd::checkPermit() {
   if (Server::getInstance().getcerti()[user->getfd()] < 2)
@@ -66,4 +43,95 @@ bool UserCmd::checkname(std::string name) {
     if (!std::isalnum(name[i])) return false;
   }
   return true;
+}
+
+void UserCmd::welcome()
+{
+  Server &server = Server::getInstance();
+  std::vector<std::string> param;
+  param.push_back(user->getNickname());
+  sockaddr_in addr;
+  socklen_t addr_len = sizeof(server.getstruct());
+  getsockname(server.getsockfd(), (struct sockaddr *)&addr, &addr_len);
+  std::ostringstream oss;
+  oss << "Welcome to the ircserv.com Network, " <<\
+  "" << user->getNickname() << "[!" << user->getUsername() << "@" << inet_ntoa(addr.sin_addr) \
+  << "]";
+  std::string trailer = oss.str();
+  msg = Response::build(RPL_WELCOME, param, trailer);
+  FD_SET(user->getfd(), &fd_write);
+  server.bufferMessage(msg, 1, &fd_write);
+  msg.clear();
+}
+
+void UserCmd::yourHost()
+{
+  Server &server = Server::getInstance();
+  std::vector<std::string> param;
+  param.push_back(user->getNickname());
+  std::ostringstream oss;
+  oss << "Your host is ircserv.com, running version "\
+  << "1.4.5";
+  std::string trailer = oss.str();
+  msg = Response::build(RPL_YOURHOST, param, trailer);
+  FD_SET(user->getfd(), &fd_write);
+  server.bufferMessage(msg, 1, &fd_write);
+  msg.clear();
+}
+
+void UserCmd::creatTime()
+{
+  Server &server = Server::getInstance();
+  std::ostringstream oss;
+  time_t t = server.getTime();
+  struct tm* timeinfo = localtime(&t);
+  std::vector<std::string> param;
+  param.push_back(user->getNickname());
+
+  char buf[50];
+  memset(buf, 0, sizeof(buf));
+  strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", timeinfo);
+  oss << "This server was created " << buf;
+  std::string trailer = oss.str();
+  msg = Response::build(RPL_CREATED, param, trailer);
+  FD_SET(user->getfd(), &fd_write);
+  server.bufferMessage(msg, 1, &fd_write);
+  msg.clear();
+}
+
+void UserCmd::myInfo()
+{
+  Server &server = Server::getInstance();
+  std::vector<std::string> param;
+    
+  param.push_back(user->getNickname());
+  param.push_back("ircserv.com");
+  param.push_back("42irc-1");
+  param.push_back("-");
+  param.push_back("iotlk");
+  param.push_back("lk");
+
+  msg = Response::build(RPL_MYINFO, param);
+
+  FD_SET(user->getfd(), &fd_write);
+  server.bufferMessage(msg, 1, &fd_write);
+  msg.clear(); 
+}
+
+void UserCmd::isSuppot()
+{
+  Server &server = Server::getInstance();
+  std::vector<std::string> param;
+  param.push_back(user->getNickname());
+  param.push_back("CHANTYPES=#");
+  param.push_back("PREFIX=(ov)@+");
+  param.push_back("MAXCHANNELS=3");
+  param.push_back("CHANLIMIT=#:1000");
+  param.push_back("NICKLEN=10");
+  param.push_back("NETWORK=ircserv.com");
+  std::string trailer = "are supported by ircserv.com";
+  msg = Response::build(RPL_ISUPPORT, param, trailer);
+  FD_SET(user->getfd(), &fd_write);
+  server.bufferMessage(msg, 1, &fd_write);
+  msg.clear();
 }

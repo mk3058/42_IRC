@@ -4,22 +4,13 @@ Pass::Pass(Request request, User *user) : ICommand(request, user) {}
 
 void Pass::execute() {
   Server &server = Server::getInstance();
-  if (req.parameter().getParameters().size() != 1)  // 파라미터 갯수 안맞을때
+  if (req.parameter().getParameters().size() != 1 || 
+    server.auth(req.parameter().getParameters()[0]) == 0)  // 파라미터 갯수 안맞을때
   {
-    this->msg = Response::error(ERR_NEEDMOREPARAMS, *(this->user), &fd_write);
-    FD_SET(user->getfd(), &fd_write);
-    server.bufferMessage(msg, 1, &fd_write);
     server.quitChUser(user->getfd());
     server.delUser(user->getfd());
-  } else if (server.auth(req.parameter().getParameters()[0]) ==
-             0)  // 비밀번호 틀린 경우
-  {
-    this->msg = Response::error(ERR_PASSWDMISMATCH, *(this->user), &fd_write);
-    FD_SET(user->getfd(), &fd_write);
-    server.bufferMessage(msg, 1, &fd_write);
-    server.quitChUser(user->getfd());
-    server.delUser(user->getfd());
-  } else  // 성공했을 경우
+  }
+  else  // 성공했을 경우
   {
     server.getcerti()[user->getfd()] = 1;
     std::vector<std::string> param;
@@ -28,7 +19,7 @@ void Pass::execute() {
     FD_SET(user->getfd(), &fd_write);
     server.bufferMessage(msg, 1, &fd_write);
     msg.clear();
-    this->msg = Response::build("NOTICE", param, "PLZ INPUT USERNAME");
+    this->msg = Response::build("NOTICE", param, "PLZ INPUT NICKNAME");
     FD_SET(user->getfd(), &fd_write);
     server.bufferMessage(msg, 1, &fd_write);
   }

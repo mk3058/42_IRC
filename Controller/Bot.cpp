@@ -15,7 +15,7 @@ void Bot::execute() {
   param.push_back(nickname);
   std::string msg =
       Response::build(req.command().getCommand(), param,
-                      this->findmenu(req.parameter().getTrailer()), "BOT");
+                      this->findmenu(req.parameter().getTrailer()), "BOT-42");
   fd_set fd_write;
   FD_ZERO(&fd_write);
   FD_SET(user_fd, &fd_write);

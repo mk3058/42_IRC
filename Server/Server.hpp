@@ -39,6 +39,8 @@ class Server {
   int certi[1000];
   int totalUsers;
   int socket_fd;
+  time_t serverStartTime;
+  struct sockaddr_in sin;
   std::string password;
   int port;
   UserMap userMap;
@@ -60,10 +62,13 @@ class Server {
   int &gettotalUsers();
   int *getcerti();
   int *getUsedfd();
+  int getsockfd();
+  time_t getTime();
   std::string getPassword();
   void receiveMessage(int fd);
   void quitChUser(int fd);
   void delUser(int fd);
+  struct sockaddr_in getstruct();
   void bufferMessage(const std::string ResMsg, int write_cnt, fd_set *fd_write);
   static void initialize(std::string password, int port);
   static Server &getInstance();

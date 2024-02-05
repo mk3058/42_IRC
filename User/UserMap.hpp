@@ -8,7 +8,7 @@
 class UserMap {
  private:
   std::map<int, User> userMap;
-  std::map<std::string, User> nicknameMap;
+  std::map<std::string, User *> nicknameMap;
 
  public:
   UserMap();
