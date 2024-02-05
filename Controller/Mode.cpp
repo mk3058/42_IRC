@@ -121,10 +121,10 @@ int mode = this->channel->getMode();
 }
 
 bool Mode::checkParam(unsigned long cnt) {
+  std::vector<std::string> params;
   FD_SET(user->getfd(), &fd_write);
   if (req.parameter().getParameters().size() < cnt) {
-    std::string msg = Response::error(ERR_NEEDMOREPARAMS, *user, &fd_write,
-                                      "need more params");
+    msg = Response::build(ERR_NEEDMOREPARAMS, params, "More Parameter Needed!");
     Server::getInstance().bufferMessage(msg, 1, &fd_write);
     return (false);
   }
@@ -137,10 +137,20 @@ void Mode::execute() {
   std::string type = req.parameter().getParameters()[1];
   int flag;
   if (type.at(1) == 'k') flag = kmode(type);
-  if (type.at(1) == 'i') flag = imode(type);
-  if (type.at(1) == 'l') flag = lmode(type);
-  if (type.at(1) == 'o') flag = omode(type);
-  if (type.at(1) == 't') flag = tmode(type);
+  else if (type.at(1) == 'i') flag = imode(type);
+  else if (type.at(1) == 'l') flag = lmode(type);
+  else if (type.at(1) == 'o') flag = omode(type);
+  else if (type.at(1) == 't') flag = tmode(type);
+  else
+  {
+    std::vector<std::string> params;
+    params.push_back(user->getNickname());
+    params.push_back(req.parameter().getParameters()[0]);
+    FD_SET(user->getfd(), &fd_write);
+    msg = Response::build(ERR_UNKNOWNMODE, params, "unknownmode");
+    Server::getInstance().bufferMessage(msg, 1, &fd_write);
+    flag = false;
+  }
   // 각 모드에서 에러 인경우
   if (!flag) return;
   std::string msg = Response::build(req.command().getCommand(),
@@ -151,30 +161,33 @@ void Mode::execute() {
   for (int i = 0; i < write_cnt; ++i)
     FD_SET(channel->getUsers().findAllUsers()[i]->getfd(), &fd_write);
   Server::getInstance().bufferMessage(msg, write_cnt, &fd_write);
-  ;
 }
 
 bool Mode::checkPermit() {
+  std::vector<std::string> params;
   int fd = user->getfd();
   FD_SET(fd, &fd_write);
   // 채널명이 잘못됨
   if (param == false)
   {
-    msg = Response::error(ERR_NEEDMOREPARAMS, *user, &fd_write, "parameter error(mode)");
+    msg = Response::build(ERR_NEEDMOREPARAMS, params, "More Parameter Needed!");
     Server::getInstance().bufferMessage(msg, 1, &fd_write);
     return (false);
   }
   if (!channelMap->exists(req.parameter().getParameters()[0].substr(1))) {
-    msg = Response::error(ERR_NOSUCHCHANNEL, *user, &fd_write,
-                          "wrong channel name");
+    params.push_back(user->getNickname());
+    params.push_back(req.parameter().getParameters()[0]);
+    msg = Response::build(ERR_NOSUCHCHANNEL, params, "No such channel!");
     Server::getInstance().bufferMessage(msg, 1, &fd_write);
     return (false);
   }
   // 권한확인이 먼저
   int upermission = channel->getUserPermits()[user->getfd()];
   if (!(upermission & USERMODE_SUPER)) {
-    msg = Response::error(ERR_CHANOPRIVSNEEDED, *user, &fd_write,
-                          "you are not operator");
+    params.push_back(user->getNickname());
+    params.push_back("#" + channel->getName());
+    msg = Response::build(ERR_CHANOPRIVSNEEDED, params,
+                          "You're not channel operator!");
     Server::getInstance().bufferMessage(msg, 1, &fd_write);
     return (false);
   }
