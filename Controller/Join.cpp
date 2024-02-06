@@ -25,7 +25,20 @@ void Join::execute() {
   if (channel->getInvitedUsers().exists(user->getfd()))
     channel->getInvitedUsers().deleteUser(user->getfd());
 
+  // 채널에 속한 모든 유저에게 메시지 전송위해서 플래그 설정
+  write_cnt = channel->getUsers().getSize();
+  for (int i = 0; i < write_cnt; ++i)
+    FD_SET(channel->getUsers().findAllUsers()[i]->getfd(), &fd_write);
+
+  // 유저 들어왔다는 메시지 전송
+  msg = Response::build(
+      req.command().getCommand(), req.parameter().getParameters(),
+      "user " + user->getNickname() + " join this channel",
+      user->getNickname() + "!" + user->getUsername() + "@" DEFAULT_PREFIX);
+  Server::getInstance().bufferMessage(msg, write_cnt, &fd_write);
+
   // 들어온 유저한테 보내줘야할 메시지 셋팅
+  FD_ZERO(&fd_write);
   FD_SET(user->getfd(), &fd_write);
   std::vector<std::string> tmp;
   const Parameter &params = req.parameter();
@@ -38,7 +51,7 @@ void Join::execute() {
   }
   // 유저리스트 만들기
   std::string usersName;
-  write_cnt = channel->getUsers().getSize();
+  
   for (int i = 0; i < write_cnt; ++i) {
     User *tmp_usr = channel->getUsers().findAllUsers()[i];
     if (channel->getUserPermits()[tmp_usr->getfd()] & USERMODE_SUPER)
@@ -57,16 +70,7 @@ void Join::execute() {
   msg = Response::build(RPL_ENDOFNAMES, tmp, ":End of /NAMES list");
   Server::getInstance().bufferMessage(msg, 1, &fd_write);
 
-  // 채널에 속한 모든 유저에게 메시지 전송위해서 플래그 설정
-  for (int i = 0; i < write_cnt; ++i)
-    FD_SET(channel->getUsers().findAllUsers()[i]->getfd(), &fd_write);
 
-  // 유저 들어왔다는 메시지 전송
-  msg = Response::build(
-      req.command().getCommand(), req.parameter().getParameters(),
-      "user " + user->getNickname() + " join this channel",
-      user->getNickname() + "!" + user->getUsername() + "@" DEFAULT_PREFIX);
-  Server::getInstance().bufferMessage(msg, write_cnt, &fd_write);
 }
 
 bool Join::checkPermit(int fd) {
