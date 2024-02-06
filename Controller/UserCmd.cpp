@@ -19,7 +19,6 @@ void UserCmd::execute() {
       this->yourHost();
       this->creatTime();
       this->myInfo();
-      this->isSuppot();
       server.getcerti()[user->getfd()] = 3;
       std::cout << user->getfd() << "(Client) is resistered" << std::endl;
     }
@@ -116,22 +115,4 @@ void UserCmd::myInfo()
   FD_SET(user->getfd(), &fd_write);
   server.bufferMessage(msg, 1, &fd_write);
   msg.clear(); 
-}
-
-void UserCmd::isSuppot()
-{
-  Server &server = Server::getInstance();
-  std::vector<std::string> param;
-  param.push_back(user->getNickname());
-  param.push_back("CHANTYPES=#");
-  param.push_back("PREFIX=(ov)@+");
-  param.push_back("MAXCHANNELS=3");
-  param.push_back("CHANLIMIT=#:1000");
-  param.push_back("NICKLEN=10");
-  param.push_back("NETWORK=ircserv.com");
-  std::string trailer = "are supported by ircserv.com";
-  msg = Response::build(RPL_ISUPPORT, param, trailer);
-  FD_SET(user->getfd(), &fd_write);
-  server.bufferMessage(msg, 1, &fd_write);
-  msg.clear();
 }

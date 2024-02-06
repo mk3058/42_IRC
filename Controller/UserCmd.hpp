@@ -17,7 +17,6 @@ class UserCmd : public ICommand {
   void yourHost();
   void creatTime();
   void myInfo();
-  void isSuppot();
-  };
+};
 
 #endif
