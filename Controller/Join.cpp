@@ -57,16 +57,6 @@ void Join::execute() {
   msg = Response::build(RPL_ENDOFNAMES, tmp, ":End of /NAMES list");
   Server::getInstance().bufferMessage(msg, 1, &fd_write);
 
-  tmp2.clear();
-  tmp2.push_back(user->getNickname());
-  tmp2.push_back(params.getParameters().at(0));
-  tmp2.push_back("ircserv.com");
-  tmp2.push_back(user->getNickname());
-  tmp2.push_back("H");
-  msg = Response::build(PRL_WHOREPLY, tmp2);
-  Server::getInstance().bufferMessage(msg.substr(0, msg.length() - 2), 1,
-                                      &fd_write);
-
   // 채널에 속한 모든 유저에게 메시지 전송위해서 플래그 설정
   for (int i = 0; i < write_cnt; ++i)
     FD_SET(channel->getUsers().findAllUsers()[i]->getfd(), &fd_write);
