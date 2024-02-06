@@ -57,7 +57,7 @@ bool Invite::checkPermit() {
   Channel &channel = serverChannels.findChannel(params.at(1).substr(1));
 
   if (channel.getMode() & INVITE_ONLY) {
-    return channel.getUserPermits().at(user->getfd()) == USERMODE_SUPER;
+    return channel.getUserPermits().at(user->getfd()) & USERMODE_SUPER;
   } else {
     return true;
   }
