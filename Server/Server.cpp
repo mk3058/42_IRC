@@ -103,10 +103,11 @@ void Server::bufferMessage(const std::string resMsg, int cnt, fd_set *target) {
 void Server::Send(int cnt) {
   for (int i = 0; i < MAX_USER; i++) {
     if (FD_ISSET(i, &fd_write)) {
-      std::string msg = sendBuffers.find(i)->second;
-      if (!msg.empty()) {
-        sendBuffers.find(i)->second.clear();
-        send(i, msg.c_str(), msg.length(), 0);
+      std::map<int, std::string>::iterator buf = sendBuffers.find(i);
+
+      if (buf != sendBuffers.end() && buf->second.size() > 0) {
+        send(i, buf->second.c_str(), buf->second.length(), 0);
+        buf->second.clear();
       }
       cnt--;
     }
