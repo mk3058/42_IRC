@@ -106,8 +106,13 @@ void Server::Send(int cnt) {
       std::map<int, std::string>::iterator buf = sendBuffers.find(i);
 
       if (buf != sendBuffers.end() && buf->second.size() > 0) {
-        send(i, buf->second.c_str(), buf->second.length(), 0);
-        buf->second.clear();
+        int bytes = send(i, buf->second.c_str(), buf->second.length(), 0);
+        if (bytes < 0) {
+          this->quitChUser(i);
+          this->delUser(i);
+        } else if (bytes > 0) {
+          buf->second.erase(0, bytes);
+        }
       }
       cnt--;
     }
