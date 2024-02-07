@@ -4,7 +4,7 @@
 
 [IRC(Internet Relay Chat)](https://en.wikipedia.org/wiki/Internet_Relay_Chat) 서버를 구현하는 프로젝트입니다.
 
-1. 개발 기간 : 2024.01.01 ~
+1. 개발 기간 : 2024.01.01 ~ 2024.02.07
 
 ## 💻 Features
 ```
